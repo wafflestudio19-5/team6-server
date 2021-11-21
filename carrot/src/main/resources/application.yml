@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local
+    active: prod
 
 ---
 
@@ -21,3 +21,21 @@ spring:
       hibernate:
         ddl-auto: create
 
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:mysql://waffle-team6-carrot.cramsypnh1ch.ap-northeast-2.rds.amazonaws.com:3306/waffle-team6-carrot?serverTimezone=UTC
+    username: admin
+    password: waffle-team6
+    sql:
+      init:
+        mode: always
+    jpa:
+      generate-ddl: true
+      hibernate:
+        ddl-auto: update
