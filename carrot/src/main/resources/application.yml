@@ -1,0 +1,23 @@
+spring:
+  profiles:
+    active: local
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/carrot?serverTimezone=UTC
+    username: waffle-spring
+    password: wafflestudio
+    sql:
+      init:
+        mode: always
+    jpa:
+      generate-ddl: true
+      hibernate:
+        ddl-auto: create
+
