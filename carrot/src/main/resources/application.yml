@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: local
 
 ---
 
@@ -11,7 +11,7 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/carrot?serverTimezone=UTC
-    username: waffle-spring
+    username: waffle-team6-server
     password: wafflestudio
     sql:
       init:
@@ -29,9 +29,9 @@ spring:
       on-profile: prod
 
   datasource:
-    url: jdbc:mysql://waffle-team6-carrot.cramsypnh1ch.ap-northeast-2.rds.amazonaws.com:3306/waffle-team6-carrot?serverTimezone=UTC
-    username: admin
-    password: waffle-team6
+    url: jdbc:mysql://waffle-team6-carrot.cramsypnh1ch.ap-northeast-2.rds.amazonaws.com:3306/carrot?serverTimezone=UTC
+    username: waffle-team6-server
+    password: wafflestudio
     sql:
       init:
         mode: always
