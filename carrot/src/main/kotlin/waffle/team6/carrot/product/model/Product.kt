@@ -1,7 +1,9 @@
 package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
+import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
+import waffle.team6.carrot.product.dto.ProductDto
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
@@ -18,7 +20,8 @@ class Product (
     @field:NotBlank
     var title: String,
 
-    // TODO: Contents
+    @field:Length(min = 1, max = 300)
+    var content: String,
 
     @field:PositiveOrZero
     var price: Long,
@@ -40,4 +43,18 @@ class Product (
 
     @field:PositiveOrZero
     var chat: Long
-) : BaseTimeEntity()
+) : BaseTimeEntity() {
+    constructor(productPostRequest: ProductDto.PostRequest): this(
+        // user = ...
+        // picture = productPostRequest.picture,
+        title = productPostRequest.title,
+        content = productPostRequest.content,
+        price = productPostRequest.price,
+        negotiable = productPostRequest.negotiable?: true,
+        category = productPostRequest.category,
+        location = productPostRequest.location,
+        hit = 1,
+        like = 0,
+        chat = 0
+    )
+}

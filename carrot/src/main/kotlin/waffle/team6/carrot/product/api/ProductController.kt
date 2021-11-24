@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.service.ProductService
+import waffle.team6.carrot.user.CurrentUser
+import waffle.team6.carrot.user.User
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -21,12 +24,14 @@ class ProductController (
             productService.getProductsByTitle(title)
     }
 
-    // TODO: POST "/"
     // post a new product for sale
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    fun addProducts() {
-
+    fun addProducts(
+        @CurrentUser user: User,
+        @RequestBody @Valid productPostRequest: ProductDto.PostRequest
+    ): ProductDto.Response {
+        return productService.addProducts(user, productPostRequest)
     }
 
     // TODO: GET "/{product_id}/"
