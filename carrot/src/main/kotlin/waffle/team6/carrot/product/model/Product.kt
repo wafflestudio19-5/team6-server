@@ -15,7 +15,8 @@ class Product (
 
     // TODO: Picture
 
-    // TODO: Title
+    @field:NotBlank
+    var title: String,
 
     // TODO: Contents
 
@@ -28,6 +29,9 @@ class Product (
     @field:NotBlank
     var category: String,
 
+    @field:NotBlank
+    val location: String,
+
     @field:PositiveOrZero
     var hit: Long,
 
@@ -36,4 +40,4 @@ class Product (
 
     @field:PositiveOrZero
     var chat: Long
-        ) : BaseTimeEntity()
+) : BaseTimeEntity()

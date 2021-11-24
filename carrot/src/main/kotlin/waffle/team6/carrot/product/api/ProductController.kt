@@ -2,6 +2,8 @@ package waffle.team6.carrot.product.api
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import waffle.team6.carrot.product.dto.ListResponse
+import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.service.ProductService
 
 @RestController
@@ -9,12 +11,14 @@ import waffle.team6.carrot.product.service.ProductService
 class ProductController (
     private val productService: ProductService
     ) {
-    // TODO: GET "/"
     // retrieve list of products (optional: by parameters)
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    fun getProducts() {
-
+    fun getProducts(@RequestParam(required = false) title: String?): ListResponse<ProductDto.SimpleResponse> {
+        return if (title == null)
+            productService.getProducts()
+        else
+            productService.getProductsByTitle(title)
     }
 
     // TODO: POST "/"

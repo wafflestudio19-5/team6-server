@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import waffle.team6.carrot.product.model.Product
 
 interface ProductRepository: JpaRepository<Product, Long?> {
-    // TODO
+    fun findAllContainingTitle(title: String): List<Product>
 }
