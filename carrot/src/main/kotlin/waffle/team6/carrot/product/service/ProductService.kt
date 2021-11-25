@@ -49,8 +49,10 @@ class ProductService (
         return ProductDto.Response(productRepository.save(product))
     }
 
-    fun deleteProduct() {
-
+    fun deleteProduct(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        // if (product.user != user) throw ProductDeleteByInvalidUserException()
+        productRepository.delete(product)
     }
 
     fun changeProductStatus() {

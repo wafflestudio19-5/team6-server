@@ -16,6 +16,7 @@ enum class ErrorType (
 
     PRODUCT_NOT_ALLOWED(3200),
     PRODUCT_MODIFY_NOT_ALLOWED(3201),
+    PRODUCT_DELETE_NOT_ALLOWED(3202),
 
     DATA_NOT_FOUND(4000),
     // error codes for NOT FOUND

@@ -1,6 +1,7 @@
 package waffle.team6.carrot.product.api
 
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
@@ -34,7 +35,6 @@ class ProductController (
         return productService.addProducts(user, productPostRequest)
     }
 
-    // TODO: GET "/{product_id}/"
     // retrieve information about specific product
     @GetMapping("/{product_id}/")
     @ResponseStatus(HttpStatus.OK)
@@ -42,7 +42,6 @@ class ProductController (
         return productService.getProduct(productId)
     }
 
-    // TODO: PUT "/{product_id}/"
     // update information about specific product
     @PutMapping("/{product_id}/")
     @ResponseStatus(HttpStatus.OK)
@@ -54,12 +53,15 @@ class ProductController (
         return productService.modifyProduct(user, productModifyRequest, productId)
     }
 
-    // TODO: DELETE "/{product_id}/"
     // delete information about specific product
     @DeleteMapping("/{product_id}/")
-    @ResponseStatus(HttpStatus.OK)
-    fun deleteProduct() {
-
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteProduct(
+        @CurrentUser user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Void> {
+        productService.deleteProduct(user, productId)
+        return ResponseEntity.noContent().build()
     }
 
     // TODO: PATCH "/{product_id}/"
