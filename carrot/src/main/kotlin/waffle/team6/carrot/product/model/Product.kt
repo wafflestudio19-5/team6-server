@@ -20,6 +20,7 @@ class Product (
     var images: List<String> = listOf(),
 
     @field:NotBlank
+    @Column(name = "title")
     var title: String,
 
     @field:Length(min = 1, max = 300)

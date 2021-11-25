@@ -20,7 +20,7 @@ class ProductService (
     }
 
     fun getProductsByTitle(title: String): ListResponse<ProductDto.SimpleResponse> {
-        return ListResponse(productRepository.findAllContainingTitle(title).map { ProductDto.SimpleResponse(it) })
+        return ListResponse(productRepository.findAllByTitleContaining(title).map { ProductDto.SimpleResponse(it) })
     }
 
     fun addProducts(user: User, productPostRequest: ProductDto.PostRequest): ProductDto.Response {
