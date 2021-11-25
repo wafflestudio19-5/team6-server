@@ -8,6 +8,7 @@ import waffle.team6.carrot.product.exception.ProductNotFoundException
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.user.User
+import java.time.LocalDateTime
 
 @Service
 class ProductService (
@@ -33,8 +34,19 @@ class ProductService (
         return ProductDto.Response(productRepository.save(product))
     }
 
-    fun modifyProduct() {
+    fun modifyProduct(user: User, productModifyRequest: ProductDto.ModifyRequest, id: Long): ProductDto.Response {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        // if (product.user != user) throw ProductModifyByInvalidUserException()
 
+        // picture
+        if (productModifyRequest.title != null) product.title = productModifyRequest.title
+        if (productModifyRequest.content != null) product.content = productModifyRequest.content
+        if (productModifyRequest.price != null) product.price = productModifyRequest.price
+        if (productModifyRequest.negotiable != null) product.negotiable = productModifyRequest.negotiable
+        if (productModifyRequest.category != null) product.category = productModifyRequest.category
+
+        product.updatedAt = LocalDateTime.now()
+        return ProductDto.Response(productRepository.save(product))
     }
 
     fun deleteProduct() {

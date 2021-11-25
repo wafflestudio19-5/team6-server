@@ -82,4 +82,13 @@ class ProductDto {
         @field:NotBlank
         val location: String
     )
+
+    data class ModifyRequest(
+        // val picture,
+        val title: String? = null,
+        val content: String? = null,
+        val price: Long? = null,
+        val negotiable: Boolean? = null,
+        val category: String? = null
+    )
 }

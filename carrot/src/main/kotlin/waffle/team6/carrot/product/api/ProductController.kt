@@ -44,10 +44,14 @@ class ProductController (
 
     // TODO: PUT "/{product_id}/"
     // update information about specific product
-    @PostMapping("/{product_id}/")
+    @PutMapping("/{product_id}/")
     @ResponseStatus(HttpStatus.OK)
-    fun modifyProduct() {
-
+    fun modifyProduct(
+        @CurrentUser user: User,
+        @RequestBody @Valid productModifyRequest: ProductDto.ModifyRequest,
+        @PathVariable("product_id") productId: Long
+    ): ProductDto.Response {
+        return productService.modifyProduct(user, productModifyRequest, productId)
     }
 
     // TODO: DELETE "/{product_id}/"
