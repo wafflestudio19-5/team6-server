@@ -50,7 +50,7 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         // if (product.user != user) throw ProductModifyByInvalidUserException()
 
-        // picture
+        if (productPatchRequest.images != null) product.images = productPatchRequest.images
         if (productPatchRequest.title != null) product.title = productPatchRequest.title
         if (productPatchRequest.content != null) product.content = productPatchRequest.content
         if (productPatchRequest.price != null) product.price = productPatchRequest.price

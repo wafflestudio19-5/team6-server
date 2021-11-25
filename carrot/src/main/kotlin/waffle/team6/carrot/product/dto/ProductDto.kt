@@ -12,9 +12,9 @@ class ProductDto {
     data class Response(
         val id: Long,
         // val user: User
-        // val pictures:
+        val images: List<String>,
         val title: String,
-        // val contents:
+        val content: String,
         val price: Long,
         val negotiable: Boolean,
         val category: String,
@@ -28,8 +28,9 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             // user = product
-            // picture = product.picture
+            images = product.images,
             title = product.title,
+            content = product.content,
             price = product.price,
             negotiable = product.negotiable,
             category = product.category,
@@ -45,7 +46,7 @@ class ProductDto {
     data class SimpleResponse(
         val id: Long,
         // val user
-        // val picture,
+        val image: String,
         val title: String,
         val price: Long,
         val location: String,
@@ -57,7 +58,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             // user = product
-            // picture = product.picture
+            image = product.images[0],
             title = product.title,
             price = product.price,
             location = product.location,
@@ -69,7 +70,7 @@ class ProductDto {
     }
 
     data class PostRequest(
-        // val picture,
+        val images: List<String>,
         @field:NotBlank
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -85,7 +86,7 @@ class ProductDto {
     )
 
     data class ModifyRequest(
-        // val picture,
+        val images: List<String>,
         @field:NotBlank
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -99,7 +100,7 @@ class ProductDto {
     )
 
     data class PatchRequest(
-        // val picture,
+        val images: List<String>? = null,
         val title: String? = null,
         val content: String? = null,
         val price: Long? = null,

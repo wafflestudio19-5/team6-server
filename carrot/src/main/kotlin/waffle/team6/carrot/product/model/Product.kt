@@ -16,7 +16,8 @@ class Product (
     // @field:NotBlank
     // val user: User
 
-    // TODO: Picture
+    @ElementCollection
+    var images: List<String> = listOf(),
 
     @field:NotBlank
     var title: String,
@@ -48,10 +49,10 @@ class Product (
     @Enumerated(EnumType.STRING)
     var status: Status,
 
-) : BaseTimeEntity() {
+    ) : BaseTimeEntity() {
     constructor(productPostRequest: ProductDto.PostRequest): this(
         // user = ...
-        // picture = productPostRequest.picture,
+        images = productPostRequest.images,
         title = productPostRequest.title,
         content = productPostRequest.content,
         price = productPostRequest.price,
@@ -65,7 +66,7 @@ class Product (
     )
 
     fun modify(productModifyRequest: ProductDto.ModifyRequest): Product{
-        // picture = ...
+        images = productModifyRequest.images
         title = productModifyRequest.title
         content = productModifyRequest.content
         price = productModifyRequest.price
