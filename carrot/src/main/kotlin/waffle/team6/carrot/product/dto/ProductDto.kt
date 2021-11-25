@@ -86,11 +86,16 @@ class ProductDto {
 
     data class ModifyRequest(
         // val picture,
-        val title: String? = null,
-        val content: String? = null,
-        val price: Long? = null,
-        val negotiable: Boolean? = null,
-        val category: String? = null
+        @field:NotBlank
+        val title: String,
+        @field:Length(min = 1, max = 300)
+        val content: String,
+        @field:PositiveOrZero
+        val price: Long,
+        @field:BooleanFlag
+        val negotiable: Boolean,
+        @field:NotBlank
+        val category: String,
     )
 
     data class PatchRequest(

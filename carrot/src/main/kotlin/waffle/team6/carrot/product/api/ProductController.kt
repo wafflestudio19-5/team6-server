@@ -64,7 +64,7 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
-    // reserve a deal or confirm purchase
+    // partial update information about specific product
     @PatchMapping("/{product_id}/")
     @ResponseStatus(HttpStatus.OK)
     fun changeProductStatus(

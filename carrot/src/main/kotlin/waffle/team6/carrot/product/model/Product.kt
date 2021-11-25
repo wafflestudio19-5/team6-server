@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
+import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
@@ -62,4 +63,15 @@ class Product (
         chat = 0,
         status = Status.FOR_SALE,
     )
+
+    fun modify(productModifyRequest: ProductDto.ModifyRequest): Product{
+        // picture = ...
+        title = productModifyRequest.title
+        content = productModifyRequest.content
+        price = productModifyRequest.price
+        negotiable = productModifyRequest.negotiable
+        category = productModifyRequest.category
+        updatedAt = LocalDateTime.now()
+        return this
+    }
 }
