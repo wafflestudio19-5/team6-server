@@ -38,8 +38,8 @@ class ProductController (
     // retrieve information about specific product
     @GetMapping("/{product_id}/")
     @ResponseStatus(HttpStatus.OK)
-    fun getProduct() {
-
+    fun getProduct(@PathVariable("product_id") productId: Long): ProductDto.Response {
+        return productService.getProduct(productId)
     }
 
     // TODO: PUT "/{product_id}/"

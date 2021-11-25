@@ -1,8 +1,10 @@
 package waffle.team6.carrot.product.service
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.exception.ProductNotFoundException
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.user.User
@@ -25,8 +27,10 @@ class ProductService (
         return ProductDto.Response(productRepository.save(product))
     }
 
-    fun getProduct() {
-
+    fun getProduct(id: Long): ProductDto.Response {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        product.hit += 1
+        return ProductDto.Response(productRepository.save(product))
     }
 
     fun modifyProduct() {
