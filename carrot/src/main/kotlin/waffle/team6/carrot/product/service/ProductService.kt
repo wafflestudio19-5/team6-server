@@ -55,7 +55,19 @@ class ProductService (
         productRepository.delete(product)
     }
 
-    fun changeProductStatus() {
+    fun patchProduct(user: User, productPatchRequest: ProductDto.PatchRequest, id: Long): ProductDto.Response {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        // if (product.user != user) throw ProductModifyByInvalidUserException()
 
+        // picture
+        if (productPatchRequest.title != null) product.title = productPatchRequest.title
+        if (productPatchRequest.content != null) product.content = productPatchRequest.content
+        if (productPatchRequest.price != null) product.price = productPatchRequest.price
+        if (productPatchRequest.negotiable != null) product.negotiable = productPatchRequest.negotiable
+        if (productPatchRequest.category != null) product.category = productPatchRequest.category
+        if (productPatchRequest.status != null) product.status = productPatchRequest.status
+
+        product.updatedAt = LocalDateTime.now()
+        return ProductDto.Response(productRepository.save(product))
     }
 }

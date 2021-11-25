@@ -64,11 +64,14 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
-    // TODO: PATCH "/{product_id}/"
     // reserve a deal or confirm purchase
     @PatchMapping("/{product_id}/")
     @ResponseStatus(HttpStatus.OK)
-    fun changeProductStatus() {
-
+    fun changeProductStatus(
+        @CurrentUser user: User,
+        @RequestBody @Valid productPatchRequest: ProductDto.PatchRequest,
+        @PathVariable("product_id") productId: Long
+    ): ProductDto.Response {
+        return productService.patchProduct(user, productPatchRequest, productId)
     }
 }

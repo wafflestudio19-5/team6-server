@@ -3,6 +3,7 @@ package waffle.team6.carrot.product.dto
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.product.model.Product
+import waffle.team6.carrot.product.model.Status
 import java.time.LocalDateTime
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
@@ -90,5 +91,15 @@ class ProductDto {
         val price: Long? = null,
         val negotiable: Boolean? = null,
         val category: String? = null
+    )
+
+    data class PatchRequest(
+        // val picture,
+        val title: String? = null,
+        val content: String? = null,
+        val price: Long? = null,
+        val negotiable: Boolean? = null,
+        val category: String? = null,
+        val status: Status? = null,
     )
 }

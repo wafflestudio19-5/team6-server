@@ -42,7 +42,11 @@ class Product (
     var like: Long,
 
     @field:PositiveOrZero
-    var chat: Long
+    var chat: Long,
+
+    @Enumerated(EnumType.STRING)
+    var status: Status,
+
 ) : BaseTimeEntity() {
     constructor(productPostRequest: ProductDto.PostRequest): this(
         // user = ...
@@ -55,6 +59,7 @@ class Product (
         location = productPostRequest.location,
         hit = 1,
         like = 0,
-        chat = 0
+        chat = 0,
+        status = Status.FOR_SALE,
     )
 }
