@@ -37,16 +37,7 @@ class ProductService (
     fun modifyProduct(user: User, productModifyRequest: ProductDto.ModifyRequest, id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         // if (product.user != user) throw ProductModifyByInvalidUserException()
-
-        // picture
-        if (productModifyRequest.title != null) product.title = productModifyRequest.title
-        if (productModifyRequest.content != null) product.content = productModifyRequest.content
-        if (productModifyRequest.price != null) product.price = productModifyRequest.price
-        if (productModifyRequest.negotiable != null) product.negotiable = productModifyRequest.negotiable
-        if (productModifyRequest.category != null) product.category = productModifyRequest.category
-
-        product.updatedAt = LocalDateTime.now()
-        return ProductDto.Response(productRepository.save(product))
+        return ProductDto.Response(productRepository.save(product.modify(productModifyRequest)))
     }
 
     fun deleteProduct(user: User, id: Long) {
