@@ -1,4 +1,4 @@
-package waffle.team6.carrot
+package waffle.team6
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
