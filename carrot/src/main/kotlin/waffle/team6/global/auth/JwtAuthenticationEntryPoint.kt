@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class JwtAuthenticationEntryPoint : AuthenticationEntryPoint {
 
-    private val logger = LoggerFactory.getLogger(JwtAuthenticationTokenFilter::class.java)
+    private val logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
 
     override fun commence(request: HttpServletRequest, response: HttpServletResponse, authException: AuthenticationException) {
         logger.info("Exception: $authException")
