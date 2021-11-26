@@ -28,11 +28,6 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
-
-jwt:
-  header: Authorization
-  jwt-secret-key: wafflestudio
-  jwt-expiration-in-ms: 10800000
 ---
 
 spring:
