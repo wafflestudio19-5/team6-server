@@ -26,11 +26,11 @@ class JwtTokenProvider(private val userRepository: UserRepository) {
     // Generate jwt token with prefix
     fun generateToken(authentication: Authentication): String {
         val userPrincipal = authentication.principal as UserPrincipal
-        return generateToken(userPrincipal.user.email)
+        return generateToken(userPrincipal.user.name)
     }
 
-    fun generateToken(email: String): String {
-        val claims: MutableMap<String, Any> = hashMapOf("email" to email)
+    fun generateToken(name: String): String {
+        val claims: MutableMap<String, Any> = hashMapOf("name" to name)
         val now = Date()
         val expiryDate = Date(now.time + jwtExpirationInMs!!)
         return tokenPrefix + Jwts.builder()
@@ -50,9 +50,9 @@ class JwtTokenProvider(private val userRepository: UserRepository) {
             .body
 
         // Recover User class from JWT
-        val email = claims.get("email", String::class.java)
-        val currentUser = userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("$email is not valid email, check token is expired")
+        val name = claims.get("name", String::class.java)
+        val currentUser = userRepository.findByName(name)
+            ?: throw UsernameNotFoundException("$name is not valid, check token is expired")
         val userPrincipal = UserPrincipal(currentUser)
         val authorises = userPrincipal.authorities
         // Make token with parsed data

@@ -19,7 +19,8 @@ class SigninAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
 ) : UsernamePasswordAuthenticationFilter(authenticationManager) {
     init {
-        setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/api/v1/users/signin/", "POST"))
+        setRequiresAuthenticationRequestMatcher(
+            AntPathRequestMatcher("/api/v1/users/signin/", "POST"))
     }
 
     override fun successfulAuthentication(
