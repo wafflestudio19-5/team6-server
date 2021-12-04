@@ -7,7 +7,7 @@ import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/users/")
 class UserController(
     private val userService: UserService,
 ) {
@@ -23,32 +23,32 @@ class UserController(
         return ResponseEntity.ok().build()
     }
 
-    @PatchMapping("/me")
+    @PatchMapping("/me/")
     fun updateMe(user: User): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/me")
+    @GetMapping("/me/")
     fun getMe(): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/me/buyerProfile/purchaseRecords")
+    @GetMapping("/me/buyerProfile/purchaseRecords/")
     fun getMyPurchaseRecords(): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/me/buyerProfile/purchaseRecords/{purchaseRecordId}")
+    @GetMapping("/me/buyerProfile/purchaseRecords/{purchaseRecordId}/")
     fun getMyOnePurchaseRecord(@PathVariable purchaseRecordId: Long): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/me/sellerProfile/products")
+    @GetMapping("/me/sellerProfile/products/")
     fun getMyProducts(): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("/me/sellerProfile/products/{productId}")
+    @GetMapping("/me/sellerProfile/products/{productId}/")
     fun getMyOneProduct(@PathVariable productId: Long): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
