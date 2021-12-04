@@ -22,10 +22,11 @@ spring:
     sql:
       init:
         mode: always
-    jpa:
-      generate-ddl: true
-      hibernate:
-        ddl-auto: create
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 
   servlet:
     multipart:
@@ -48,10 +49,12 @@ spring:
     sql:
       init:
         mode: always
-    jpa:
-      generate-ddl: true
-      hibernate:
-        ddl-auto: update
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
 
   servlet:
     multipart:
