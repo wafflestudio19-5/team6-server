@@ -35,6 +35,7 @@ dependencies {
     implementation("junit:junit:4.13.1")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.hibernate.validator:hibernate-validator")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
 
     runtimeOnly("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
