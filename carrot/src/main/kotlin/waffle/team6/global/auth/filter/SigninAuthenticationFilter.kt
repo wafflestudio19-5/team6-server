@@ -9,7 +9,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import waffle.team6.global.auth.dto.LoginRequest
 import waffle.team6.global.auth.jwt.JwtTokenProvider
-import java.io.BufferedReader
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -43,17 +42,19 @@ class SigninAuthenticationFilter(
     }
 
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication {
-        // Parse auth request
         val parsedRequest: LoginRequest = parseRequest(request)
         val authRequest: Authentication =
-            UsernamePasswordAuthenticationToken(parsedRequest.email, parsedRequest.password)
+            UsernamePasswordAuthenticationToken(parsedRequest.name, parsedRequest.password)
+        println("request = ${request}") // TODO erase
+        println("response = ${response}") // TODO erase
+        println("parsedRequest = ${parsedRequest}")
+        println("authRequest = ${authRequest}")
         return authenticationManager.authenticate(authRequest)
     }
 
     private fun parseRequest(request: HttpServletRequest): LoginRequest {
-        val reader: BufferedReader = request.reader
-        val objectMapper = ObjectMapper()
-        return objectMapper.readValue(reader, LoginRequest::class.java)
+        return ObjectMapper()
+            .readValue(request.reader, LoginRequest::class.java)
     }
 
 }

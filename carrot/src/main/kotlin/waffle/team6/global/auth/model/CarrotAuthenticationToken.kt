@@ -8,11 +8,21 @@ class CarrotAuthenticationToken(
     private var accessToken: Any?,
     authorities: Collection<GrantedAuthority?>? = null,
 ): AbstractAuthenticationToken(authorities) {
-    override fun getCredentials(): Any {
-        TODO("Not yet implemented")
+    init {
+        if (authorities == null)
+            super.setAuthenticated(false)
+        else super.setAuthenticated(true)
     }
 
-    override fun getPrincipal(): Any {
-        TODO("Not yet implemented")
+    override fun getCredentials(): Any? {
+        return accessToken
+    }
+
+    override fun getPrincipal(): Any? {
+        return principal
+    }
+    override fun eraseCredentials() {
+        super.eraseCredentials()
+        accessToken = null
     }
 }

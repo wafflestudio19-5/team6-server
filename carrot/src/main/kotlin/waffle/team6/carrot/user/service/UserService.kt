@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.service
 
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.user.dto.UserDto
@@ -12,13 +13,14 @@ import waffle.team6.carrot.user.repository.UserRepository
 @Transactional(readOnly = true)
 class UserService(
     private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder,
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
 
         val newUser = User(
             name = signUpRequest.name,
-            password = signUpRequest.password,
+            password = passwordEncoder.encode(signUpRequest.password),
             email = signUpRequest.email,
             phone = signUpRequest.phone,
         )
