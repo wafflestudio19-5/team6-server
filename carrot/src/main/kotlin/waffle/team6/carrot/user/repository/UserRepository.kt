@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import waffle.team6.carrot.user.model.User
 
 interface UserRepository : JpaRepository<User, Long?> {
-    fun findByEmail(email: String): User?
+    fun findByName(name: String): User?
 }
