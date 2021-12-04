@@ -19,6 +19,7 @@ class UserService(
         val newUser = User(
             name = signUpRequest.name,
             password = signUpRequest.password,
+            email = signUpRequest.email,
         )
 
         newUser.buyerProfile = BuyerProfile(user = newUser)

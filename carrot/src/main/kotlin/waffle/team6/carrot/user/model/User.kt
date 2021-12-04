@@ -12,6 +12,10 @@ class User(
     @field: NotBlank
     val name: String,
 
+    @Column(unique = true)
+    @field:NotBlank
+    var email: String,
+
     @field: NotBlank
     val password: String,
 
