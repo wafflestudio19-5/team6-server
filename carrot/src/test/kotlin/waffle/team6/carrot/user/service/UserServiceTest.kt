@@ -29,11 +29,13 @@ internal class UserServiceTest {
             name = "alice",
             password = "alicePassword",
             email = "alice@carrot.com",
+            phone = "010-0000-0000"
         )
         val newUser = User(
             name = "alice",
             password = "alicePassword",
             email = "alice@carrot.com",
+            phone = "010-0000-0000"
         )
         Mockito.`when`(userRepository.save(Mockito.any(User::class.java)))
             .thenReturn(newUser)

@@ -20,6 +20,7 @@ class UserService(
             name = signUpRequest.name,
             password = signUpRequest.password,
             email = signUpRequest.email,
+            phone = signUpRequest.phone,
         )
 
         newUser.buyerProfile = BuyerProfile(user = newUser)
