@@ -20,9 +20,10 @@ class UserDto {
         @field: NotBlank
         val name: String,
 
-        @field:NotBlank
         @field:Email
-        var email: String,
+        var email: String?,
+
+        var phone: String?,
 
         @field: NotBlank
         @field: Size(min=8, max=16)
