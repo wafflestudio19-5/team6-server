@@ -1,6 +1,8 @@
 package waffle.team6.carrot.user.api
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.service.UserService
 
 @RestController
@@ -10,8 +12,8 @@ class UserController(
 ) {
 
     @PostMapping
-    fun signUp() {
-
+    fun signUp(@RequestBody signUpRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok(userService.createUser(signUpRequest))
     }
 
     @GetMapping

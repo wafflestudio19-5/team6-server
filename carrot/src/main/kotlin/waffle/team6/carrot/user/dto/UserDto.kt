@@ -6,7 +6,11 @@ import javax.validation.constraints.Size
 class UserDto {
     data class Response(
         val name: String,
-    )
+    ) {
+        constructor(user: User): this(
+            user.name
+        )
+    }
 
 
     data class SignUpRequest(

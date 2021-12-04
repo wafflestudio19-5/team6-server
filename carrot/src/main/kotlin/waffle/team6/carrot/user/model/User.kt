@@ -1,25 +1,25 @@
 package waffle.team6.carrot.user.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.OneToOne
+import java.time.LocalDateTime
+import javax.persistence.*
 import javax.validation.constraints.NotBlank
 
 @Entity
 class User(
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
     @field: NotBlank
-    val name: String?,
+    val name: String,
 
     @field: NotBlank
-    val password: String?,
+    val password: String,
 
-    @OneToOne
-    val buyerProfile: BuyerProfile,
+    val dateJoined: LocalDateTime = LocalDateTime.now(),
 
-    @OneToOne
-    val sellerProfile: SellerProfile,
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var buyerProfile: BuyerProfile? = null,
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var sellerProfile: SellerProfile? = null,
 )
