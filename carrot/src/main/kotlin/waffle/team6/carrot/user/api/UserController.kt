@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
+import waffle.team6.global.auth.CurrentUser
 import waffle.team6.global.auth.jwt.JwtTokenProvider
 
 @RestController
@@ -30,27 +31,28 @@ class UserController(
     }
 
     @PatchMapping("/me/")
-    fun updateMe(user: User): ResponseEntity<Any> {
+    fun updateMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
+
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/me/")
-    fun getMe(): ResponseEntity<UserDto.Response> {
+    fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/me/buyerProfile/purchaseRecords/")
-    fun getMyPurchaseRecords(): ResponseEntity<UserDto.Response> {
+    fun getMyPurchaseRecords(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/me/buyerProfile/purchaseRecords/{purchaseRecordId}/")
-    fun getMyOnePurchaseRecord(@PathVariable purchaseRecordId: Long): ResponseEntity<Any> {
+    fun getMyOnePurchaseRecord(@CurrentUser user: User, @PathVariable purchaseRecordId: Long): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/me/sellerProfile/products/")
-    fun getMyProducts(): ResponseEntity<Any> {
+    fun getMyProducts(@CurrentUser user: User, ): ResponseEntity<Any> {
         return ResponseEntity.ok().build()
     }
 

@@ -30,4 +30,15 @@ class UserDto {
         val password: String,
     )
 
+    data class UpdateRequest(
+        @field: Email
+        var email: String?,
+
+        var phone: String?,
+
+        @field: NotBlank
+        @field: Size(min=8, max=16)
+        val password: String,
+    )
+
 }

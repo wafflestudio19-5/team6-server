@@ -30,6 +30,7 @@ class UserService(
         return UserDto.Response(userRepository.save(newUser))
     }
 
+    @Transactional
     fun updateUser() {
 
     }

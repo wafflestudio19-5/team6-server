@@ -53,8 +53,9 @@ internal class UserServiceTest {
 
     @Test
     fun shouldSucceedUpdateUser() {
-        // TODO
         // given
+        val newUserBob = getUserEntityOfBob()
+
 
         // when
 //        Mockito.`when`()
@@ -77,6 +78,15 @@ internal class UserServiceTest {
             password = "EncodedPassword",
             email = "alice@carrot.com",
             phone = "010-0000-0000"
+        )
+    }
+
+    private fun getUserEntityOfBob(): User {
+        return User(
+            name = "Bob",
+            password = "BobPassword",
+            email = "bob@carrot.com",
+            phone = "010-1111-1111"
         )
     }
 }
