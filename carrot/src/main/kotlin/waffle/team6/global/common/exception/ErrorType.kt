@@ -25,6 +25,9 @@ enum class ErrorType (
     PRODUCT_NOT_FOUND(4200),
 
 
+    IMAGE_NOT_FOUND(4300),
+
+
     CONFLICT(9000),
     // error codes for CONFLICT
     USER_CONFLICT(9100),

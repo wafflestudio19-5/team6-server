@@ -21,6 +21,13 @@ spring:
       hibernate:
         ddl-auto: create
 
+  servlet:
+    multipart:
+      file-size-threshold: 3MB
+      location: /tmp
+      max-file-size: 100MB
+      max-request-size: 100MB
+
 ---
 
 spring:
@@ -39,3 +46,10 @@ spring:
       generate-ddl: true
       hibernate:
         ddl-auto: update
+
+  servlet:
+    multipart:
+      file-size-threshold: 3MB
+      location: /home/ec2-user/images
+      max-file-size: 100MB
+      max-request-size: 100MB
