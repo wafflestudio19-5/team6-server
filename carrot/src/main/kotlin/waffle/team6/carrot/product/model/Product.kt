@@ -12,9 +12,9 @@ import javax.validation.constraints.PositiveOrZero
 @Entity
 @Table(name = "product")
 class Product (
-    // TODO: User Information
-    // @field:NotBlank
-    // val user: User
+    @ManyToOne
+     @JoinColumn(name = "seller_profile", referencedColumnName = "id")
+     val sellerProfile: SellerProfile,
 
     @ElementCollection
     var images: List<String> = listOf(),
@@ -41,14 +41,21 @@ class Product (
     @field:PositiveOrZero
     var hit: Long,
 
-    @field:PositiveOrZero
-    var like: Long,
+    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "product")
+    var like: MutableList<Like> = mutableListOf<Like>(),
 
     @field:PositiveOrZero
     var chat: Long,
 
     @Enumerated(EnumType.STRING)
     var status: Status,
+
+    @OneToOne
+     @JoinColumn(name = "purchase_record", referencedColumnName = "id")
+     var purchaseRecord: PurchaseRecord? = null,
+
+    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "product")
+     var purchaseRequest: MutableList<PurchaseRequest> = mutableListOf<PurchaseRequest>(),
 
     ) : BaseTimeEntity() {
     constructor(productPostRequest: ProductDto.PostRequest): this(
@@ -61,7 +68,6 @@ class Product (
         category = productPostRequest.category,
         location = productPostRequest.location,
         hit = 1,
-        like = 0,
         chat = 0,
         status = Status.FOR_SALE,
     )
