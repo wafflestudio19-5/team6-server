@@ -59,7 +59,7 @@ class ProductController (
     fun deleteProduct(
         @CurrentUser user: User,
         @PathVariable("product_id") productId: Long
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Any> {
         productService.deleteProduct(user, productId)
         return ResponseEntity.noContent().build()
     }
@@ -74,4 +74,20 @@ class ProductController (
     ): ProductDto.Response {
         return productService.patchProduct(user, productPatchRequest, productId)
     }
+
+    // like specific product
+    @PostMapping("/{product_id}/like/")
+    @ResponseStatus(HttpStatus.OK)
+    fun likeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+        productService.likeProduct(user, productId)
+        return ResponseEntity.noContent().build()
+    }
+
+    // unlike specific product
+
+    // chat for purchase request for specific product
+
+    // change the status of the product to RESERVED
+
+    // change the status of the product to SOLD_OUT
 }

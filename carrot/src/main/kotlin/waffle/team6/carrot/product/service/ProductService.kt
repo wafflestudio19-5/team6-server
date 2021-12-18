@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.exception.ProductNotFoundException
+import waffle.team6.carrot.product.model.Like
 import waffle.team6.carrot.product.model.Product
+import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.user.User
 import java.time.LocalDateTime
@@ -13,6 +15,7 @@ import java.time.LocalDateTime
 @Service
 class ProductService (
     private val productRepository: ProductRepository,
+    private val likeRepository: LikeRepository,
     // userRepository: ProductRepository
 ){
     fun getProducts(): ListResponse<ProductDto.SimpleResponse> {
@@ -60,5 +63,16 @@ class ProductService (
 
         product.updatedAt = LocalDateTime.now()
         return ProductDto.Response(productRepository.save(product))
+    }
+
+    fun likeProduct(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+
+        if (!product.like.any { it.buyerProfile == user.buyerProfile }) {
+            val like = Like(user, product)
+            product.like.add(like)
+            likeRepository.save(like)
+            productRepository.save(product)
+        }
     }
 }

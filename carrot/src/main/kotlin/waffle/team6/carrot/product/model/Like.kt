@@ -14,5 +14,8 @@ class Like (
     @JoinColumn(name = "product", referencedColumnName = "id")
     val product: Product
     ) : BaseTimeEntity() {
-
+    constructor(user: User, product: Product): this(
+        buyerProfile = user.buyerprofile,
+        product = product
+    )
 }
