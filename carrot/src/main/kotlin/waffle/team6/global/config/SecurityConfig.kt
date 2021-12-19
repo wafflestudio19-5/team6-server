@@ -53,6 +53,7 @@ class SecurityConfig(
             .addFilter(SigninAuthenticationFilter(authenticationManager(), jwtTokenProvider))
             .addFilter(JwtAuthenticationFilter(authenticationManager(), jwtTokenProvider))
             .authorizeRequests()
+            .antMatchers("/ping-test/").permitAll()  // ping test
             .antMatchers("/api/v1/users/signin/").permitAll()  // Auth entrypoint
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
             .anyRequest().authenticated()
