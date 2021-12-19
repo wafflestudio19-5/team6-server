@@ -1,13 +1,11 @@
 package waffle.team6.carrot.user.model
 
+import waffle.team6.carrot.BaseTimeEntity
 import javax.persistence.*
 
 @Entity
 class SellerProfile(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     val user: User,
-)
+): BaseTimeEntity()

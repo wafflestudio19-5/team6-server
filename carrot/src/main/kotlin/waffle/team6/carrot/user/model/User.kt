@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.model
 
+import waffle.team6.carrot.BaseTimeEntity
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.Email
@@ -7,9 +8,6 @@ import javax.validation.constraints.NotBlank
 
 @Entity
 class User(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-
     @Column(unique = true)
     @field: NotBlank
     val name: String,
@@ -29,4 +27,4 @@ class User(
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     var sellerProfile: SellerProfile? = null,
-)
+): BaseTimeEntity()
