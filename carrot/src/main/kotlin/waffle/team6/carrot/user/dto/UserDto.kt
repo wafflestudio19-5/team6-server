@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.dto
 
+import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.user.model.User
 import javax.persistence.Column
 import javax.validation.constraints.Email
@@ -9,9 +10,14 @@ import javax.validation.constraints.Size
 class UserDto {
     data class Response(
         val name: String,
+        val email: String?,
+//        val buyer: Buyer? = null,
+        val seller: Seller? = null,
     ) {
         constructor(user: User): this(
-            user.name
+            name = user.name,
+            email = user.email,
+            // TODO buyer, seller
         )
     }
 
@@ -40,5 +46,14 @@ class UserDto {
         @field: Size(min=8, max=16)
         val password: String,
     )
+
+//    data class Buyer(
+//        val purchaseRequests: ...
+//    )
+
+    data class Seller(
+        var products: List<ProductDto> = listOf(),
+    )
+
 
 }
