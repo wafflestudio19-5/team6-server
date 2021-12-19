@@ -8,6 +8,7 @@ import waffle.team6.carrot.user.model.BuyerProfile
 import waffle.team6.carrot.user.model.SellerProfile
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
+import waffle.team6.global.auth.CurrentUser
 
 @Service
 @Transactional(readOnly = true)
@@ -31,12 +32,15 @@ class UserService(
     }
 
     @Transactional
-    fun updateUser() {
+    fun updateUser(user: User, updateRequest: UserDto.UpdateRequest) {
 
+        val updatedUser = userRepository.save(user)
     }
 
-    fun findMe() {
-
+    fun findMe(user: User): UserDto.Response {
+        return UserDto.Response(
+            user
+        )
     }
 
     fun findMyPurchaseRecords() {

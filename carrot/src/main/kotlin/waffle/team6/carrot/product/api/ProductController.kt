@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.service.ProductService
-import waffle.team6.carrot.user.CurrentUser
-import waffle.team6.carrot.user.User
+import waffle.team6.carrot.user.model.User
+import waffle.team6.global.auth.CurrentUser
 import javax.validation.Valid
 
 @RestController

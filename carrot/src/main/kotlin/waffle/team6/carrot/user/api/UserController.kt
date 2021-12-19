@@ -31,8 +31,10 @@ class UserController(
     }
 
     @PatchMapping("/me/")
-    fun updateMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
-
+    fun updateMe(
+        @CurrentUser user: User,
+        @RequestBody updateRequest: UserDto.UpdateRequest): ResponseEntity<UserDto.Response> {
+        userService.updateUser(user, updateRequest)
         return ResponseEntity.ok().build()
     }
 
