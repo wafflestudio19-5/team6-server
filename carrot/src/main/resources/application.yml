@@ -2,6 +2,12 @@ spring:
   profiles:
     active: local
 
+app:
+  jwt:
+    jwt-secret-key: wafflestudio
+    jwt-expiration-in-ms: 10800000
+
+
 ---
 
 spring:
@@ -16,10 +22,11 @@ spring:
     sql:
       init:
         mode: always
-    jpa:
-      generate-ddl: true
-      hibernate:
-        ddl-auto: create
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 
   servlet:
     multipart:
@@ -42,10 +49,12 @@ spring:
     sql:
       init:
         mode: always
-    jpa:
-      generate-ddl: true
-      hibernate:
-        ddl-auto: update
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
 
   servlet:
     multipart:
