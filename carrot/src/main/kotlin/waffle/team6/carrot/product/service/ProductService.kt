@@ -75,4 +75,15 @@ class ProductService (
             productRepository.save(product)
         }
     }
+
+    fun unlikeProduct(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+
+        val like = product.like.find { it.buyerProfile == user.buyerProfile }
+        if (like != null) {
+            product.like.remove(like)
+            likeRepository.delete(like)
+            productRepository.save(product)
+        }
+    }
 }

@@ -77,13 +77,19 @@ class ProductController (
 
     // like specific product
     @PostMapping("/{product_id}/like/")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun likeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
         productService.likeProduct(user, productId)
         return ResponseEntity.noContent().build()
     }
 
     // unlike specific product
+    @PostMapping("/{product_id}/unlike/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun unlikeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+        productService.unlikeProduct(user, productId)
+        return ResponseEntity.noContent().build()
+    }
 
     // chat for purchase request for specific product
 
