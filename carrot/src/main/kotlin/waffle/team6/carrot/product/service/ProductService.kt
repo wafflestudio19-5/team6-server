@@ -127,5 +127,12 @@ class ProductService (
         if (product.user != user) throw ProductPurchaseRequestLookupByInvalidUserException()
         return ListResponse(purchaseRequestRepository.findAllByProductId(id).map { PurchaseRequestDto.Response(it) })
     }
+
+    fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.user != user) throw ProductPurchaseRequestLookupByInvalidUserException()
+        return PurchaseRequestDto.Response(purchaseRequest)
+    }
 }
 
