@@ -1,6 +1,7 @@
 package waffle.team6.carrot.user.model
 
 import waffle.team6.carrot.BaseTimeEntity
+import waffle.team6.carrot.product.model.Product
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.Email
@@ -8,6 +9,11 @@ import javax.validation.constraints.NotBlank
 
 @Entity
 class User(
+    @OneToMany(mappedBy = "user")
+    val products: List<Product> = listOf(),
+
+    //TODO: purchase records
+
     @Column(unique = true)
     @field: NotBlank
     val name: String,
@@ -22,4 +28,4 @@ class User(
 
     val dateJoined: LocalDateTime = LocalDateTime.now(),
 
-): BaseTimeEntity()
+    ): BaseTimeEntity()
