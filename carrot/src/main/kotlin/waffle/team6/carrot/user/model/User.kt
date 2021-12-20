@@ -22,9 +22,4 @@ class User(
 
     val dateJoined: LocalDateTime = LocalDateTime.now(),
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    var buyerProfile: BuyerProfile? = null,
-
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    var sellerProfile: SellerProfile? = null,
 ): BaseTimeEntity()

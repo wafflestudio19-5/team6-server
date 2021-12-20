@@ -1,6 +1,7 @@
 package waffle.team6.carrot.user.dto
 
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.user.model.User
 import javax.persistence.Column
 import javax.validation.constraints.Email
@@ -11,8 +12,6 @@ class UserDto {
     data class Response(
         val name: String,
         val email: String?,
-//        val buyer: Buyer? = null,
-        val seller: Seller? = null,
     ) {
         constructor(user: User): this(
             name = user.name,
@@ -47,13 +46,16 @@ class UserDto {
         val password: String,
     )
 
-//    data class Buyer(
-//        val purchaseRequests: ...
-//    )
-
-    data class Seller(
-        var products: List<ProductDto> = listOf(),
-    )
-
+    data class PurchaseRecords(
+        var username: String,
+        var products: List<ProductDto.SimpleResponse> = listOf(),
+    ) {
+        constructor(userEntity: User, productsEntityList: List<Product>): this(
+            username = userEntity.name,
+            products = productsEntityList.map {
+                ProductDto.SimpleResponse(it)
+            }
+        )
+    }
 
 }
