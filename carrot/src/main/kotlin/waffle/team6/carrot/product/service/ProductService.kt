@@ -85,7 +85,7 @@ class ProductService (
 //        }
     }
 
-    fun unlikeProduct(user: User, id: Long) {
+    fun cancelLikeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
 
 //        val like = user.like.find { it.product == product }

@@ -84,11 +84,11 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
-    // unlike specific product
-    @PostMapping("/{product_id}/unlike/")
+    // redo like specific product
+    @PostMapping("/{product_id}/like/cancel/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun unlikeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
-        productService.unlikeProduct(user, productId)
+    fun cancelLikeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+        productService.cancelLikeProduct(user, productId)
         return ResponseEntity.noContent().build()
     }
 
