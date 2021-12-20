@@ -110,6 +110,14 @@ class ProductController (
         productService.reserve(user, productId)
         return ResponseEntity.noContent().build()
     }
+    
+    // redo the status of the product to FOR_SALE
+    @PostMapping("/{product_id}/reserve/cancel/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun cancelReserve(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+        productService.cancelReserve(user, productId)
+        return ResponseEntity.noContent().build()
+    }
 
     // get purchase requests of specific product
     @GetMapping("/{product_id}/purchases/")

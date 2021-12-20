@@ -122,6 +122,16 @@ class ProductService (
         }
     }
 
+    fun cancelReserve(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (product.user != user) throw ProductReserveCancelByInvalidUserException()
+        if (product.status == Status.RESERVED) {
+            product.status = Status.FOR_SALE
+            productRepository.save(product)
+        }
+    }
+
     fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user != user) throw ProductPurchaseRequestLookupByInvalidUserException()
