@@ -134,5 +134,16 @@ class ProductService (
         if (purchaseRequest.user != user) throw ProductPurchaseRequestLookupByInvalidUserException()
         return PurchaseRequestDto.Response(purchaseRequest)
     }
+
+    fun confirmProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (purchaseRequest.user != user) throw ProductPurchaseRequestConfirmByInvalidUserException()
+        purchaseRequest.product.status = Status.SOLD_OUT
+        purchaseRequest.accepted = true
+        productRepository.save(purchaseRequest.product)
+        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest))
+    }
 }
 

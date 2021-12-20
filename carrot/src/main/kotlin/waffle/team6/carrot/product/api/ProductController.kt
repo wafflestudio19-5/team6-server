@@ -132,4 +132,13 @@ class ProductController (
     }
 
     // change the status of the product to SOLD_OUT
+    @PostMapping("/{product_id}/purchases/{purchase_request_id}/confirm/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun confirmPurchaseRequest(
+        @CurrentUser user: User,
+        @PathVariable("product_id") productId: Long,
+        @PathVariable("purchase_request_id") purchaseRequestId: Long
+    ): PurchaseRequestDto.Response {
+        return productService.confirmProductPurchaseRequest(user, productId, purchaseRequestId)
+    }
 }
