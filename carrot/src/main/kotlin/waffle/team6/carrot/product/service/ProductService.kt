@@ -6,7 +6,6 @@ import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
-import waffle.team6.carrot.product.model.Like
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.product.repository.LikeRepository
@@ -101,12 +100,12 @@ class ProductService (
     fun chat(user: User, id: Long, request: PurchaseRequestDto.Request): PurchaseRequestDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchase()
-        val request = PurchaseRequest(user, product, request)
+        val purchaseRequest = PurchaseRequest(user, product, request)
         //user.purchaseRequest.add(request)
-        product.purchaseRequest.add(request)
+        product.purchaseRequest.add(purchaseRequest)
         productRepository.save(product)
         //userRepository.save(user)
-        return PurchaseRequestDto.Response(purchaseRequestRepository.save(request))
+        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest))
     }
 }
 
