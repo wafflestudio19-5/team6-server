@@ -4,19 +4,20 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
-import waffle.team6.carrot.product.exception.ProductNotFoundException
+import waffle.team6.carrot.product.exception.*
 import waffle.team6.carrot.product.model.Like
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
-import waffle.team6.carrot.user.User
+import waffle.team6.carrot.user.repository.UserRepository
+import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 
 @Service
 class ProductService (
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
-    // userRepository: ProductRepository
+    private val userRepository: UserRepository
 ){
     fun getProducts(): ListResponse<ProductDto.SimpleResponse> {
         return ListResponse(productRepository.findAll().map { ProductDto.SimpleResponse(it) })
@@ -27,7 +28,7 @@ class ProductService (
     }
 
     fun addProducts(user: User, productPostRequest: ProductDto.PostRequest): ProductDto.Response {
-        val product = Product(productPostRequest)
+        val product = Product(user, productPostRequest)
         return ProductDto.Response(productRepository.save(product))
     }
 
@@ -39,19 +40,22 @@ class ProductService (
 
     fun modifyProduct(user: User, productModifyRequest: ProductDto.ModifyRequest, id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        // if (product.user != user) throw ProductModifyByInvalidUserException()
+        if (product.user != user) throw ProductModifyByInvalidUserException()
         return ProductDto.Response(productRepository.save(product.modify(productModifyRequest)))
     }
 
     fun deleteProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        // if (product.user != user) throw ProductDeleteByInvalidUserException()
+        if (product.user != user) throw ProductDeleteByInvalidUserException()
+        // val user = product.user
+        // user.product.remove(product)
+        // userRepository.save(user)
         productRepository.delete(product)
     }
 
     fun patchProduct(user: User, productPatchRequest: ProductDto.PatchRequest, id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        // if (product.user != user) throw ProductModifyByInvalidUserException()
+        if (product.user != user) throw ProductModifyByInvalidUserException()
 
         if (productPatchRequest.images != null) product.images = productPatchRequest.images
         if (productPatchRequest.title != null) product.title = productPatchRequest.title
@@ -68,22 +72,26 @@ class ProductService (
     fun likeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
 
-        if (!product.like.any { it.buyerProfile == user.buyerProfile }) {
-            val like = Like(user, product)
-            product.like.add(like)
-            likeRepository.save(like)
-            productRepository.save(product)
-        }
+//        if (!user.like.any { it.product == product}) {
+//            val like = Like(user, product)
+//            product.like += 1
+//            user.like.add(like)
+//            productRepository.save(product)
+//            likeRepository.save(like)
+//            userRepository.save(user)
+//        }
     }
 
     fun unlikeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
 
-        val like = product.like.find { it.buyerProfile == user.buyerProfile }
-        if (like != null) {
-            product.like.remove(like)
-            likeRepository.delete(like)
-            productRepository.save(product)
-        }
+//        val like = user.like.find { it.product == product }
+//        if (like != null) {
+//            product.like -= 1
+//            user.like.remove(like)
+//            productRepository.save(product)
+//            likeRepository.delete(like)
+//            userRepository.save(user)
+//        }
     }
 }

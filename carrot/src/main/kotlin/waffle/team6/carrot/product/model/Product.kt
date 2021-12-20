@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
@@ -13,8 +14,8 @@ import javax.validation.constraints.PositiveOrZero
 @Table(name = "product")
 class Product (
     @ManyToOne
-     @JoinColumn(name = "seller_profile", referencedColumnName = "id")
-     val sellerProfile: SellerProfile,
+    @JoinColumn(name = "user", referencedColumnName = "id")
+    val user: User,
 
     @ElementCollection
     var images: List<String> = listOf(),
@@ -41,8 +42,8 @@ class Product (
     @field:PositiveOrZero
     var hit: Long,
 
-    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "product")
-    var like: MutableList<Like> = mutableListOf<Like>(),
+    @field:PositiveOrZero
+    var like: Long,
 
     @field:PositiveOrZero
     var chat: Long,
@@ -50,16 +51,12 @@ class Product (
     @Enumerated(EnumType.STRING)
     var status: Status,
 
-    @OneToOne
-     @JoinColumn(name = "purchase_record", referencedColumnName = "id")
-     var purchaseRecord: PurchaseRecord? = null,
-
     @OneToMany(cascade = [CascadeType.ALL], mappedBy = "product")
      var purchaseRequest: MutableList<PurchaseRequest> = mutableListOf<PurchaseRequest>(),
 
     ) : BaseTimeEntity() {
-    constructor(productPostRequest: ProductDto.PostRequest): this(
-        // user = ...
+    constructor(user: User, productPostRequest: ProductDto.PostRequest): this(
+        user = user,
         images = productPostRequest.images,
         title = productPostRequest.title,
         content = productPostRequest.content,
@@ -68,6 +65,7 @@ class Product (
         category = productPostRequest.category,
         location = productPostRequest.location,
         hit = 1,
+        like = 0,
         chat = 0,
         status = Status.FOR_SALE,
     )

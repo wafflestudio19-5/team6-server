@@ -1,21 +1,17 @@
 package waffle.team6.carrot.product.model
 
 import waffle.team6.carrot.BaseTimeEntity
+import waffle.team6.carrot.user.model.User
 import javax.persistence.*
 
 @Entity
 @Table(name = "like")
 class Like (
     @ManyToOne
-    @JoinColumn(name = "buyer_profile", referencedColumnName = "id")
-    val buyerProfile: BuyerProfile,
+    @JoinColumn(name = "user", referencedColumnName = "id")
+    val user: User,
 
     @ManyToOne
     @JoinColumn(name = "product", referencedColumnName = "id")
     val product: Product
-    ) : BaseTimeEntity() {
-    constructor(user: User, product: Product): this(
-        buyerProfile = user.buyerprofile,
-        product = product
-    )
-}
+    ) : BaseTimeEntity()
