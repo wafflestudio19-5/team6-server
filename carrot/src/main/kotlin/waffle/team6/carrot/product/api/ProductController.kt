@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.carrot.user.model.User
@@ -92,6 +93,15 @@ class ProductController (
     }
 
     // chat for purchase request for specific product
+    @PostMapping("/{product_id}/chat/")
+    @ResponseStatus(HttpStatus.OK)
+    fun chat(
+        @CurrentUser user: User,
+        @PathVariable("product_id") productId: Long,
+        @RequestBody purchaseRequest: PurchaseRequestDto.Request
+    ): PurchaseRequestDto.Response {
+        return productService.chat(user, productId, purchaseRequest)
+    }
 
     // change the status of the product to RESERVED
 

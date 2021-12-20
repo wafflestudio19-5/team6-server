@@ -4,19 +4,22 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
 import waffle.team6.carrot.product.model.Like
 import waffle.team6.carrot.product.model.Product
+import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
+import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.repository.UserRepository
 import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
-
 @Service
 class ProductService (
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
+    private val purchaseRequestRepository: PurchaseRequestRepository,
     private val userRepository: UserRepository
 ){
     fun getProducts(): ListResponse<ProductDto.SimpleResponse> {
@@ -94,4 +97,16 @@ class ProductService (
 //            userRepository.save(user)
 //        }
     }
+
+    fun chat(user: User, id: Long, request: PurchaseRequestDto.Request): PurchaseRequestDto.Response {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchase()
+        val request = PurchaseRequest(user, product, request)
+        //user.purchaseRequest.add(request)
+        product.purchaseRequest.add(request)
+        productRepository.save(product)
+        //userRepository.save(user)
+        return PurchaseRequestDto.Response(purchaseRequestRepository.save(request))
+    }
 }
+
