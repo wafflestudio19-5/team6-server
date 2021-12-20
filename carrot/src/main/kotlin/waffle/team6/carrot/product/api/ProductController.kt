@@ -104,6 +104,12 @@ class ProductController (
     }
 
     // change the status of the product to RESERVED
+    @PostMapping("/{product_id}/reserve/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun reserve(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+        productService.reserve(user, productId)
+        return ResponseEntity.noContent().build()
+    }
 
     // change the status of the product to SOLD_OUT
 }

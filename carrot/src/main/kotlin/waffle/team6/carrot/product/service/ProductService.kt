@@ -8,6 +8,7 @@ import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.PurchaseRequest
+import waffle.team6.carrot.product.model.Status
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
@@ -99,13 +100,24 @@ class ProductService (
 
     fun chat(user: User, id: Long, request: PurchaseRequestDto.Request): PurchaseRequestDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchase()
+        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchaseException()
         val purchaseRequest = PurchaseRequest(user, product, request)
         //user.purchaseRequest.add(request)
         product.purchaseRequest.add(purchaseRequest)
         productRepository.save(product)
         //userRepository.save(user)
         return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest))
+    }
+
+    fun reserve(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (product.user != user) throw ProductReserveByInvalidUserException()
+        if (product.status == Status.FOR_SALE) {
+            product.status = Status.RESERVED
+            productRepository.save(product)
+        }
     }
 }
 
