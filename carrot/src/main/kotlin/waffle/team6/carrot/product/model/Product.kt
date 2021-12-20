@@ -1,6 +1,7 @@
 package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
+import jdk.jshell.SourceCodeAnalysis
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
@@ -48,6 +49,9 @@ class Product (
     @field:PositiveOrZero
     var chat: Long,
 
+    @field:PositiveOrZero
+    var priceSuggestion: Long,
+
     @Enumerated(EnumType.STRING)
     var status: Status,
 
@@ -67,6 +71,7 @@ class Product (
         hit = 1,
         like = 0,
         chat = 0,
+        priceSuggestion = 0,
         status = Status.FOR_SALE,
     )
 

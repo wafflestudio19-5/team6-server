@@ -23,6 +23,7 @@ class ProductDto {
         val hit: Long,
         val like: Long,
         val chat: Long,
+        val priceSuggestion: Long,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
@@ -39,6 +40,7 @@ class ProductDto {
             hit = product.hit,
             like = product.like,
             chat = product.chat,
+            priceSuggestion = product.priceSuggestion,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
         )

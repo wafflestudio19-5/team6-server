@@ -103,6 +103,8 @@ class ProductService (
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchaseException()
         val purchaseRequest = PurchaseRequest(user, product, request)
+        if (request.suggestedPrice != null) product.priceSuggestion += 1
+        product.chat += 1
         //user.purchaseRequest.add(request)
         product.purchaseRequest.add(purchaseRequest)
         productRepository.save(product)
@@ -118,6 +120,12 @@ class ProductService (
             product.status = Status.RESERVED
             productRepository.save(product)
         }
+    }
+
+    fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user != user) throw ProductPurchaseRequestLookupByInvalidUserException()
+        return ListResponse(purchaseRequestRepository.findAllByProductId(id).map { PurchaseRequestDto.Response(it) })
     }
 }
 

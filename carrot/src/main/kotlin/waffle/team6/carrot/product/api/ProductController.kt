@@ -111,5 +111,14 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
+    // get purchase requests of specific product
+    @GetMapping("/{product_id}/purchases/")
+    @ResponseStatus(HttpStatus.OK)
+    fun getPurchaseRequests(
+        @CurrentUser user: User, @PathVariable("product_id") productId: Long
+    ): ListResponse<PurchaseRequestDto.Response> {
+        return productService.getProductPurchaseRequests(user, productId)
+    }
+
     // change the status of the product to SOLD_OUT
 }
