@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
 class PingTestController {
-    @GetMapping("/ping-test")
+    @GetMapping("/ping-test/")
     fun pingTest(): ResponseEntity<String> {
         return ResponseEntity.ok("ping test")
     }
