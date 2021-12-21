@@ -16,7 +16,6 @@ class UserDto {
         constructor(user: User): this(
             name = user.name,
             email = user.email,
-            // TODO buyer, seller
         )
     }
 
@@ -45,17 +44,5 @@ class UserDto {
         @field: Size(min=8, max=16)
         val password: String,
     )
-
-    data class PurchaseRecords(
-        var username: String,
-        var products: List<ProductDto.SimpleResponse> = listOf(),
-    ) {
-        constructor(userEntity: User, productsEntityList: List<Product>): this(
-            username = userEntity.name,
-            products = productsEntityList.map {
-                ProductDto.SimpleResponse(it)
-            }
-        )
-    }
 
 }

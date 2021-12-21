@@ -12,7 +12,7 @@ class User(
     @OneToMany(mappedBy = "user")
     val products: List<Product> = listOf(),
 
-    //TODO: purchase records
+    //TODO: purchase requests
 
     @Column(unique = true)
     @field: NotBlank
