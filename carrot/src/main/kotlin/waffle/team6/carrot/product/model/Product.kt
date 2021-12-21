@@ -14,7 +14,7 @@ import javax.validation.constraints.PositiveOrZero
 @Entity
 @Table(name = "product")
 class Product (
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
 
@@ -55,7 +55,7 @@ class Product (
     @Enumerated(EnumType.STRING)
     var status: Status,
 
-    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "product")
+    @OneToMany(cascade = [CascadeType.PERSIST], mappedBy = "product")
      var purchaseRequest: MutableList<PurchaseRequest> = mutableListOf<PurchaseRequest>(),
 
     ) : BaseTimeEntity() {

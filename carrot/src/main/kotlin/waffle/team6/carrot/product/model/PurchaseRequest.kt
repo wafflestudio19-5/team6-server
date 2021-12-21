@@ -10,11 +10,11 @@ import javax.validation.constraints.PositiveOrZero
 @Entity
 @Table(name = "purchase_request")
 class PurchaseRequest (
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product", referencedColumnName = "id")
     val product: Product,
 
