@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.dto
 
+
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.user.model.User
@@ -33,6 +34,7 @@ class UserDto {
         @field: Size(min=8, max=16)
         val password: String,
     )
+
 
     data class UpdateRequest(
         @field: Email

@@ -1,6 +1,7 @@
 package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
+import jdk.jshell.SourceCodeAnalysis
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
@@ -13,10 +14,9 @@ import javax.validation.constraints.PositiveOrZero
 @Entity
 @Table(name = "product")
 class Product (
-    // TODO: User Information
-    // @field:NotBlank
-    @ManyToOne
-    val user: User? = null, //TODO 임시로 null 처리한 부분 수정하기
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user", referencedColumnName = "id")
+    val user: User,
 
     @ElementCollection
     var images: List<String> = listOf(),
@@ -49,12 +49,18 @@ class Product (
     @field:PositiveOrZero
     var chat: Long,
 
+    @field:PositiveOrZero
+    var priceSuggestion: Long,
+
     @Enumerated(EnumType.STRING)
     var status: Status,
 
+    @OneToMany(cascade = [CascadeType.PERSIST], mappedBy = "product")
+     var purchaseRequest: MutableList<PurchaseRequest> = mutableListOf<PurchaseRequest>(),
+
     ) : BaseTimeEntity() {
-    constructor(productPostRequest: ProductDto.PostRequest): this(
-        // user = ...
+    constructor(user: User, productPostRequest: ProductDto.PostRequest): this(
+        user = user,
         images = productPostRequest.images,
         title = productPostRequest.title,
         content = productPostRequest.content,
@@ -65,6 +71,7 @@ class Product (
         hit = 1,
         like = 0,
         chat = 0,
+        priceSuggestion = 0,
         status = Status.FOR_SALE,
     )
 
@@ -76,7 +83,6 @@ class Product (
         negotiable = productModifyRequest.negotiable
         category = productModifyRequest.category
         status = Status.FOR_SALE
-        updatedAt = LocalDateTime.now()
         return this
     }
 }

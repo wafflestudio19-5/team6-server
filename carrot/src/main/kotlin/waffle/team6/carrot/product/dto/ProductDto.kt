@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.Status
+import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
@@ -11,7 +12,7 @@ import javax.validation.constraints.PositiveOrZero
 class ProductDto {
     data class Response(
         val id: Long,
-        // val user: User
+        val user: UserDto.Response,
         val images: List<String>,
         val title: String,
         val content: String,
@@ -22,12 +23,13 @@ class ProductDto {
         val hit: Long,
         val like: Long,
         val chat: Long,
+        val priceSuggestion: Long,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
         constructor(product: Product): this(
             id = product.id,
-            // user = product
+            user = UserDto.Response(product.user),
             images = product.images,
             title = product.title,
             content = product.content,
@@ -38,6 +40,7 @@ class ProductDto {
             hit = product.hit,
             like = product.like,
             chat = product.chat,
+            priceSuggestion = product.priceSuggestion,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
         )
@@ -45,7 +48,7 @@ class ProductDto {
 
     data class SimpleResponse(
         val id: Long,
-        // val user
+        val user: UserDto.Response,
         val image: String,
         val title: String,
         val price: Long,
@@ -57,7 +60,7 @@ class ProductDto {
     ) {
         constructor(product: Product): this(
             id = product.id,
-            // user = product
+            user = UserDto.Response(product.user),
             image = product.images[0],
             title = product.title,
             price = product.price,

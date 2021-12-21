@@ -28,4 +28,5 @@ class User(
 
     val dateJoined: LocalDateTime = LocalDateTime.now(),
 
+
     ): BaseTimeEntity()
