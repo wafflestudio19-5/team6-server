@@ -38,7 +38,7 @@ class ProductDto {
             category = product.category,
             location = product.location,
             hit = product.hit,
-            like = product.like,
+            like = product.likes,
             chat = product.chat,
             priceSuggestion = product.priceSuggestion,
             createdAt = product.createdAt,
@@ -65,7 +65,7 @@ class ProductDto {
             title = product.title,
             price = product.price,
             location = product.location,
-            like = product.like,
+            like = product.likes,
             chat = product.chat,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
