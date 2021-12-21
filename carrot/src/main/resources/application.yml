@@ -35,6 +35,13 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+  cloud:
+    aws:
+      s3:
+        bucket: waffle-team6
+      region:
+        static: ap-northeast-2
+
 ---
 
 spring:
@@ -62,3 +69,14 @@ spring:
       location: /home/ec2-user/images
       max-file-size: 100MB
       max-request-size: 100MB
+
+  cloud:
+    aws:
+      s3:
+        bucket: waffle-team6
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      credentials:
+        instanceProfile: true
