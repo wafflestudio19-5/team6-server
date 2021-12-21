@@ -4,8 +4,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.user.dto.UserDto
-import waffle.team6.carrot.user.model.BuyerProfile
-import waffle.team6.carrot.user.model.SellerProfile
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
 
@@ -25,20 +23,22 @@ class UserService(
             phone = signUpRequest.phone,
         )
 
-        newUser.buyerProfile = BuyerProfile(user = newUser)
-        newUser.sellerProfile = SellerProfile(user = newUser)
         return UserDto.Response(userRepository.save(newUser))
     }
 
-    fun updateUser() {
+    @Transactional
+    fun updateUser(user: User, updateRequest: UserDto.UpdateRequest) {
 
+        val updatedUser = userRepository.save(user)
     }
 
-    fun findMe() {
-
+    fun findMe(user: User): UserDto.Response {
+        return UserDto.Response(
+            user
+        )
     }
 
-    fun findMyPurchaseRecords() {
+    fun findMyPurchaseRecords(user: User) {
 
     }
 
