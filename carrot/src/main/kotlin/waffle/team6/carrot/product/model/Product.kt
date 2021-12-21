@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
@@ -14,7 +15,8 @@ import javax.validation.constraints.PositiveOrZero
 class Product (
     // TODO: User Information
     // @field:NotBlank
-    // val user: User
+    @ManyToOne
+    val user: User? = null, //TODO 임시로 null 처리한 부분 수정하기
 
     @ElementCollection
     var images: List<String> = listOf(),

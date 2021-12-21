@@ -7,7 +7,7 @@ import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.exception.ProductNotFoundException
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.repository.ProductRepository
-import waffle.team6.carrot.user.User
+import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 
 @Service
