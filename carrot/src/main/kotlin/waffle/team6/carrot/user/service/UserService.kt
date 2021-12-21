@@ -1,11 +1,14 @@
 package waffle.team6.carrot.user.service
 
+import jdk.jshell.spi.ExecutionControl
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.user.dto.UserDto
+import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
+import waffle.team6.global.common.exception.InvalidRequestException
 
 @Service
 @Transactional(readOnly = true)
@@ -15,7 +18,7 @@ class UserService(
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
-
+        if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
         val newUser = User(
             name = signUpRequest.name,
             password = passwordEncoder.encode(signUpRequest.password),
