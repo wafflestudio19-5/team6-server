@@ -8,9 +8,10 @@ import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 
 @Entity
+@Table(name = "users")
 class User(
     @OneToMany(mappedBy = "user")
-    val products: List<Product> = listOf(),
+    val product: List<Product> = listOf(),
 
     //TODO: purchase requests
 

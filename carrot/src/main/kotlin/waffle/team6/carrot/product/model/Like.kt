@@ -5,7 +5,7 @@ import waffle.team6.carrot.user.model.User
 import javax.persistence.*
 
 @Entity
-@Table(name = "like")
+@Table(name = "likes")
 class Like (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
