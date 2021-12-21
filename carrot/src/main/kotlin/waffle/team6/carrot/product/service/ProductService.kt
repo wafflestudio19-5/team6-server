@@ -38,21 +38,19 @@ class ProductService (
     fun getProduct(id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         product.hit += 1
-        return ProductDto.Response(productRepository.save(product))
+        return ProductDto.Response(product)
     }
 
     fun modifyProduct(user: User, productModifyRequest: ProductDto.ModifyRequest, id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user != user) throw ProductModifyByInvalidUserException()
-        return ProductDto.Response(productRepository.save(product.modify(productModifyRequest)))
+        return ProductDto.Response(product.modify(productModifyRequest))
     }
 
     fun deleteProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user != user) throw ProductDeleteByInvalidUserException()
-        // val user = product.user
-        // user.product.remove(product)
-        // userRepository.save(user)
+        // product.user.product.remove(product)
         productRepository.delete(product)
     }
 
@@ -69,19 +67,17 @@ class ProductService (
         if (productPatchRequest.status != null) product.status = productPatchRequest.status
 
         product.updatedAt = LocalDateTime.now()
-        return ProductDto.Response(productRepository.save(product))
+        return ProductDto.Response(product)
     }
 
     fun likeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        // TODO: exception when like by seller
 
 //        if (!user.like.any { it.product == product}) {
 //            val like = Like(user, product)
 //            product.like += 1
 //            user.like.add(like)
-//            productRepository.save(product)
-//            likeRepository.save(like)
-//            userRepository.save(user)
 //        }
     }
 
@@ -92,9 +88,7 @@ class ProductService (
 //        if (like != null) {
 //            product.like -= 1
 //            user.like.remove(like)
-//            productRepository.save(product)
 //            likeRepository.delete(like)
-//            userRepository.save(user)
 //        }
     }
 
@@ -107,29 +101,21 @@ class ProductService (
         product.chat += 1
         //user.purchaseRequest.add(request)
         product.purchaseRequest.add(purchaseRequest)
-        productRepository.save(product)
-        //userRepository.save(user)
-        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest))
+        return PurchaseRequestDto.Response(purchaseRequest)
     }
 
     fun reserve(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.user != user) throw ProductReserveByInvalidUserException()
-        if (product.status == Status.FOR_SALE) {
-            product.status = Status.RESERVED
-            productRepository.save(product)
-        }
+        if (product.status == Status.FOR_SALE) product.status = Status.RESERVED
     }
 
     fun cancelReserve(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.user != user) throw ProductReserveCancelByInvalidUserException()
-        if (product.status == Status.RESERVED) {
-            product.status = Status.FOR_SALE
-            productRepository.save(product)
-        }
+        if (product.status == Status.RESERVED) product.status = Status.FOR_SALE
     }
 
     fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
@@ -152,8 +138,7 @@ class ProductService (
         if (purchaseRequest.user != user) throw ProductPurchaseRequestConfirmByInvalidUserException()
         purchaseRequest.product.status = Status.SOLD_OUT
         purchaseRequest.accepted = true
-        productRepository.save(purchaseRequest.product)
-        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest))
+        return PurchaseRequestDto.Response(purchaseRequest)
     }
 }
 
