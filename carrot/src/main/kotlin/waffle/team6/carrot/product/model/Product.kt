@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
 
 @Entity
-@Table(name = "product")
+@Table(name = "products")
 class Product (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
@@ -20,7 +20,6 @@ class Product (
     var images: List<String> = listOf(),
 
     @field:NotBlank
-    @Column(name = "title")
     var title: String,
 
     @field:Length(min = 1, max = 300)
@@ -42,7 +41,7 @@ class Product (
     var hit: Long,
 
     @field:PositiveOrZero
-    var like: Long,
+    var likes: Long,
 
     @field:PositiveOrZero
     var chat: Long,
@@ -67,7 +66,7 @@ class Product (
         category = productPostRequest.category,
         location = productPostRequest.location,
         hit = 1,
-        like = 0,
+        likes = 0,
         chat = 0,
         priceSuggestion = 0,
         status = Status.FOR_SALE,
