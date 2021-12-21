@@ -66,7 +66,6 @@ class ProductService (
         if (productPatchRequest.category != null) product.category = productPatchRequest.category
         if (productPatchRequest.status != null) product.status = productPatchRequest.status
 
-        product.updatedAt = LocalDateTime.now()
         return ProductDto.Response(product)
     }
 

@@ -83,7 +83,6 @@ class Product (
         negotiable = productModifyRequest.negotiable
         category = productModifyRequest.category
         status = Status.FOR_SALE
-        updatedAt = LocalDateTime.now()
         return this
     }
 }
