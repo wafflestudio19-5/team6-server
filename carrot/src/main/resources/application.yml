@@ -41,6 +41,11 @@ spring:
         bucket: waffle-team6
       region:
         static: ap-northeast-2
+      stack:
+        auto: false
+      credentials:
+        accessKey: ${ACCESS_KEY}
+        secretKey: ${SECRET_KEY}
 
 ---
 
