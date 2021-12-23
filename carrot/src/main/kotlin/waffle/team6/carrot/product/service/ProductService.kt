@@ -72,7 +72,7 @@ class ProductService (
 
     fun likeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        // TODO: exception when like by seller
+        if (product.user == user) throw ProductLikeBySellerException()
 
 //        if (!user.like.any { it.product == product}) {
 //            val like = Like(user, product)
@@ -96,6 +96,7 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchaseException()
+        if (product.user == user) throw ProductChatBySellerException()
         val purchaseRequest = PurchaseRequest(user, product, request)
         if (request.suggestedPrice != null) product.priceSuggestion += 1
         product.chat += 1
@@ -132,6 +133,7 @@ class ProductService (
     }
 
     fun confirmProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
+        productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
         if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
