@@ -18,6 +18,7 @@ cloud:
     credentials:
       accessKey: ${ACCESS_KEY}
       secretKey: ${SECRET_KEY}
+      instance-profile: true
 
 
 ---
@@ -75,8 +76,3 @@ spring:
       location: /home/ec2-user/images
       max-file-size: 100MB
       max-request-size: 100MB
-
-  cloud:
-    aws:
-      credentials:
-        instanceProfile: true
