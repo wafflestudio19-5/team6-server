@@ -8,3 +8,4 @@ abstract class InvalidRequestException(errorType: ErrorType, detail: String = ""
 abstract class DataNotFoundException(errorType: ErrorType, detail: String = "") : CarrotException(errorType, detail)
 abstract class NotAllowedException(errorType: ErrorType, detail: String = "") : CarrotException(errorType, detail)
 abstract class ConflictException(errorType: ErrorType, detail: String = "") : CarrotException(errorType, detail)
+abstract class ServerErrorException(errorType: ErrorType, detail: String = "") : CarrotException(errorType, detail)
