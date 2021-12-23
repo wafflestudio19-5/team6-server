@@ -9,7 +9,7 @@ import javax.validation.constraints.PositiveOrZero
 class PurchaseRequestDto {
     data class Response(
         val user: UserDto.Response,
-        val product: ProductDto.Response,
+        val product: Long,
         val suggestedPrice: Long?,
         val accepted: Boolean,
         val updatedAt: LocalDateTime,
@@ -17,7 +17,7 @@ class PurchaseRequestDto {
     ) {
         constructor(purchaseRequest: PurchaseRequest): this(
             user = UserDto.Response(purchaseRequest.user),
-            product = ProductDto.Response(purchaseRequest.product),
+            product = purchaseRequest.product.id,
             suggestedPrice = purchaseRequest.suggestedPrice,
             accepted = purchaseRequest.accepted,
             updatedAt = purchaseRequest.updatedAt,
