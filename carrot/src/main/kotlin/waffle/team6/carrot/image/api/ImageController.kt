@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import waffle.team6.carrot.image.dto.ImageDto
 import waffle.team6.carrot.image.service.ImageService
+import waffle.team6.carrot.user.model.User
+import waffle.team6.global.auth.CurrentUser
 
 @RestController
 @RequestMapping("/api/v1/images")
@@ -15,8 +17,8 @@ class ImageController(
     private val imageService: ImageService
 ) {
     @PostMapping("/")
-    fun upload(@RequestPart image: MultipartFile): ResponseEntity<ImageDto.UploadResponse> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(imageService.upload(image))
+    fun upload(@CurrentUser user: User, @RequestPart image: MultipartFile): ResponseEntity<ImageDto.Response> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(imageService.upload(image, user))
     }
 
     @GetMapping("/{image_id}/")
@@ -24,5 +26,20 @@ class ImageController(
         return ResponseEntity.status(HttpStatus.OK)
             .header(HttpHeaders.CONTENT_TYPE, imageService.getContentType(imageId))
             .body(imageService.download(imageId).image)
+    }
+
+    @PutMapping("/{image_id}/")
+    fun update(
+        @CurrentUser user: User,
+        @RequestPart image: MultipartFile,
+        @PathVariable("image_id") imageId: Long
+    ): ResponseEntity<ImageDto.Response> {
+        return ResponseEntity.status(HttpStatus.OK).body(imageService.update(image, imageId, user))
+    }
+
+    @DeleteMapping("/{image_id}/")
+    fun delete(@CurrentUser user: User, @PathVariable("image_id") imageId: Long): ResponseEntity<Any> {
+        imageService.delete(imageId, user)
+        return ResponseEntity.ok().build()
     }
 }

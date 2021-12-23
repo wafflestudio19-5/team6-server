@@ -5,7 +5,7 @@ import waffle.team6.carrot.image.model.Image
 import java.time.LocalDateTime
 
 class ImageDto {
-    data class UploadResponse(
+    data class Response(
         val id: Long,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
@@ -17,7 +17,7 @@ class ImageDto {
         )
     }
 
-    data class DownloadResponse(
+    data class ImageResource(
         val image: InputStreamResource
     )
 }

@@ -1,22 +1,21 @@
 package waffle.team6.carrot.image.service
 
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.CannedAccessControlList
-import com.amazonaws.services.s3.model.GetObjectRequest
-import com.amazonaws.services.s3.model.PutObjectRequest
-import com.amazonaws.services.s3.model.S3ObjectInputStream
+import com.amazonaws.services.s3.model.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import waffle.team6.carrot.image.dto.ImageDto
+import waffle.team6.carrot.image.exception.ImageDeleteByInvalidUserException
 import waffle.team6.carrot.image.exception.ImageLocalSaveFailException
 import waffle.team6.carrot.image.exception.ImageNotFoundException
+import waffle.team6.carrot.image.exception.ImageUpdateByInvalidUserException
 import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.repository.ImageRepository
+import waffle.team6.carrot.user.model.User
 import java.io.File
-import java.nio.file.Files
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -28,19 +27,42 @@ class ImageService(
     @Value("\${cloud.aws.s3.bucket}")
     lateinit var bucket: String
 
-    fun upload(image: MultipartFile): ImageDto.UploadResponse {
+    fun upload(image: MultipartFile, user: User): ImageDto.Response {
         val file = saveFileToLocal(image)
         if (file != null) {
             val fileName = "images/" + UUID.randomUUID() + image.name
             putFileToS3(file, fileName)
             removeLocalFile(file)
-            return ImageDto.UploadResponse(imageRepository.save(Image(fileName, image.contentType.toString())))
+            return ImageDto.Response(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
         } else throw ImageLocalSaveFailException()
     }
 
-    fun download(id: Long): ImageDto.DownloadResponse {
+    fun download(id: Long): ImageDto.ImageResource {
         val image = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
-        return ImageDto.DownloadResponse(InputStreamResource(getFileFromS3(image.fileName)))
+        return ImageDto.ImageResource(InputStreamResource(getFileFromS3(image.fileName)))
+    }
+
+    fun update(image: MultipartFile, id: Long, user: User): ImageDto.Response {
+        val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
+        if (imageEntity.userId != user.id) throw ImageUpdateByInvalidUserException()
+        deleteFileInS3(imageEntity.fileName)
+        val file = saveFileToLocal(image)
+        if (file != null) {
+            val fileName = "images/" + UUID.randomUUID() + image.name
+            putFileToS3(file, fileName)
+            removeLocalFile(file)
+            imageEntity.fileName = fileName
+            imageEntity.contentType = image.contentType.toString()
+            imageRepository.flush()
+            return ImageDto.Response(imageEntity)
+        } else throw ImageLocalSaveFailException()
+    }
+
+    fun delete(id: Long, user: User) {
+        val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
+        if (imageEntity.userId != user.id) throw ImageDeleteByInvalidUserException()
+        deleteFileInS3(imageEntity.fileName)
+        imageRepository.delete(imageEntity)
     }
 
     fun getContentType(id: Long): String {
@@ -54,6 +76,10 @@ class ImageService(
 
     fun getFileFromS3(fileName: String): S3ObjectInputStream {
         return amazonS3Client.getObject(GetObjectRequest(bucket, fileName)).objectContent
+    }
+
+    fun deleteFileInS3(fileName: String) {
+        amazonS3Client.deleteObject(DeleteObjectRequest(bucket, fileName))
     }
 
     fun saveFileToLocal(file: MultipartFile): File? {
