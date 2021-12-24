@@ -28,13 +28,11 @@ class ImageService(
     lateinit var bucket: String
 
     fun upload(image: MultipartFile, user: User): ImageDto.Response {
-        val file = saveFileToLocal(image)
-        if (file != null) {
-            val fileName = "images/server/" + UUID.randomUUID() + image.name
-            putFileToS3(file, fileName)
-            removeLocalFile(file)
-            return ImageDto.Response(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
-        } else throw ImageLocalSaveFailException()
+        val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
+        val fileName = "images/server/" + UUID.randomUUID() + image.name
+        putFileToS3(file, fileName)
+        removeLocalFile(file)
+        return ImageDto.Response(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
     }
 
     fun download(id: Long): ImageDto.ImageResource {
@@ -46,16 +44,14 @@ class ImageService(
         val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
         if (imageEntity.userId != user.id) throw ImageUpdateByInvalidUserException()
         deleteFileInS3(imageEntity.fileName)
-        val file = saveFileToLocal(image)
-        if (file != null) {
-            val fileName = "images/server/" + UUID.randomUUID() + image.name
-            putFileToS3(file, fileName)
-            removeLocalFile(file)
-            imageEntity.fileName = fileName
-            imageEntity.contentType = image.contentType.toString()
-            imageRepository.flush()
-            return ImageDto.Response(imageEntity)
-        } else throw ImageLocalSaveFailException()
+        val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
+        val fileName = "images/server/" + UUID.randomUUID() + image.name
+        putFileToS3(file, fileName)
+        removeLocalFile(file)
+        imageEntity.fileName = fileName
+        imageEntity.contentType = image.contentType.toString()
+        imageRepository.flush()
+        return ImageDto.Response(imageEntity)
     }
 
     fun delete(id: Long, user: User) {
