@@ -1,6 +1,5 @@
 package waffle.team6.carrot.product.dto
 
-import jdk.jfr.BooleanFlag
 import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime

@@ -1,12 +1,10 @@
 package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
-import jdk.jshell.SourceCodeAnalysis
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.user.model.User
-import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
