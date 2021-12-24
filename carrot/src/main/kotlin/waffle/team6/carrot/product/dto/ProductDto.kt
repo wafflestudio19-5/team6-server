@@ -13,7 +13,7 @@ class ProductDto {
     data class Response(
         val id: Long,
         val user: UserDto.Response,
-        val images: List<String>,
+        val images: List<Long>,
         val title: String,
         val content: String,
         val price: Long,
@@ -49,7 +49,7 @@ class ProductDto {
     data class SimpleResponse(
         val id: Long,
         val user: UserDto.Response,
-        val image: String,
+        val image: Long,
         val title: String,
         val price: Long,
         val location: String,
@@ -73,7 +73,7 @@ class ProductDto {
     }
 
     data class PostRequest(
-        val images: List<String>,
+        val images: List<Long>,
         @field:NotBlank
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -89,7 +89,7 @@ class ProductDto {
     )
 
     data class ModifyRequest(
-        val images: List<String>,
+        val images: List<Long>,
         @field:NotBlank
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -103,7 +103,7 @@ class ProductDto {
     )
 
     data class PatchRequest(
-        val images: List<String>? = null,
+        val images: List<Long>? = null,
         val title: String? = null,
         val content: String? = null,
         val price: Long? = null,

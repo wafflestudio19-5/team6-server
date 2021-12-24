@@ -17,7 +17,7 @@ class Product (
     val user: User,
 
     @ElementCollection
-    var images: List<String> = listOf(),
+    var images: List<Long> = listOf(),
 
     @field:NotBlank
     var title: String,
