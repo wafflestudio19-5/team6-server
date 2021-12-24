@@ -71,15 +71,4 @@ class Product (
         priceSuggestion = 0,
         status = Status.FOR_SALE,
     )
-
-    fun modify(productModifyRequest: ProductDto.ModifyRequest): Product{
-        images = productModifyRequest.images
-        title = productModifyRequest.title
-        content = productModifyRequest.content
-        price = productModifyRequest.price
-        negotiable = productModifyRequest.negotiable
-        category = productModifyRequest.category
-        status = Status.FOR_SALE
-        return this
-    }
 }

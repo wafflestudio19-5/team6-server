@@ -31,8 +31,8 @@ class ProductController (
     }
 
     @GetMapping("/{product_id}/")
-    fun getProduct(@PathVariable("product_id") productId: Long): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(productService.getProduct(productId))
+    fun getProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(productService.getProduct(user, productId))
     }
 
     @DeleteMapping("/{product_id}/")

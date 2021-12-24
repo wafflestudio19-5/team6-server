@@ -24,11 +24,11 @@ class ProductDto {
         val like: Long,
         val chat: Long,
         val status: Status,
-        val priceSuggestion: Long,
+        val priceSuggestion: Long?,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
-        constructor(product: Product): this(
+        constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
             user = UserDto.Response(product.user),
             images = product.images,
@@ -42,7 +42,7 @@ class ProductDto {
             like = product.likes,
             chat = product.chat,
             status = product.status,
-            priceSuggestion = product.priceSuggestion,
+            priceSuggestion = if (isSeller) product.priceSuggestion else null,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
         )

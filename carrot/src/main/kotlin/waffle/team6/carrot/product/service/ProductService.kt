@@ -33,13 +33,14 @@ class ProductService (
 
     fun addProducts(user: User, productPostRequest: ProductDto.PostRequest): ProductDto.Response {
         val product = Product(user, productPostRequest)
-        return ProductDto.Response(productRepository.save(product))
+        return ProductDto.Response(productRepository.save(product), true)
     }
 
-    fun getProduct(id: Long): ProductDto.Response {
+    fun getProduct(user: User, id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         product.hit += 1
-        return ProductDto.Response(product)
+        return if (product.user.id == user.id) ProductDto.Response(product, true)
+        else ProductDto.Response(product, false)
     }
 
     fun deleteProduct(user: User, id: Long) {
@@ -64,7 +65,7 @@ class ProductService (
         if (productPatchRequest.category != null) product.category = productPatchRequest.category
 
         productRepository.flush()
-        return ProductDto.Response(product)
+        return ProductDto.Response(product, true)
     }
 
     fun likeProduct(user: User, id: Long) {
@@ -101,7 +102,7 @@ class ProductService (
         product.purchaseRequest.add(purchaseRequest)
         //userRepository.flush()
         productRepository.flush()
-        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest))
+        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest), false)
     }
 
     fun reserve(user: User, id: Long) {
@@ -123,14 +124,14 @@ class ProductService (
     fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return ListResponse(purchaseRequestRepository.findAllByProductId(id).map { PurchaseRequestDto.Response(it) })
+        return ListResponse(purchaseRequestRepository.findAllByProductId(id).map { PurchaseRequestDto.Response(it, true) })
     }
 
     fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
         if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return PurchaseRequestDto.Response(purchaseRequest)
+        return PurchaseRequestDto.Response(purchaseRequest, true)
     }
 
     fun confirmProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
@@ -142,7 +143,7 @@ class ProductService (
         purchaseRequest.product.status = Status.SOLD_OUT
         purchaseRequest.accepted = true
         purchaseRequestRepository.flush()
-        return PurchaseRequestDto.Response(purchaseRequest)
+        return PurchaseRequestDto.Response(purchaseRequest, true)
     }
 }
 
