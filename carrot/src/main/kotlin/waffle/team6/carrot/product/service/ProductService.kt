@@ -42,15 +42,6 @@ class ProductService (
         return ProductDto.Response(product)
     }
 
-    fun modifyProduct(user: User, productModifyRequest: ProductDto.ModifyRequest, id: Long): ProductDto.Response {
-        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
-        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        product.modify(productModifyRequest)
-        productRepository.flush()
-        return ProductDto.Response(product)
-    }
-
     fun deleteProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductDeleteByInvalidUserException()

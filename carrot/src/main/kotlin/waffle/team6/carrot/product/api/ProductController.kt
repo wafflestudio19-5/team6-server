@@ -35,15 +35,6 @@ class ProductController (
         return ResponseEntity.ok().body(productService.getProduct(productId))
     }
 
-    @PutMapping("/{product_id}/")
-    fun modifyProduct(
-        @CurrentUser user: User,
-        @RequestBody @Valid productModifyRequest: ProductDto.ModifyRequest,
-        @PathVariable("product_id") productId: Long
-    ): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(productService.modifyProduct(user, productModifyRequest, productId))
-    }
-
     @DeleteMapping("/{product_id}/")
     fun deleteProduct(
         @CurrentUser user: User,
