@@ -48,9 +48,24 @@ class UserController(
             .build()
     }
 
-
-    @GetMapping("me/")
+    @GetMapping("/me/")
     fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok().body(userService.findMe(user))
+    }
+
+    //TODO 이하 구현예정
+    @GetMapping("/me/purchase_requests/")
+    fun getMyPurchaseRequests() {
+
+    }
+
+    @GetMapping("/me/products/")
+    fun getMyProducts() {
+
+    }
+
+    @GetMapping("/me/likes/")
+    fun getMyLikes() {
+
     }
 }
