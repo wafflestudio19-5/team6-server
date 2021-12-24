@@ -5,4 +5,5 @@ import waffle.team6.carrot.user.model.User
 
 interface UserRepository : JpaRepository<User, Long?> {
     fun findByName(name: String): User?
+    fun existsByName(name: String): Boolean
 }
