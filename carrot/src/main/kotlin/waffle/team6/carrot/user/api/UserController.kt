@@ -7,6 +7,7 @@ import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.global.auth.jwt.JwtTokenProvider
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -16,7 +17,7 @@ class UserController(
 ) {
 
     @PostMapping("/")
-    fun signUp(@RequestBody signUpRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.Response> {
+    fun signUp(@RequestBody @Valid signUpRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.Response> {
         return ResponseEntity.noContent().header(
                 "Authentication",
                 jwtTokenProvider.generateToken(
@@ -26,17 +27,27 @@ class UserController(
 
     @GetMapping("/")
     fun getUsers(): ResponseEntity<Any> {
-        // TODO implement for admin
+        // TODO implement for admin (유저 Role을 어드민과 일반회원으로 구분할지 논의필요할듯)
         return ResponseEntity.ok().build()
     }
 
-    @PatchMapping("me/")
-    fun updateMe(
-        @CurrentUser user: User,
-        @RequestBody updateRequest: UserDto.UpdateRequest): ResponseEntity<UserDto.Response> {
-        userService.updateUser(user, updateRequest)
+    @PatchMapping("/me/")
+    fun updateMyProfile(@CurrentUser user: User,
+                       @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest): ResponseEntity<UserDto.Response> {
+        userService.updateUserProfile(user, updateProfileRequest)
         return ResponseEntity.ok().build()
     }
+
+    @PatchMapping("/me/password/")
+    fun updateMyPassword(@CurrentUser user: User,
+                         @RequestBody @Valid updatePasswordRequest: UserDto.UpdatePasswordRequest): ResponseEntity<Any> {
+        return ResponseEntity.noContent().header(
+                "Authentication",
+                jwtTokenProvider.generateToken(
+                    userService.updateUserPassword(user, updatePasswordRequest).name))
+            .build()
+    }
+
 
     @GetMapping("me/")
     fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {

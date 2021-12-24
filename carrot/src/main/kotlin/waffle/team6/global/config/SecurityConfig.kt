@@ -60,10 +60,8 @@ class SecurityConfig(
             .anyRequest().authenticated()
     }
 
-    fun isAuthenticated(name: String, password: String): Boolean {
-        return authenticationManager().authenticate(
-            UsernamePasswordAuthenticationToken(name, password)
-        ).isAuthenticated
+    fun authenticateWithNameAndPassword(name: String, password: String) {
+        authenticationManager().authenticate(UsernamePasswordAuthenticationToken(name, password))
     }
 
 }
