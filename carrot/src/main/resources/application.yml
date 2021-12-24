@@ -7,6 +7,17 @@ app:
     jwt-secret-key: wafflestudio
     jwt-expiration-in-ms: 10800000
 
+cloud:
+  aws:
+    s3:
+      bucket: waffle-team6
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      instance-profile: true
+
 
 ---
 
@@ -34,6 +45,7 @@ spring:
       location: /tmp
       max-file-size: 100MB
       max-request-size: 100MB
+
 
 ---
 
