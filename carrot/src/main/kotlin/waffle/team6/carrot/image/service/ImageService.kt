@@ -30,7 +30,7 @@ class ImageService(
     fun upload(image: MultipartFile, user: User): ImageDto.Response {
         val file = saveFileToLocal(image)
         if (file != null) {
-            val fileName = "images/" + UUID.randomUUID() + image.name
+            val fileName = "images/server/" + UUID.randomUUID() + image.name
             putFileToS3(file, fileName)
             removeLocalFile(file)
             return ImageDto.Response(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
@@ -48,7 +48,7 @@ class ImageService(
         deleteFileInS3(imageEntity.fileName)
         val file = saveFileToLocal(image)
         if (file != null) {
-            val fileName = "images/" + UUID.randomUUID() + image.name
+            val fileName = "images/server/" + UUID.randomUUID() + image.name
             putFileToS3(file, fileName)
             removeLocalFile(file)
             imageEntity.fileName = fileName
