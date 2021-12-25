@@ -88,9 +88,13 @@ class ProductController (
 
     @GetMapping("/{product_id}/purchases/")
     fun getPurchaseRequests(
-        @CurrentUser user: User, @PathVariable("product_id") productId: Long
+        @CurrentUser user: User,
+        @PathVariable("product_id") productId: Long,
+        @RequestParam(required = false) withPriceSuggestion: Boolean
     ): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId))
+        return if (withPriceSuggestion) ResponseEntity.ok().body(productService
+            .getProductPurchaseRequestsWithPriceSuggestion(user, productId))
+        else ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId))
     }
 
     @GetMapping("/{product_id}/purchases/{purchase_request_id}/")

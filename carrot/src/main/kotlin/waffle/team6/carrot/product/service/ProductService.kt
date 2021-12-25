@@ -124,7 +124,15 @@ class ProductService (
     fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return ListResponse(purchaseRequestRepository.findAllByProductId(id).map { PurchaseRequestDto.Response(it, true) })
+        return ListResponse(purchaseRequestRepository.findAllByProductId(id)
+            .map { PurchaseRequestDto.Response(it, true) })
+    }
+
+    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
+        return ListResponse(purchaseRequestRepository.findAllByProductIdAndSuggestedPriceIsNotNull(id)
+            .map { PurchaseRequestDto.Response(it, true) })
     }
 
     fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
