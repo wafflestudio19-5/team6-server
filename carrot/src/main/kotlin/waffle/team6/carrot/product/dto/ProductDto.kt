@@ -21,10 +21,10 @@ class ProductDto {
         val category: String,
         val location: String,
         val hit: Long,
-        val like: Long,
-        val chat: Long,
+        val likes: Long,
+        val chats: Long,
         val status: Status,
-        val priceSuggestion: Long?,
+        val priceSuggestions: Long?,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
@@ -39,10 +39,10 @@ class ProductDto {
             category = product.category,
             location = product.location,
             hit = product.hit,
-            like = product.likes,
-            chat = product.chat,
+            likes = product.likes,
+            chats = product.chats,
             status = product.status,
-            priceSuggestion = if (isSeller) product.priceSuggestion else null,
+            priceSuggestions = if (isSeller) product.priceSuggestions else null,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
         )
@@ -55,8 +55,8 @@ class ProductDto {
         val title: String,
         val price: Long,
         val location: String,
-        val like: Long,
-        val chat: Long,
+        val likes: Long,
+        val chats: Long,
         val status: Status,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
@@ -68,8 +68,8 @@ class ProductDto {
             title = product.title,
             price = product.price,
             location = product.location,
-            like = product.likes,
-            chat = product.chat,
+            likes = product.likes,
+            chats = product.chats,
             status = product.status,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt

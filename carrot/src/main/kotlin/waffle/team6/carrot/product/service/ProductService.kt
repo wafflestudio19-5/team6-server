@@ -93,13 +93,13 @@ class ProductService (
     fun chat(user: User, id: Long, request: PurchaseRequestDto.Request): PurchaseRequestDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        if (product.purchaseRequest.any { it.user == user }) throw ProductAlreadyRequestedPurchaseException()
+        if (product.purchaseRequests.any { it.user == user }) throw ProductAlreadyRequestedPurchaseException()
         if (product.user.id == user.id) throw ProductChatBySellerException()
         val purchaseRequest = PurchaseRequest(user, product, request)
-        if (request.suggestedPrice != null) product.priceSuggestion += 1
-        product.chat += 1
+        if (request.suggestedPrice != null) product.priceSuggestions += 1
+        product.chats += 1
         //user.purchaseRequest.add(request)
-        product.purchaseRequest.add(purchaseRequest)
+        product.purchaseRequests.add(purchaseRequest)
         //userRepository.flush()
         productRepository.flush()
         return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest), false)

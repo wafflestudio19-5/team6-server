@@ -44,16 +44,16 @@ class Product (
     var likes: Long,
 
     @field:PositiveOrZero
-    var chat: Long,
+    var chats: Long,
 
     @field:PositiveOrZero
-    var priceSuggestion: Long,
+    var priceSuggestions: Long,
 
     @Enumerated(EnumType.STRING)
     var status: Status,
 
     @OneToMany(cascade = [CascadeType.PERSIST], mappedBy = "product")
-     var purchaseRequest: MutableList<PurchaseRequest> = mutableListOf<PurchaseRequest>(),
+     var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     ) : BaseTimeEntity() {
     constructor(user: User, productPostRequest: ProductDto.PostRequest): this(
@@ -67,8 +67,8 @@ class Product (
         location = productPostRequest.location,
         hit = 1,
         likes = 0,
-        chat = 0,
-        priceSuggestion = 0,
+        chats = 0,
+        priceSuggestions = 0,
         status = Status.FOR_SALE,
     )
 }
