@@ -13,7 +13,7 @@ class ProductDto {
     data class Response(
         val id: Long,
         val user: UserDto.Response,
-        val images: List<String>,
+        val images: List<Long>,
         val title: String,
         val content: String,
         val price: Long,
@@ -21,13 +21,14 @@ class ProductDto {
         val category: String,
         val location: String,
         val hit: Long,
-        val like: Long,
-        val chat: Long,
-        val priceSuggestion: Long,
+        val likes: Long,
+        val chats: Long,
+        val status: Status,
+        val priceSuggestions: Long?,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
-        constructor(product: Product): this(
+        constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
             user = UserDto.Response(product.user),
             images = product.images,
@@ -38,9 +39,10 @@ class ProductDto {
             category = product.category,
             location = product.location,
             hit = product.hit,
-            like = product.likes,
-            chat = product.chat,
-            priceSuggestion = product.priceSuggestion,
+            likes = product.likes,
+            chats = product.chats,
+            status = product.status,
+            priceSuggestions = if (isSeller) product.priceSuggestions else null,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
         )
@@ -49,12 +51,13 @@ class ProductDto {
     data class SimpleResponse(
         val id: Long,
         val user: UserDto.Response,
-        val image: String,
+        val image: Long,
         val title: String,
         val price: Long,
         val location: String,
-        val like: Long,
-        val chat: Long,
+        val likes: Long,
+        val chats: Long,
+        val status: Status,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
@@ -65,15 +68,16 @@ class ProductDto {
             title = product.title,
             price = product.price,
             location = product.location,
-            like = product.likes,
-            chat = product.chat,
+            likes = product.likes,
+            chats = product.chats,
+            status = product.status,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt
         )
     }
 
     data class PostRequest(
-        val images: List<String>,
+        val images: List<Long>,
         @field:NotBlank
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -88,27 +92,12 @@ class ProductDto {
         val location: String
     )
 
-    data class ModifyRequest(
-        val images: List<String>,
-        @field:NotBlank
-        val title: String,
-        @field:Length(min = 1, max = 300)
-        val content: String,
-        @field:PositiveOrZero
-        val price: Long,
-        @field:BooleanFlag
-        val negotiable: Boolean,
-        @field:NotBlank
-        val category: String,
-    )
-
     data class PatchRequest(
-        val images: List<String>? = null,
+        val images: List<Long>? = null,
         val title: String? = null,
         val content: String? = null,
         val price: Long? = null,
         val negotiable: Boolean? = null,
         val category: String? = null,
-        val status: Status? = null,
     )
 }

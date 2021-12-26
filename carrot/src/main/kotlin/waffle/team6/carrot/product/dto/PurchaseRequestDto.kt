@@ -1,6 +1,6 @@
 package waffle.team6.carrot.product.dto
 
-import jdk.jfr.BooleanFlag
+import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
@@ -15,9 +15,9 @@ class PurchaseRequestDto {
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
     ) {
-        constructor(purchaseRequest: PurchaseRequest): this(
+        constructor(purchaseRequest: PurchaseRequest, isSeller: Boolean): this(
             user = UserDto.Response(purchaseRequest.user),
-            product = ProductDto.Response(purchaseRequest.product),
+            product = ProductDto.Response(purchaseRequest.product, isSeller),
             suggestedPrice = purchaseRequest.suggestedPrice,
             accepted = purchaseRequest.accepted,
             updatedAt = purchaseRequest.updatedAt,
