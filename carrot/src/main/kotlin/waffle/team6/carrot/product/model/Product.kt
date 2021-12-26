@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
 
 @Entity
-@Table(name = "products")
+@Table(name = "product")
 class Product (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
