@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import waffle.team6.carrot.image.dto.ImageDto
 import waffle.team6.carrot.image.exception.ImageDeleteByInvalidUserException
@@ -20,6 +21,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
+@Transactional(readOnly = true)
 class ImageService(
     private val amazonS3Client: AmazonS3Client,
     private val imageRepository: ImageRepository
@@ -27,6 +29,7 @@ class ImageService(
     @Value("\${cloud.aws.s3.bucket}")
     lateinit var bucket: String
 
+    @Transactional
     fun upload(image: MultipartFile, user: User): ImageDto.Response {
         val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
         val fileName = "images/server/" + UUID.randomUUID() + image.name
@@ -40,6 +43,7 @@ class ImageService(
         return ImageDto.ImageResource(InputStreamResource(getFileFromS3(image.fileName)))
     }
 
+    @Transactional
     fun update(image: MultipartFile, id: Long, user: User): ImageDto.Response {
         val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
         if (imageEntity.userId != user.id) throw ImageUpdateByInvalidUserException()
@@ -50,10 +54,10 @@ class ImageService(
         removeLocalFile(file)
         imageEntity.fileName = fileName
         imageEntity.contentType = image.contentType.toString()
-        imageRepository.flush()
         return ImageDto.Response(imageEntity)
     }
 
+    @Transactional
     fun delete(id: Long, user: User) {
         val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
         if (imageEntity.userId != user.id) throw ImageDeleteByInvalidUserException()
