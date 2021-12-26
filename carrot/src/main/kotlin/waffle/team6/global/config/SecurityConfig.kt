@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import waffle.team6.global.auth.filter.JwtAuthenticationFilter
 import waffle.team6.global.auth.filter.SigninAuthenticationFilter
 import waffle.team6.global.auth.jwt.JwtAuthenticationEntryPoint
@@ -45,6 +48,9 @@ class SecurityConfig(
 
     override fun configure(http: HttpSecurity) {
         http
+            .httpBasic().disable()
+            .cors().configurationSource(corsConfigurationSource())
+            .and()
             .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
@@ -58,5 +64,19 @@ class SecurityConfig(
             .antMatchers("/api/v1/users/signin/").permitAll()  // Auth entrypoint
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
             .anyRequest().authenticated()
+    }
+
+    @Bean
+    public fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration: CorsConfiguration = CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(listOf("http://localhost:3000", "http://localhost:3001", "https://carrotshop.shop", "http://carrotshop.shop"))
+        configuration.addAllowedHeader("*")
+        configuration.addAllowedMethod("*")
+        configuration.setAllowCredentials(true)
+
+        val source: UrlBasedCorsConfigurationSource = UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
