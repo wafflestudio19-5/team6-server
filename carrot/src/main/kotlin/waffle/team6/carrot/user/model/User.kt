@@ -16,7 +16,7 @@ class User(
     val product: List<Product> = listOf(),
 
     @OneToMany(mappedBy = "user")
-    val purchaseRequests: List<PurchaseRequest> = listOf(),
+    var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     @Column(unique = true)
     @field: NotBlank

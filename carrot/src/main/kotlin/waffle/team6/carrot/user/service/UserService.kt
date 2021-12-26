@@ -40,9 +40,7 @@ class UserService(
 
     @Transactional
     fun updateUserPassword(user: User, updatePasswordRequest: UserDto.UpdatePasswordRequest): UserDto.Response {
-        try {
-            securityConfig.authenticateWithNameAndPassword(user.name, updatePasswordRequest.currentPassword)
-        } catch (e: AuthenticationException) {
+        if (!passwordEncoder.matches(updatePasswordRequest.currentPassword, user.password)) {
             throw UserInvalidCurrentPasswordException("Incorrect Current Password")
         }
         user.password = passwordEncoder.encode(updatePasswordRequest.newPassword)
