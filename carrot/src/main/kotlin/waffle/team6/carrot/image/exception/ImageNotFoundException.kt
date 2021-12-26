@@ -1,4 +1,4 @@
-package waffle.team6.carrot.image
+package waffle.team6.carrot.image.exception
 
 import waffle.team6.global.common.exception.DataNotFoundException
 import waffle.team6.global.common.exception.ErrorType
