@@ -2,6 +2,8 @@ package waffle.team6.carrot.user.model
 
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.model.Product
+import waffle.team6.carrot.product.model.PurchaseRequest
+import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.Email
@@ -13,14 +15,15 @@ class User(
     @OneToMany(mappedBy = "user")
     val product: List<Product> = listOf(),
 
-    //TODO: purchase requests
+    @OneToMany(mappedBy = "user")
+    var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     @Column(unique = true)
     @field: NotBlank
     val name: String,
 
     @field: NotBlank
-    val password: String,
+    var password: String,
 
     @field: Email
     var email: String?,
@@ -29,5 +32,9 @@ class User(
 
     val dateJoined: LocalDateTime = LocalDateTime.now(),
 
-
-    ): BaseTimeEntity()
+    ): BaseTimeEntity() {
+        fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest) {
+            email = updateProfileRequest.email
+            phone = updateProfileRequest.phone
+        }
+    }

@@ -58,5 +58,4 @@ class SecurityConfig(
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
             .anyRequest().authenticated()
     }
-
 }
