@@ -46,6 +46,9 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
 
 ---
 
@@ -67,10 +70,12 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
-
   servlet:
     multipart:
       file-size-threshold: 3MB
       location: /home/ec2-user/images
       max-file-size: 100MB
       max-request-size: 100MB
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
