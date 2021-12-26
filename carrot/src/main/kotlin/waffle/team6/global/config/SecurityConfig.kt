@@ -3,7 +3,6 @@ package waffle.team6.global.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
@@ -59,9 +58,4 @@ class SecurityConfig(
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
             .anyRequest().authenticated()
     }
-
-    fun authenticateWithNameAndPassword(name: String, password: String) {
-        authenticationManager().authenticate(UsernamePasswordAuthenticationToken(name, password))
-    }
-
 }
