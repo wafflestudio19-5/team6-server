@@ -36,6 +36,7 @@ class ProductService (
     @Transactional
     fun addProducts(user: User, productPostRequest: ProductDto.PostRequest): ProductDto.Response {
         val product = Product(user, productPostRequest)
+//        user.products.add(product)
         return ProductDto.Response(productRepository.save(product), true)
     }
 
@@ -53,6 +54,7 @@ class ProductService (
 //        for (image in product.images) {
 //            imageService.delete(image, user)
 //        }
+//        user.products.remove(product)
         productRepository.delete(product)
     }
 
