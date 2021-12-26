@@ -79,6 +79,7 @@ class ProductService (
     fun likeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id == user.id) throw ProductLikeBySellerException()
+        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
 
 //        if (!user.like.any { it.product == product}) {
 //            val like = Like(user, product)
