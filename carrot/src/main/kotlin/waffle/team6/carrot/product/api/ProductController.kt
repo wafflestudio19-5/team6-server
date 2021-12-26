@@ -1,12 +1,19 @@
 package waffle.team6.carrot.product.api
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import springfox.documentation.annotations.ApiIgnore
+import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.carrot.user.model.User
+import waffle.team6.global.common.exception.ErrorResponse
 import javax.validation.Valid
 
 @RestController
@@ -15,7 +22,12 @@ class ProductController (
     private val productService: ProductService
     ) {
     @GetMapping("/")
-    fun getProducts(@RequestParam(required = false) title: String?): ResponseEntity<Any> {
+    @Operation(summary = "전체 판매글 조회", description = "전체 판매글을 조회합니다. 아직 페이지네이션, 지역정보 기능을 제공하지 않습니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response")
+    ])
+    fun getProducts(
+        @RequestParam(required = false) title: String?
+    ): ResponseEntity<ListResponse<ProductDto.SimpleResponse>> {
         return if (title == null)
             ResponseEntity.ok().body(productService.getProducts())
         else
@@ -23,21 +35,37 @@ class ProductController (
     }
 
     @PostMapping("/")
+    @Operation(summary = "판매글 등록", description = "판매글을 등록합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "400", description = "Request Body 에 누락이나 잘못된 값이 들어간 경우")
+    ])
     fun addProducts(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid productPostRequest: ProductDto.PostRequest
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<ProductDto.Response> {
         return ResponseEntity.ok().body(productService.addProducts(user, productPostRequest))
     }
 
     @GetMapping("/{product_id}/")
-    fun getProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+    @Operation(summary = "개별 판매글 조회", description = "개별 판매글을 조회합니다. 조회수가 1 증가합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
+    fun getProduct(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<ProductDto.Response> {
         return ResponseEntity.ok().body(productService.getProduct(user, productId))
     }
 
     @DeleteMapping("/{product_id}/")
+    @Operation(summary = "판매글 삭제", description = "판매글이 삭제됩니다", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "3202", description = "판매자가 아닌 다른 사용자가 삭제 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
     fun deleteProduct(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long
     ): ResponseEntity<Any> {
         productService.deleteProduct(user, productId)
@@ -45,73 +73,139 @@ class ProductController (
     }
 
     @PatchMapping("/{product_id}/")
-    fun changeProductStatus(
-        @CurrentUser user: User,
+    @Operation(summary = "판매글 수정", description = "판매글의 상세 정보를 수정합니다. 지역정보는 수정할 수 없습니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3201", description = "판매자가 아닌 다른 사용자가 수정 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
+    fun updateProduct(
+        @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid productPatchRequest: ProductDto.PatchRequest,
         @PathVariable("product_id") productId: Long
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<ProductDto.Response> {
         return ResponseEntity.ok().body(productService.patchProduct(user, productPatchRequest, productId))
     }
 
     @PostMapping("/{product_id}/like/")
-    fun likeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+    @Operation(summary = "판매글 관심목록 등록", description = "판매글을 관심목록에 등록합니다", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3207", description = "판매자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
+    fun likeProduct(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
         productService.likeProduct(user, productId)
         return ResponseEntity.noContent().build()
     }
 
     @PostMapping("/{product_id}/like/cancel/")
-    fun cancelLikeProduct(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+    @Operation(summary = "판매글 관심목록 해제", description = "판매글을 관심목록에서 해제합니다", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
+    fun cancelLikeProduct(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
         productService.cancelLikeProduct(user, productId)
         return ResponseEntity.noContent().build()
     }
 
     @PostMapping("/{product_id}/chat/")
+    @Operation(summary = "구매 요청", description = "해당 판매글에 대해 구매 요청을 보냅니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "0201", description = "해당 판매글에 이미 구매 요청을 보낸 경우"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3208", description = "판매자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
     fun chat(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
-        @RequestBody purchaseRequest: PurchaseRequestDto.Request
-    ): ResponseEntity<Any> {
+        @RequestBody @Valid purchaseRequest: PurchaseRequestDto.Request
+    ): ResponseEntity<PurchaseRequestDto.Response> {
         return ResponseEntity.ok().body(productService.chat(user, productId, purchaseRequest))
     }
 
     @PostMapping("/{product_id}/reserve/")
-    fun reserve(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+    @Operation(summary = "예약중 변경", description = "해당 판매글의 상태를 예약중으로 변경합니다", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3203", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
+    fun reserve(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
         productService.reserve(user, productId)
         return ResponseEntity.noContent().build()
     }
 
     @PostMapping("/{product_id}/reserve/cancel/")
-    fun cancelReserve(@CurrentUser user: User, @PathVariable("product_id") productId: Long): ResponseEntity<Any> {
+    @Operation(summary = "예약중 취소", description = "해당 판매글의 상태 예약중을 다시 판매중으로 변경합니다", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3204", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
+    fun cancelReserve(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
         productService.cancelReserve(user, productId)
         return ResponseEntity.noContent().build()
     }
 
     @GetMapping("/{product_id}/purchases/")
+    @Operation(summary = "구매 요청 조회", description = "해당 판매글에 대한 모든 구매 요청이 조회됩니다. 가격 제안이 있는 구매 요청을 따로 볼 수 있습니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "3205", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
+    ])
     fun getPurchaseRequests(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
         @RequestParam(required = false) withPriceSuggestion: Boolean
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<ListResponse<PurchaseRequestDto.Response>> {
         return if (withPriceSuggestion) ResponseEntity.ok().body(productService
             .getProductPurchaseRequestsWithPriceSuggestion(user, productId))
         else ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId))
     }
 
     @GetMapping("/{product_id}/purchases/{purchase_request_id}/")
+    @Operation(summary = "개별 구매 요청 조회", description = "해당 판매글에 대한 개별 구매 요청이 조회됩니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "0203", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
+        ApiResponse(responseCode = "3205", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
+    ])
     fun getPurchaseRequest(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
         @PathVariable("purchase_request_id") purchaseRequestId: Long
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<PurchaseRequestDto.Response> {
         return ResponseEntity.ok().body(productService.getProductPurchaseRequest(user, productId, purchaseRequestId))
     }
 
     @PostMapping("/{product_id}/purchases/{purchase_request_id}/confirm/")
+    @Operation(summary = "구매 확정", description = "해당 판매글에 대한 구매 요청이 확정됩니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "0203", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
+        ApiResponse(responseCode = "3205", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
+        ApiResponse(responseCode = "4201", description = "해당 판매 요청이 없는 경우")
+    ])
     fun confirmPurchaseRequest(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
         @PathVariable("purchase_request_id") purchaseRequestId: Long
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<PurchaseRequestDto.Response> {
         return ResponseEntity.ok().body(productService.confirmProductPurchaseRequest(user, productId, purchaseRequestId))
     }
 }
