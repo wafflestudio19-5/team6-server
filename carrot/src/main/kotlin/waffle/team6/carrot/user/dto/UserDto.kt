@@ -36,15 +36,20 @@ class UserDto {
     )
 
 
-    data class UpdateRequest(
+    data class UpdateProfileRequest(
         @field: Email
         var email: String?,
 
         var phone: String?,
+    )
+
+    data class UpdatePasswordRequest(
+        @field: NotBlank
+        @field: Size(min=8, max=16)
+        val currentPassword: String,
 
         @field: NotBlank
         @field: Size(min=8, max=16)
-        val password: String,
+        val newPassword: String,
     )
-
 }
