@@ -40,6 +40,7 @@ class ProductService (
         return ProductDto.Response(productRepository.save(product), true)
     }
 
+    @Transactional
     fun getProduct(user: User, id: Long): ProductDto.Response {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         product.hit += 1
