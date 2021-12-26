@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank
 @Table(name = "user")
 class User(
     @OneToMany(mappedBy = "user")
-    val products: List<Product> = listOf(),
+    val product: List<Product> = listOf(),
 
     //TODO: purchase requests
 

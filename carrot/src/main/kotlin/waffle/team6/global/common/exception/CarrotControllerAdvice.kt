@@ -1,5 +1,6 @@
 package waffle.team6.global.common.exception
 
+import com.amazonaws.AmazonServiceException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,4 +26,11 @@ class CarrotControllerAdvice() {
     fun conflict(e: CarrotException) =
         ResponseEntity(ErrorResponse(e.errorType.code, e.errorType.name, e.detail), HttpStatus.CONFLICT)
 
+    @ExceptionHandler(value = [ServerErrorException::class])
+    fun serverError(e: CarrotException) =
+        ResponseEntity(ErrorResponse(e.errorType.code, e.errorType.name, e.detail), HttpStatus.INTERNAL_SERVER_ERROR)
+
+    @ExceptionHandler(value = [AmazonServiceException::class])
+    fun s3Error(e: AmazonServiceException) =
+        ResponseEntity(ErrorResponse(e.errorCode.toInt(), e.errorType.toString(), e.errorMessage), HttpStatus.INTERNAL_SERVER_ERROR)
 }
