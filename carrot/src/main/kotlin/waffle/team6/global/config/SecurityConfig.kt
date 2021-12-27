@@ -70,7 +70,10 @@ class SecurityConfig(
     public fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration: CorsConfiguration = CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(listOf("http://localhost:3000", "http://localhost:3001", "https://carrotshop.shop", "http://carrotshop.shop"))
+        configuration.setAllowedOriginPatterns(
+            listOf("http://localhost:3000", "http://localhost:3001",
+                "https://carrotshop.shop", "http://carrotshop.shop",
+                "https://carrotshop.shop:[*]", "http://carrotshop.shop:[*]"))
         configuration.addAllowedHeader("*")
         configuration.setExposedHeaders(listOf("Authentication"))
         configuration.addAllowedMethod("*")
