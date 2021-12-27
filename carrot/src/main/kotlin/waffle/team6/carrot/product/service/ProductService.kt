@@ -25,27 +25,28 @@ class ProductService (
     private val userRepository: UserRepository,
 //    private val imageRepository: ImageService
 ){
-    fun getProducts(): ListResponse<ProductDto.SimpleResponse> {
-        return ListResponse(productRepository.findAll().map { ProductDto.SimpleResponse(it) })
+    fun getProducts(): ListResponse<ProductDto.ProductSimpleResponse> {
+        return ListResponse(productRepository.findAll().map { ProductDto.ProductSimpleResponse(it) })
     }
 
-    fun getProductsByTitle(title: String): ListResponse<ProductDto.SimpleResponse> {
-        return ListResponse(productRepository.findAllByTitleContaining(title).map { ProductDto.SimpleResponse(it) })
+    fun getProductsByTitle(title: String): ListResponse<ProductDto.ProductSimpleResponse> {
+        return ListResponse(productRepository
+            .findAllByTitleContaining(title).map { ProductDto.ProductSimpleResponse(it) })
     }
 
     @Transactional
-    fun addProducts(user: User, productPostRequest: ProductDto.PostRequest): ProductDto.Response {
+    fun addProducts(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
         val product = Product(user, productPostRequest)
 //        user.products.add(product)
-        return ProductDto.Response(productRepository.save(product), true)
+        return ProductDto.ProductResponse(productRepository.save(product), true)
     }
 
     @Transactional
-    fun getProduct(user: User, id: Long): ProductDto.Response {
+    fun getProduct(user: User, id: Long): ProductDto.ProductResponse {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         product.hit += 1
-        return if (product.user.id == user.id) ProductDto.Response(product, true)
-        else ProductDto.Response(product, false)
+        return if (product.user.id == user.id) ProductDto.ProductResponse(product, true)
+        else ProductDto.ProductResponse(product, false)
     }
 
     @Transactional
@@ -60,7 +61,8 @@ class ProductService (
     }
 
     @Transactional
-    fun patchProduct(user: User, productPatchRequest: ProductDto.PatchRequest, id: Long): ProductDto.Response {
+    fun patchProduct(user: User, productPatchRequest: ProductDto.ProductUpdateRequest, id: Long
+    ): ProductDto.ProductResponse {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
@@ -72,7 +74,7 @@ class ProductService (
         product.negotiable = productPatchRequest.negotiable ?: product.negotiable
         product.category = productPatchRequest.category ?: product.category
 
-        return ProductDto.Response(product, true)
+        return ProductDto.ProductResponse(product, true)
     }
 
     @Transactional
@@ -101,7 +103,8 @@ class ProductService (
     }
 
     @Transactional
-    fun chat(user: User, id: Long, request: PurchaseRequestDto.Request): PurchaseRequestDto.Response {
+    fun chat(user: User, id: Long, request: PurchaseRequestDto.PurchaseRequest
+    ): PurchaseRequestDto.PurchaseRequestResponse {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.purchaseRequests.any { it.user.id == user.id }) throw ProductAlreadyRequestedPurchaseException()
@@ -111,7 +114,7 @@ class ProductService (
         product.chats += 1
         //user.purchaseRequest.add(request)
         product.purchaseRequests.add(purchaseRequest)
-        return PurchaseRequestDto.Response(purchaseRequestRepository.save(purchaseRequest), false)
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequestRepository.save(purchaseRequest), false)
     }
 
     @Transactional
@@ -130,29 +133,31 @@ class ProductService (
         if (product.status == Status.RESERVED) product.status = Status.FOR_SALE
     }
 
-    fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
+    fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
         return ListResponse(purchaseRequestRepository.findAllByProductId(id)
-            .map { PurchaseRequestDto.Response(it, true) })
+            .map { PurchaseRequestDto.PurchaseRequestResponse(it, true) })
     }
 
-    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long): ListResponse<PurchaseRequestDto.Response> {
+    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long
+    ): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
         return ListResponse(purchaseRequestRepository.findAllByProductIdAndSuggestedPriceIsNotNull(id)
-            .map { PurchaseRequestDto.Response(it, true) })
+            .map { PurchaseRequestDto.PurchaseRequestResponse(it, true) })
     }
 
-    fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
+    fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.PurchaseRequestResponse {
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
         if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return PurchaseRequestDto.Response(purchaseRequest, true)
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
     }
 
     @Transactional
-    fun confirmProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.Response {
+    fun confirmProductPurchaseRequest(user: User, productId: Long, id: Long
+    ): PurchaseRequestDto.PurchaseRequestResponse {
         productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
@@ -160,7 +165,7 @@ class ProductService (
         if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestConfirmByInvalidUserException()
         purchaseRequest.product.status = Status.SOLD_OUT
         purchaseRequest.accepted = true
-        return PurchaseRequestDto.Response(purchaseRequest, true)
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
     }
 }
 

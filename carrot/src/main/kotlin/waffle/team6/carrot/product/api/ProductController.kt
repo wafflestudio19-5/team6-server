@@ -1,8 +1,6 @@
 package waffle.team6.carrot.product.api
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -13,7 +11,6 @@ import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.carrot.user.model.User
-import waffle.team6.global.common.exception.ErrorResponse
 import javax.validation.Valid
 
 @RestController
@@ -27,7 +24,7 @@ class ProductController (
     ])
     fun getProducts(
         @RequestParam(required = false) title: String?
-    ): ResponseEntity<ListResponse<ProductDto.SimpleResponse>> {
+    ): ResponseEntity<ListResponse<ProductDto.ProductSimpleResponse>> {
         return if (title == null)
             ResponseEntity.ok().body(productService.getProducts())
         else
@@ -41,8 +38,8 @@ class ProductController (
     ])
     fun addProducts(
         @CurrentUser @ApiIgnore user: User,
-        @RequestBody @Valid productPostRequest: ProductDto.PostRequest
-    ): ResponseEntity<ProductDto.Response> {
+        @RequestBody @Valid productPostRequest: ProductDto.ProductPostRequest
+    ): ResponseEntity<ProductDto.ProductResponse> {
         return ResponseEntity.ok().body(productService.addProducts(user, productPostRequest))
     }
 
@@ -54,7 +51,7 @@ class ProductController (
     fun getProduct(
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long
-    ): ResponseEntity<ProductDto.Response> {
+    ): ResponseEntity<ProductDto.ProductResponse> {
         return ResponseEntity.ok().body(productService.getProduct(user, productId))
     }
 
@@ -81,9 +78,9 @@ class ProductController (
     ])
     fun updateProduct(
         @CurrentUser @ApiIgnore user: User,
-        @RequestBody @Valid productPatchRequest: ProductDto.PatchRequest,
+        @RequestBody @Valid productPatchRequest: ProductDto.ProductUpdateRequest,
         @PathVariable("product_id") productId: Long
-    ): ResponseEntity<ProductDto.Response> {
+    ): ResponseEntity<ProductDto.ProductResponse> {
         return ResponseEntity.ok().body(productService.patchProduct(user, productPatchRequest, productId))
     }
 
@@ -126,8 +123,8 @@ class ProductController (
     fun chat(
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
-        @RequestBody @Valid purchaseRequest: PurchaseRequestDto.Request
-    ): ResponseEntity<PurchaseRequestDto.Response> {
+        @RequestBody @Valid purchaseRequest: PurchaseRequestDto.PurchaseRequest
+    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
         return ResponseEntity.ok().body(productService.chat(user, productId, purchaseRequest))
     }
 
@@ -171,7 +168,7 @@ class ProductController (
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
         @RequestParam(required = false) withPriceSuggestion: Boolean
-    ): ResponseEntity<ListResponse<PurchaseRequestDto.Response>> {
+    ): ResponseEntity<ListResponse<PurchaseRequestDto.PurchaseRequestResponse>> {
         return if (withPriceSuggestion) ResponseEntity.ok().body(productService
             .getProductPurchaseRequestsWithPriceSuggestion(user, productId))
         else ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId))
@@ -188,7 +185,7 @@ class ProductController (
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
         @PathVariable("purchase_request_id") purchaseRequestId: Long
-    ): ResponseEntity<PurchaseRequestDto.Response> {
+    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
         return ResponseEntity.ok().body(productService.getProductPurchaseRequest(user, productId, purchaseRequestId))
     }
 
@@ -205,7 +202,7 @@ class ProductController (
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
         @PathVariable("purchase_request_id") purchaseRequestId: Long
-    ): ResponseEntity<PurchaseRequestDto.Response> {
+    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
         return ResponseEntity.ok().body(productService.confirmProductPurchaseRequest(user, productId, purchaseRequestId))
     }
 }
