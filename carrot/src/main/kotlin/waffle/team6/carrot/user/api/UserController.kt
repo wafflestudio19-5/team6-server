@@ -53,7 +53,6 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
-    //TODO 이하 구현예정
     @GetMapping("/me/purchase_requests/")
     fun getMyPurchaseRequests() {
 
