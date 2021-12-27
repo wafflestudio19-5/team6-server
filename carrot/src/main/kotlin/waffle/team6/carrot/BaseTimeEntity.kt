@@ -12,8 +12,8 @@ open class BaseTimeEntity (
     open val id: Long = 0,
 
     @CreatedDate
-    open val createdAt: LocalDateTime = LocalDateTime.now(),
+    open val createdAt: LocalDateTime = LocalDateTime.now().plusHours(9),
 
     @LastModifiedDate
-    open var updatedAt: LocalDateTime = LocalDateTime.now()
+    open var updatedAt: LocalDateTime = LocalDateTime.now().plusHours(9)
 )
