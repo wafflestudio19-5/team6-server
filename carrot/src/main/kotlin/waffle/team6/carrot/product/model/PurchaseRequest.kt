@@ -24,7 +24,7 @@ class PurchaseRequest (
     @field:BooleanFlag
     var accepted: Boolean = false
     ) : BaseTimeEntity() {
-    constructor(user: User, product: Product, request: PurchaseRequestDto.Request): this(
+    constructor(user: User, product: Product, request: PurchaseRequestDto.PurchaseRequest): this(
         user = user,
         product = product,
         suggestedPrice = request.suggestedPrice

@@ -1,23 +1,21 @@
 package waffle.team6.carrot.product.dto
 
-import waffle.team6.carrot.product.model.Product
-import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
 import javax.validation.constraints.PositiveOrZero
 
 class PurchaseRequestDto {
-    data class Response(
+    data class PurchaseRequestResponse(
         val user: UserDto.Response,
-        val product: ProductDto.Response,
+        val product: ProductDto.ProductResponse,
         val suggestedPrice: Long?,
         val accepted: Boolean,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
     ) {
-        constructor(purchaseRequest: PurchaseRequest, isSeller: Boolean): this(
+        constructor(purchaseRequest: waffle.team6.carrot.product.model.PurchaseRequest, isSeller: Boolean): this(
             user = UserDto.Response(purchaseRequest.user),
-            product = ProductDto.Response(purchaseRequest.product, isSeller),
+            product = ProductDto.ProductResponse(purchaseRequest.product, isSeller),
             suggestedPrice = purchaseRequest.suggestedPrice,
             accepted = purchaseRequest.accepted,
             updatedAt = purchaseRequest.updatedAt,
@@ -25,7 +23,7 @@ class PurchaseRequestDto {
         )
     }
 
-    data class Request(
+    data class PurchaseRequest(
         @field:PositiveOrZero
         val suggestedPrice: Long?
     )

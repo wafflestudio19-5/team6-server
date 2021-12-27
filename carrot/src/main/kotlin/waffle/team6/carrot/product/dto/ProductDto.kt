@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
 
 class ProductDto {
-    data class Response(
+    data class ProductResponse(
         val id: Long,
         val user: UserDto.Response,
         val images: List<Long>,
@@ -48,7 +48,7 @@ class ProductDto {
         )
     }
 
-    data class SimpleResponse(
+    data class ProductSimpleResponse(
         val id: Long,
         val user: UserDto.Response,
         val image: Long,
@@ -76,7 +76,7 @@ class ProductDto {
         )
     }
 
-    data class PostRequest(
+    data class ProductPostRequest(
         val images: List<Long>,
         @field:NotBlank
         val title: String,
@@ -92,7 +92,7 @@ class ProductDto {
         val location: String
     )
 
-    data class PatchRequest(
+    data class ProductUpdateRequest(
         val images: List<Long>? = null,
         val title: String? = null,
         val content: String? = null,
