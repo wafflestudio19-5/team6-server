@@ -72,6 +72,7 @@ class SecurityConfig(
 
         configuration.setAllowedOriginPatterns(listOf("http://localhost:3000", "http://localhost:3001", "https://carrotshop.shop", "http://carrotshop.shop"))
         configuration.addAllowedHeader("*")
+        configuration.setExposedHeaders(listOf("Authentication"))
         configuration.addAllowedMethod("*")
         configuration.setAllowCredentials(true)
 
