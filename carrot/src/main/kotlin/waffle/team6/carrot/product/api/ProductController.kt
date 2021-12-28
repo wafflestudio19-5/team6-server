@@ -1,13 +1,16 @@
 package waffle.team6.carrot.product.api
 
+import io.swagger.annotations.Api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.carrot.user.model.User
@@ -23,12 +26,23 @@ class ProductController (
         ApiResponse(responseCode = "200", description = "Success Response")
     ])
     fun getProducts(
-        @RequestParam(required = false) title: String?
-    ): ResponseEntity<ListResponse<ProductDto.ProductSimpleResponse>> {
-        return if (title == null)
-            ResponseEntity.ok().body(productService.getProducts())
-        else
-            ResponseEntity.ok().body(productService.getProductsByTitle(title))
+        @CurrentUser @ApiIgnore user: User,
+        @RequestParam(required = true) pageNumber: Int,
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponse>> {
+        return ResponseEntity.ok().body(productService.getProducts(user, pageNumber))
+    }
+
+    @GetMapping("/search/")
+    fun searchProducts(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestParam(required = true) pageNumber: Int,
+        @RequestParam(required = true) title: String,
+        @RequestParam(required = true) categories: List<Int>,
+        @RequestParam(required = false) minPrice: Long?,
+        @RequestParam(required = false) maxPrice: Long?,
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponse>> {
+        val searchRequest = ProductDto.ProductSearchRequest(pageNumber, title, categories, minPrice, maxPrice)
+        return ResponseEntity.ok().body(productService.searchProducts(user, searchRequest))
     }
 
     @PostMapping("/")
