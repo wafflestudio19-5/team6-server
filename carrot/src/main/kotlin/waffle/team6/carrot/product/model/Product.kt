@@ -56,7 +56,7 @@ class Product (
      var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     ) : BaseTimeEntity() {
-    constructor(user: User, productPostRequest: ProductDto.PostRequest): this(
+    constructor(user: User, productPostRequest: ProductDto.ProductPostRequest): this(
         user = user,
         images = productPostRequest.images,
         title = productPostRequest.title,
