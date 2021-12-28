@@ -31,8 +31,8 @@ class Product (
     @field:BooleanFlag
     var negotiable: Boolean,
 
-    @field:NotBlank
-    var category: String,
+    @Enumerated(EnumType.STRING)
+    var category: Category,
 
     @field:NotBlank
     val location: String,
@@ -63,7 +63,7 @@ class Product (
         content = productPostRequest.content,
         price = productPostRequest.price,
         negotiable = productPostRequest.negotiable?: true,
-        category = productPostRequest.category,
+        category = Category.from(productPostRequest.category),
         location = productPostRequest.location,
         hit = 1,
         likes = 0,
