@@ -1,5 +1,7 @@
 package waffle.team6.carrot.product.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -7,6 +9,7 @@ import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
+import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.product.model.Status
@@ -25,13 +28,52 @@ class ProductService (
     private val userRepository: UserRepository,
 //    private val imageRepository: ImageService
 ){
-    fun getProducts(): ListResponse<ProductDto.ProductSimpleResponse> {
-        return ListResponse(productRepository.findAll().map { ProductDto.ProductSimpleResponse(it) })
+    private val pageSize: Int = 15
+
+    fun getProducts(user: User, pageNumber: Int): Page<ProductDto.ProductSimpleResponse> {
+        if (pageNumber < 0) throw InvalidPageNumberException()
+        return productRepository.findAll(PageRequest.of(pageNumber, pageSize))
+            .map { ProductDto.ProductSimpleResponse(it) }
     }
 
-    fun getProductsByTitle(title: String): ListResponse<ProductDto.ProductSimpleResponse> {
-        return ListResponse(productRepository
-            .findAllByTitleContaining(title).map { ProductDto.ProductSimpleResponse(it) })
+    fun searchProducts(user: User, searchRequest: ProductDto.ProductSearchRequest
+    ): Page<ProductDto.ProductSimpleResponse> {
+        val pageRequest = PageRequest.of(searchRequest.pageNumber, pageSize)
+        val result: Page<Product>
+        if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetween(
+                pageRequest,
+                searchRequest.categories.map { Category.from(it) },
+                listOf("301"), //TODO: Change here
+                searchRequest.title,
+                searchRequest.minPrice,
+                searchRequest.maxPrice
+            )
+        } else if (searchRequest.minPrice != null) {
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqual(
+                pageRequest,
+                searchRequest.categories.map { Category.from(it) },
+                listOf("301"),
+                searchRequest.title,
+                searchRequest.minPrice
+            )
+        } else if (searchRequest.maxPrice != null) {
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqual(
+                pageRequest,
+                searchRequest.categories.map { Category.from(it) },
+                listOf("301"),
+                searchRequest.title,
+                searchRequest.maxPrice
+            )
+        } else {
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContaining(
+                pageRequest,
+                searchRequest.categories.map { Category.from(it) },
+                listOf("301"),
+                searchRequest.title
+            )
+        }
+        return result.map { ProductDto.ProductSimpleResponse(it) }
     }
 
     @Transactional
@@ -72,7 +114,7 @@ class ProductService (
         product.content = productPatchRequest.content ?: product.content
         product.price = productPatchRequest.price ?: product.price
         product.negotiable = productPatchRequest.negotiable ?: product.negotiable
-        product.category = productPatchRequest.category ?: product.category
+        product.category = productPatchRequest.category?.let { Category.from(it) } ?: product.category
 
         return ProductDto.ProductResponse(product, true)
     }
