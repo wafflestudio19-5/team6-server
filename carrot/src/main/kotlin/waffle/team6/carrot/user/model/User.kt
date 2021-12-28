@@ -1,6 +1,8 @@
 package waffle.team6.carrot.user.model
 
 import waffle.team6.carrot.BaseTimeEntity
+import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.model.Like
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.PurchaseRequest
 import waffle.team6.carrot.user.dto.UserDto
@@ -13,10 +15,16 @@ import javax.validation.constraints.NotBlank
 @Table(name = "user")
 class User(
     @OneToMany(mappedBy = "user")
-    val product: List<Product> = listOf(),
+    var products: MutableList<Product> = mutableListOf(),
 
     @OneToMany(mappedBy = "user")
     var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
+
+    @OneToMany(mappedBy = "user")
+    var likes: MutableList<Like> = mutableListOf(),
+
+    @OneToMany(mappedBy = "user")
+    var categoriesOfInterest: MutableList<CategoryOfInterest> = mutableListOf(),
 
     @Column(unique = true)
     @field: NotBlank
@@ -24,6 +32,12 @@ class User(
 
     @field: NotBlank
     var password: String,
+
+    @field: NotBlank
+    var location: String,
+
+    @field: NotBlank
+    var rangeOfLocation: Int, // 0, 1, 2, 3
 
     @field: Email
     var email: String?,
