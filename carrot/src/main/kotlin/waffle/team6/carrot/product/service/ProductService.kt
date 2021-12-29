@@ -5,18 +5,15 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
-import waffle.team6.carrot.product.model.Category
-import waffle.team6.carrot.product.model.Product
-import waffle.team6.carrot.product.model.PurchaseRequest
-import waffle.team6.carrot.product.model.Status
+import waffle.team6.carrot.product.model.*
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
-import waffle.team6.carrot.user.repository.UserRepository
 import waffle.team6.carrot.user.model.User
 
 @Service
@@ -25,52 +22,70 @@ class ProductService (
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
     private val purchaseRequestRepository: PurchaseRequestRepository,
-    private val userRepository: UserRepository,
-//    private val imageRepository: ImageService
+    private val imageService: ImageService
 ){
-    private val pageSize: Int = 15
-
-    fun getProducts(user: User, pageNumber: Int): Page<ProductDto.ProductSimpleResponse> {
-        if (pageNumber < 0) throw InvalidPageNumberException()
-        return productRepository.findAll(PageRequest.of(pageNumber, pageSize))
+    fun getProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
+        val locations = listOf(user.location)
+        return productRepository
+            .findAllByCategoryInAndLocationInAndStatusIs(
+                PageRequest.of(pageNumber, pageSize),
+                user.categoriesOfInterest.map { it.category },
+                locations,
+                Status.FOR_SALE
+            )
             .map { ProductDto.ProductSimpleResponse(it) }
     }
 
     fun searchProducts(user: User, searchRequest: ProductDto.ProductSearchRequest
     ): Page<ProductDto.ProductSimpleResponse> {
-        val pageRequest = PageRequest.of(searchRequest.pageNumber, pageSize)
+        val pageRequest = PageRequest.of(searchRequest.pageNumber, searchRequest.pageSize)
+        val locations = listOf(user.location)
         val result: Page<Product>
-        if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetween(
+        if (searchRequest.categories == null) {
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
                 pageRequest,
-                searchRequest.categories.map { Category.from(it) },
-                listOf("301"), //TODO: Change here
+                user.categoriesOfInterest.map { it.category },
+                locations,
+                searchRequest.title,
+                Status.FOR_SALE
+            )
+        } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndStatusIs(
+                pageRequest,
+                searchRequest.categories,
+                locations,
                 searchRequest.title,
                 searchRequest.minPrice,
-                searchRequest.maxPrice
+                searchRequest.maxPrice,
+                Status.FOR_SALE
             )
         } else if (searchRequest.minPrice != null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqual(
-                pageRequest,
-                searchRequest.categories.map { Category.from(it) },
-                listOf("301"),
-                searchRequest.title,
-                searchRequest.minPrice
-            )
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndStatusIs(
+                    pageRequest,
+                    searchRequest.categories,
+                    locations,
+                    searchRequest.title,
+                    searchRequest.minPrice,
+                    Status.FOR_SALE
+                )
         } else if (searchRequest.maxPrice != null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqual(
-                pageRequest,
-                searchRequest.categories.map { Category.from(it) },
-                listOf("301"),
-                searchRequest.title,
-                searchRequest.maxPrice
-            )
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndStatusIs(
+                    pageRequest,
+                    searchRequest.categories,
+                    locations,
+                    searchRequest.title,
+                    searchRequest.maxPrice,
+                    Status.FOR_SALE
+                )
         } else {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContaining(
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
                 pageRequest,
-                searchRequest.categories.map { Category.from(it) },
-                listOf("301"),
-                searchRequest.title
+                searchRequest.categories,
+                locations,
+                searchRequest.title,
+                Status.FOR_SALE
             )
         }
         return result.map { ProductDto.ProductSimpleResponse(it) }
@@ -78,9 +93,9 @@ class ProductService (
 
     @Transactional
     fun addProducts(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
-        val product = Product(user, productPostRequest)
-//        user.products.add(product)
-        return ProductDto.ProductResponse(productRepository.save(product), true)
+        val product = productRepository.save(Product(user, productPostRequest))
+        user.products.add(product)
+        return ProductDto.ProductResponse(product, true)
     }
 
     @Transactional
@@ -95,10 +110,10 @@ class ProductService (
     fun deleteProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductDeleteByInvalidUserException()
-//        for (image in product.images) {
-//            imageService.delete(image, user)
-//        }
-//        user.products.remove(product)
+        for (image in product.images) {
+            imageService.delete(image, user)
+        }
+        user.products.remove(product)
         productRepository.delete(product)
     }
 
@@ -125,23 +140,23 @@ class ProductService (
         if (product.user.id == user.id) throw ProductLikeBySellerException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
 
-//        if (!user.like.any { it.product == product}) {
-//            val like = Like(user, product)
-//            product.like += 1
-//            user.like.add(like)
-//        }
+        if (!user.likes.any { it.product == product}) {
+            val like = Like(user, product)
+            product.likes += 1
+            user.likes.add(like)
+        }
     }
 
     @Transactional
     fun cancelLikeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
 
-//        val like = user.like.find { it.product == product }
-//        if (like != null) {
-//            product.like -= 1
-//            user.like.remove(like)
-//            likeRepository.delete(like)
-//        }
+        val like = user.likes.find { it.product == product }
+        if (like != null) {
+            product.likes -= 1
+            user.likes.remove(like)
+            likeRepository.delete(like)
+        }
     }
 
     @Transactional
@@ -154,7 +169,7 @@ class ProductService (
         val purchaseRequest = PurchaseRequest(user, product, request)
         if (request.suggestedPrice != null) product.priceSuggestions += 1
         product.chats += 1
-        //user.purchaseRequest.add(request)
+        user.purchaseRequests.add(purchaseRequest)
         product.purchaseRequests.add(purchaseRequest)
         return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequestRepository.save(purchaseRequest), false)
     }

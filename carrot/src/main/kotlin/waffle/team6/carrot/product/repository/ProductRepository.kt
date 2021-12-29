@@ -5,26 +5,35 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.Product
+import waffle.team6.carrot.product.model.Status
 
 interface ProductRepository: JpaRepository<Product, Long?> {
-    fun findAllByCategoryInAndLocationIn(
-        pageable: Pageable, categories: List<Category>, locations: List<String>
-    ): Page<Product>
-
-    fun findAllByCategoryInAndLocationInAndTitleContaining(
-        pageable: Pageable, categories: List<Category>, locations: List<String>, title: String
-    ): Page<Product>
-
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqual(
-        pageable: Pageable, categories: List<Category>, locations: List<String>, title: String, minPrice: Long
-    ): Page<Product>
-
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqual(
-        pageable: Pageable, categories: List<Category>, locations: List<String>, title: String, maxPrice: Long
-    ): Page<Product>
-
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetween(
+    fun findAllByCategoryInAndLocationInAndStatusIs(
         pageable: Pageable, categories: List<Category>, locations: List<String>,
-        title: String, minPrice: Long, maxPrice: Long
+        status: Status
+    ): Page<Product>
+
+    fun findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
+        pageable: Pageable, categories: List<Category>, locations: List<String>,
+        title: String, status: Status
+    ): Page<Product>
+
+    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndStatusIs(
+        pageable: Pageable, categories: List<Category>, locations: List<String>,
+        title: String, minPrice: Long, status: Status
+    ): Page<Product>
+
+    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndStatusIs(
+        pageable: Pageable, categories: List<Category>, locations: List<String>,
+        title: String, maxPrice: Long, status: Status
+    ): Page<Product>
+
+    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndStatusIs(
+        pageable: Pageable, categories: List<Category>, locations: List<String>,
+        title: String, minPrice: Long, maxPrice: Long, status: Status
+    ): Page<Product>
+
+    fun findAllByUserId(
+        pageable: Pageable, userId: Long
     ): Page<Product>
 }

@@ -2,6 +2,7 @@ package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
+import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.user.model.User
@@ -16,7 +17,7 @@ class Product (
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     var images: List<Long> = listOf(),
 
     @field:NotBlank
@@ -36,6 +37,9 @@ class Product (
 
     @field:NotBlank
     val location: String,
+
+    @field:Range(min = 0, max = 3)
+    var rangeOfLocation: Int,
 
     @field:PositiveOrZero
     var hit: Long,
@@ -65,6 +69,7 @@ class Product (
         negotiable = productPostRequest.negotiable?: true,
         category = Category.from(productPostRequest.category),
         location = productPostRequest.location,
+        rangeOfLocation = productPostRequest.rangeOfLocation,
         hit = 1,
         likes = 0,
         chats = 0,
