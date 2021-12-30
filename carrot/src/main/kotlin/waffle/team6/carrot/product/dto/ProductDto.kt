@@ -3,11 +3,13 @@ package waffle.team6.carrot.product.dto
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
+import org.springframework.validation.annotation.Validated
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.Status
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
+import javax.validation.Valid
 import javax.validation.constraints.*
 
 class ProductDto {
@@ -90,22 +92,32 @@ class ProductDto {
         @field:Range(min = 1, max = 17)
         val category: Int,
         @field:NotBlank
-        val location: String
+        val location: String,
+        @field:Range(min = 0, max = 3)
+        val rangeOfLocation: Int
     )
 
     data class ProductUpdateRequest(
         val images: List<Long>? = null,
+        @field:NotBlank
         val title: String? = null,
+        @field:Length(min = 1, max = 300)
         val content: String? = null,
+        @field:PositiveOrZero
         val price: Long? = null,
+        @field:BooleanFlag
         val negotiable: Boolean? = null,
+        @field:Range(min = 1, max = 17)
         val category: Int? = null,
+        @field:Range(min = 0, max = 3)
+        val rangeOfLocation: Int
     )
 
     data class ProductSearchRequest(
         val pageNumber: Int,
+        val pageSize: Int,
         val title: String,
-        val categories: List<Int>,
+        val categories: List<Category>? = null,
         val minPrice: Long? = null,
         val maxPrice: Long? = null
     )
