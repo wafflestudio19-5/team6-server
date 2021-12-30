@@ -48,23 +48,31 @@ class UserController(
             .build()
     }
 
+    // TODO: 내 동네 인증
+
+
     @GetMapping("/me/")
     fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
-    @GetMapping("/me/purchase_requests/")
-    fun getMyPurchaseRequests() {
-
+    @GetMapping("/duplicate")
+    fun checkDuplicatedNameForSignUp(@RequestParam name: String): ResponseEntity<Boolean> {
+        return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
 
-    @GetMapping("/me/products/")
-    fun getMyProducts() {
-
-    }
-
-    @GetMapping("/me/likes/")
-    fun getMyLikes() {
-
-    }
+//    @GetMapping("/me/purchase_requests/")
+//    fun getMyPurchaseRequests(@CurrentUser user: User) {
+//        userService.findMyPurchaseRequests(user)
+//    }
+//
+//    @GetMapping("/me/products/")
+//    fun getMyProducts(@CurrentUser user: User) {
+//        userService.findMyProducts(user)
+//    }
+//
+//    @GetMapping("/me/likes/")
+//    fun getMyLikes(@CurrentUser user: User) {
+//        userService.findMyLikes(user)
+//    }
 }

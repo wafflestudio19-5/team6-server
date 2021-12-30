@@ -32,6 +32,10 @@ class DataLoader(
                     password = passwordEncoder.encode(rawUser[1]),
                     email = rawUser[2],
                     phone = rawUser[3],
+                    // 임시로 넣은 값들
+                    nickname = rawUser[0],
+                    location = "300동 나인온스버거",
+                    rangeOfLocation = 0,
                 ))
             }
         }

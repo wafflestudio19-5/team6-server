@@ -4,6 +4,11 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.product.repository.LikeRepository
+import waffle.team6.carrot.product.repository.ProductRepository
+import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
@@ -16,16 +21,21 @@ import waffle.team6.global.config.SecurityConfig
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val securityConfig: SecurityConfig,
+    private val purchaseRequestRepository: PurchaseRequestRepository,
+    private val productRepository: ProductRepository,
+    private val likeRepository: LikeRepository,
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
         if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
         val newUser = User(
             name = signUpRequest.name,
+            nickname = signUpRequest.nickname,
             password = passwordEncoder.encode(signUpRequest.password),
             email = signUpRequest.email,
             phone = signUpRequest.phone,
+            location = signUpRequest.location,
+            rangeOfLocation = signUpRequest.rangeOfLocation,
         )
 
         return UserDto.Response(userRepository.save(newUser))
@@ -52,24 +62,26 @@ class UserService(
     }
 
     fun findMe(user: User): UserDto.Response {
-        return UserDto.Response(
-            user
-        )
+        return UserDto.Response(user)
     }
 
-    fun findMyPurchaseRecords(user: User) {
+    // TODO: 자주 쓰는 문구
 
-    }
 
-    fun findMyOnePurchaseRecord() {
-
-    }
-
-    fun findMyProducts(){
-
-    }
-
-    fun findMyOneProduct() {
-
-    }
+//    fun findMyPurchaseRequests(user: User): List<PurchaseRequestDto.PurchaseRequestResponse> {
+//        return purchaseRequestRepository.
+//    }
+//
+//    fun findMyProducts(user: User): List<ProductDto.ProductSimpleResponse>{
+//
+//    }
+//
+//    fun findMyCategoriesOfInterests(user: User): List<String> {
+//
+//    }
+//
+//    fun findMyLikes(user: User) {
+//
+//    }
 }
+
