@@ -11,6 +11,9 @@ import waffle.team6.carrot.location.model.AdjacentLocation
 import waffle.team6.carrot.location.model.Location
 import waffle.team6.carrot.location.repository.AdjacentLocationRepository
 import waffle.team6.carrot.location.repository.LocationRepository
+import waffle.team6.carrot.product.model.Category
+import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
@@ -21,15 +24,15 @@ import java.io.InputStreamReader
 
 @Component
 class DataLoader(
-  private val userRepository: UserRepository,
-  private val productRepository: ProductRepository,
-  private val purchaseRequestRepository: PurchaseRequestRepository,
-  private val likeRepository: LikeRepository,
-  private val categoryOfInterestRepository: CategoryOfInterestRepository,
-  private val imageRepository: ImageRepository,
-  private val locationRepository: LocationRepository,
-  private val adjacentLocationRepository: AdjacentLocationRepository,
-  private val passwordEncoder: PasswordEncoder
+    private val userRepository: UserRepository,
+    private val productRepository: ProductRepository,
+    private val purchaseRequestRepository: PurchaseRequestRepository,
+    private val likeRepository: LikeRepository,
+    private val categoryOfInterestRepository: CategoryOfInterestRepository,
+    private val imageRepository: ImageRepository,
+    private val locationRepository: LocationRepository,
+    private val adjacentLocationRepository: AdjacentLocationRepository,
+    private val passwordEncoder: PasswordEncoder
 ): ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments?) {
