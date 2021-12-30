@@ -1,10 +1,10 @@
 package waffle.team6.carrot.product.api
 
-import io.swagger.annotations.Api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.ListResponse
@@ -15,7 +15,11 @@ import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.carrot.user.model.User
 import javax.validation.Valid
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Positive
+import javax.validation.constraints.PositiveOrZero
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/products")
 class ProductController (
@@ -27,21 +31,30 @@ class ProductController (
     ])
     fun getProducts(
         @CurrentUser @ApiIgnore user: User,
-        @RequestParam(required = true) pageNumber: Int,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int
     ): ResponseEntity<Page<ProductDto.ProductSimpleResponse>> {
-        return ResponseEntity.ok().body(productService.getProducts(user, pageNumber))
+        return ResponseEntity.ok().body(productService.getProducts(user, pageNumber, pageSize))
     }
 
     @GetMapping("/search/")
     fun searchProducts(
         @CurrentUser @ApiIgnore user: User,
-        @RequestParam(required = true) pageNumber: Int,
-        @RequestParam(required = true) title: String,
-        @RequestParam(required = true) categories: List<Int>,
-        @RequestParam(required = false) minPrice: Long?,
-        @RequestParam(required = false) maxPrice: Long?,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) @NotBlank title: String,
+        @RequestParam(required = false) categories: List<Int>,
+        @RequestParam(required = false) @Positive minPrice: Long?,
+        @RequestParam(required = false) @Positive maxPrice: Long?,
     ): ResponseEntity<Page<ProductDto.ProductSimpleResponse>> {
-        val searchRequest = ProductDto.ProductSearchRequest(pageNumber, title, categories, minPrice, maxPrice)
+        val searchRequest = ProductDto.ProductSearchRequest(
+            pageNumber,
+            pageSize,
+            title,
+            categories.map { Category.from(it) },
+            minPrice,
+            maxPrice
+        )
         return ResponseEntity.ok().body(productService.searchProducts(user, searchRequest))
     }
 

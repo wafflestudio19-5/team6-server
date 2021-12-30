@@ -12,5 +12,6 @@ class CategoryOfInterest (
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
 
+    @Enumerated(EnumType.STRING)
     val category: Category,
 ) :BaseTimeEntity()

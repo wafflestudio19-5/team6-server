@@ -5,8 +5,7 @@ enum class ErrorType (
     ) {
     INVALID_REQUEST(0),
     // error codes for BAD REQUEST
-    INVALID_PAGE_NUMBER(1),
-    INVALID_CATEGORY_NUMBER(2),
+    INVALID_CATEGORY_VALUE(1),
 
     USER_INVALID_REQUEST(100),
     USER_INVALID_PASSWORD(101),

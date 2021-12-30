@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import javax.validation.ConstraintViolationException
 
 @RestControllerAdvice
 class CarrotControllerAdvice() {
@@ -33,4 +34,8 @@ class CarrotControllerAdvice() {
     @ExceptionHandler(value = [AmazonServiceException::class])
     fun s3Error(e: AmazonServiceException) =
         ResponseEntity(ErrorResponse(e.errorCode.toInt(), e.errorType.toString(), e.errorMessage), HttpStatus.INTERNAL_SERVER_ERROR)
+
+    @ExceptionHandler(value = [ConstraintViolationException::class])
+    fun invalidRequestParameter(e: ConstraintViolationException) =
+        ResponseEntity(ErrorResponse(0, "INVALID_REQUEST_PARAMETER", e.message ?: ""), HttpStatus.BAD_REQUEST)
 }

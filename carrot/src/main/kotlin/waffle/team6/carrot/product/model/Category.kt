@@ -24,6 +24,12 @@ enum class Category(
     I_AM_BUYING(17);
 
     companion object {
-        fun from (findValue: Int): Category = Category.values().first { it.value == findValue }
+        fun from (findValue: Int): Category {
+            return try {
+                values().first { it.value == findValue }
+            } catch (e: NoSuchElementException) {
+                throw InvalidCategoryValueException()
+            }
+        }
     }
 }

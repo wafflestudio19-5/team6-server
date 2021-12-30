@@ -5,6 +5,7 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.image.repository.ImageRepository
 import waffle.team6.carrot.location.model.AdjacentLocation
 import waffle.team6.carrot.location.model.Location
@@ -24,11 +25,13 @@ class DataLoader(
   private val productRepository: ProductRepository,
   private val purchaseRequestRepository: PurchaseRequestRepository,
   private val likeRepository: LikeRepository,
+  private val categoryOfInterestRepository: CategoryOfInterestRepository,
   private val imageRepository: ImageRepository,
   private val locationRepository: LocationRepository,
   private val adjacentLocationRepository: AdjacentLocationRepository,
   private val passwordEncoder: PasswordEncoder
 ): ApplicationRunner {
+    @Transactional
     override fun run(args: ApplicationArguments?) {
         BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
             br.lines().forEach {
@@ -57,6 +60,11 @@ class DataLoader(
                     levelTwo.toList(),
                     levelThree.toList()
                 ))
+                for (i in 1..17) {
+                    user.categoriesOfInterest.add(
+                        categoryOfInterestRepository.save(CategoryOfInterest(user, Category.from(i)))
+                    )
+                }
             }
         }
 
