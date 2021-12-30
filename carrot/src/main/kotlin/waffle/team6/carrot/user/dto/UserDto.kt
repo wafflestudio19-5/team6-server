@@ -12,11 +12,17 @@ import javax.validation.constraints.Size
 class UserDto {
     data class Response(
         val name: String,
+        val nickname: String,
         val email: String?,
+        val location: String,
+        val rangeOfLocation: Int,
     ) {
         constructor(user: User): this(
             name = user.name,
+            nickname = user.nickname,
             email = user.email,
+            location = user.location,
+            rangeOfLocation = user.rangeOfLocation,
         )
     }
 
@@ -25,14 +31,23 @@ class UserDto {
         @field: NotBlank
         val name: String,
 
-        @field:Email
-        var email: String?,
+        @field: NotBlank
+        val nickname: String,
 
-        var phone: String?,
+        @field: Email
+        @field: NotBlank
+        val email: String,
+
+        // TODO phone number form validation
+        @field: NotBlank
+        val phone: String,
 
         @field: NotBlank
         @field: Size(min=8, max=16)
         val password: String,
+
+        val location: String,
+        val rangeOfLocation: Int,
     )
 
 

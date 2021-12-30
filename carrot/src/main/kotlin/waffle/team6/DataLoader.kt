@@ -33,7 +33,7 @@ class DataLoader(
 ): ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments?) {
-        BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
+        BufferedReader(InputStreamReader(ClassPathResource("data/location.tsv").inputStream)).use { br ->
             br.lines().forEach {
                 val rawLocation = it.split("\t")
                 val levelZero = mutableListOf<AdjacentLocation>()
@@ -59,6 +59,21 @@ class DataLoader(
                     levelOne.toList(),
                     levelTwo.toList(),
                     levelThree.toList()
+                ))
+            }
+        }
+        
+        BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
+            br.lines().forEach {
+                val rawUser = it.split(" ")
+                val user = userRepository.save(User(
+                    name = rawUser[0],
+                    nickname = rawUser[0],
+                    password = passwordEncoder.encode(rawUser[1]),
+                    email = rawUser[2],
+                    phone = rawUser[3],
+                    location = rawUser[4],
+                    rangeOfLocation = rawUser[5].toInt()
                 ))
                 for (i in 1..17) {
                     user.categoriesOfInterest.add(
