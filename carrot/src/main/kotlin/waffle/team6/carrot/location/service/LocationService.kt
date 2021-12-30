@@ -21,7 +21,7 @@ class LocationService(
 
     fun findAdjacentLocationsByCode(code: Long, rangeOfLocation: RangeOfLocation): List<String> {
         val location = locationRepository.findByIdOrNull(code) ?: throw LocationNotFoundException()
-        val result = mutableListOf<String>(location.name)
+        val result = mutableListOf(location.name)
         if (rangeOfLocation.level >= RangeOfLocation.LEVEL_ZERO.level) result.addAll(location.levelZero.map { it.name })
         if (rangeOfLocation.level >= RangeOfLocation.LEVEL_ONE.level) result.addAll(location.levelOne.map { it.name })
         if (rangeOfLocation.level >= RangeOfLocation.LEVEL_TWO.level) result.addAll(location.levelTwo.map { it.name })
