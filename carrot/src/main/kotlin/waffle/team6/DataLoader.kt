@@ -35,6 +35,7 @@ class DataLoader(
                 val rawUser = it.split(" ")
                 val user = userRepository.save(User(
                     name = rawUser[0],
+                    nickname = rawUser[0],
                     password = passwordEncoder.encode(rawUser[1]),
                     email = rawUser[2],
                     phone = rawUser[3],
