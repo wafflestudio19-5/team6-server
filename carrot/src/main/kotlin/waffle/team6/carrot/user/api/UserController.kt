@@ -8,6 +8,8 @@ import waffle.team6.carrot.user.service.UserService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.global.auth.jwt.JwtTokenProvider
 import javax.validation.Valid
+import javax.validation.constraints.Positive
+import javax.validation.constraints.PositiveOrZero
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -61,18 +63,20 @@ class UserController(
         return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
 
-//    @GetMapping("/me/purchase_requests/")
-//    fun getMyPurchaseRequests(@CurrentUser user: User) {
-//        userService.findMyPurchaseRequests(user)
-//    }
-//
-//    @GetMapping("/me/products/")
-//    fun getMyProducts(@CurrentUser user: User) {
-//        userService.findMyProducts(user)
-//    }
-//
-//    @GetMapping("/me/likes/")
-//    fun getMyLikes(@CurrentUser user: User) {
-//        userService.findMyLikes(user)
-//    }
+    @GetMapping("/me/purchase_requests/")
+    fun getMyPurchaseRequests(@CurrentUser user: User) {
+        userService.findMyPurchaseRequests(user)
+    }
+
+    @GetMapping("/me/products/")
+    fun getMyProducts(@CurrentUser user: User,
+                      @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+                      @RequestParam(required = true) @Positive pageSize: Int) {
+        userService.findMyProducts(user, pageNumber, pageSize)
+    }
+
+    @GetMapping("/me/likes/")
+    fun getMyLikes(@CurrentUser user: User) {
+        userService.findMyLikes(user)
+    }
 }

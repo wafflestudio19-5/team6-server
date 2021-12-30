@@ -11,8 +11,11 @@ import waffle.team6.carrot.location.model.AdjacentLocation
 import waffle.team6.carrot.location.model.Location
 import waffle.team6.carrot.location.repository.AdjacentLocationRepository
 import waffle.team6.carrot.location.repository.LocationRepository
+import waffle.team6.carrot.product.model.Category
+import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
+import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
@@ -62,7 +65,7 @@ class DataLoader(
                 ))
             }
         }
-        
+
         BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
             br.lines().forEach {
                 val rawUser = it.split(" ")
