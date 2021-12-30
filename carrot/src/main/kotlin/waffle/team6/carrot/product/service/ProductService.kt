@@ -140,8 +140,8 @@ class ProductService (
         if (product.user.id == user.id) throw ProductLikeBySellerException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
 
-        if (!user.likes.any { it.product == product}) {
-            val like = Like(user, product)
+        if (!user.likes.any { it.product.id == product.id}) {
+            val like = likeRepository.save(Like(user, product))
             product.likes += 1
             user.likes.add(like)
         }
@@ -151,7 +151,7 @@ class ProductService (
     fun cancelLikeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
 
-        val like = user.likes.find { it.product == product }
+        val like = user.likes.find { it.product.id == product.id }
         if (like != null) {
             product.likes -= 1
             user.likes.remove(like)
