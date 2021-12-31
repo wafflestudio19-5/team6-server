@@ -207,6 +207,15 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
+    @PostMapping("/{product_id}/bump/")
+    fun bringUpMyPost(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
+        productService.bringUpMyPost(user, productId)
+        return ResponseEntity.noContent().build()
+    }
+
     @GetMapping("/{product_id}/purchases/")
     @Operation(summary = "구매 요청 조회", description = "해당 판매글에 대한 모든 구매 요청이 조회됩니다. 가격 제안이 있는 구매 요청을 따로 볼 수 있습니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),

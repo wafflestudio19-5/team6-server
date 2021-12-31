@@ -19,6 +19,7 @@ import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.model.User
 import java.sql.SQLIntegrityConstraintViolationException
+import java.time.LocalDateTime
 
 @Service
 @Transactional(readOnly = true)
@@ -215,6 +216,15 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductShowByInvalidUserException()
         product.isHidden = false
+    }
+
+    @Transactional
+    fun bringUpMyPost(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductBumpByInvalidUserException()
+        if (product.lastBringUpMyPost.isBefore(LocalDateTime.now().minusDays(1))) {
+            product.lastBringUpMyPost = LocalDateTime.now()
+        } else throw ProductEarlyBumpException()
     }
 
     fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
