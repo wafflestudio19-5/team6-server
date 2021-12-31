@@ -203,6 +203,20 @@ class ProductService (
         if (product.status == Status.RESERVED) product.status = Status.FOR_SALE
     }
 
+    @Transactional
+    fun hideProduct(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductHideByInvalidUserException()
+        product.isHidden = true
+    }
+
+    @Transactional
+    fun showProduct(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductShowByInvalidUserException()
+        product.isHidden = false
+    }
+
     fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()

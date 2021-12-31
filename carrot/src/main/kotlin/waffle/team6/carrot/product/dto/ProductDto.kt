@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.image.dto.ImageDto
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.ForAge
 import waffle.team6.carrot.product.model.Product
@@ -127,7 +128,7 @@ class ProductDto {
         val pageNumber: Int,
         val pageSize: Int,
         val title: String,
-        val rangeOfLocation: Int? = null,
+        val rangeOfLocation: RangeOfLocation? = null,
         val categories: List<Category>? = null,
         val minPrice: Long? = null,
         val maxPrice: Long? = null

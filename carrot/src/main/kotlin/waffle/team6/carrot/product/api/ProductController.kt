@@ -2,11 +2,13 @@ package waffle.team6.carrot.product.api
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import org.apache.coyote.Response
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
@@ -43,6 +45,7 @@ class ProductController (
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int,
         @RequestParam(required = true) @NotBlank title: String,
+        @RequestParam(required = false) rangeOfLocation: Int?,
         @RequestParam(required = false) categories: List<Int>,
         @RequestParam(required = false) @Positive minPrice: Long?,
         @RequestParam(required = false) @Positive maxPrice: Long?,
@@ -51,6 +54,7 @@ class ProductController (
             pageNumber,
             pageSize,
             title,
+            rangeOfLocation?.let { RangeOfLocation.from(it) },
             categories.map { Category.from(it) },
             minPrice,
             maxPrice
@@ -182,6 +186,24 @@ class ProductController (
         @PathVariable("product_id") productId: Long
     ): ResponseEntity<Any> {
         productService.cancelReserve(user, productId)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{product_id}/hide/")
+    fun hideProduct(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
+        productService.hideProduct(user, productId)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{product_id}/hide/")
+    fun showProduct(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long
+    ): ResponseEntity<Any> {
+        productService.showProduct(user, productId)
         return ResponseEntity.noContent().build()
     }
 
