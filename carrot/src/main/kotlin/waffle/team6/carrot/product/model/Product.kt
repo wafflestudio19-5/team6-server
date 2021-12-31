@@ -2,11 +2,12 @@ package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
-import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.image.model.Image
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.user.model.User
+import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.PositiveOrZero
@@ -36,11 +37,14 @@ class Product (
     @Enumerated(EnumType.STRING)
     var category: Category,
 
+    @Enumerated(EnumType.STRING)
+    var forAge: ForAge?,
+
     @field:NotBlank
     val location: String,
 
-    @field:Range(min = 0, max = 3)
-    var rangeOfLocation: Int,
+    @Enumerated(EnumType.STRING)
+    var rangeOfLocation: RangeOfLocation,
 
     @field:PositiveOrZero
     var hit: Long,
@@ -57,6 +61,11 @@ class Product (
     @Enumerated(EnumType.STRING)
     var status: Status,
 
+    @field:BooleanFlag
+    var isHidden: Boolean,
+
+    var lastBringUpMyPost: LocalDateTime = LocalDateTime.now(),
+
     @OneToMany(cascade = [CascadeType.PERSIST], mappedBy = "product")
      var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
@@ -69,12 +78,14 @@ class Product (
         price = productPostRequest.price,
         negotiable = productPostRequest.negotiable?: true,
         category = Category.from(productPostRequest.category),
+        forAge = if (productPostRequest.category == 4) productPostRequest.forAge?.let { ForAge.from(it) } else null,
         location = productPostRequest.location,
-        rangeOfLocation = productPostRequest.rangeOfLocation,
+        rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
         hit = 1,
         likes = 0,
         chats = 0,
         priceSuggestions = 0,
         status = Status.FOR_SALE,
+        isHidden = false
     )
 }

@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.image.dto.ImageDto
 import waffle.team6.carrot.product.model.Category
+import waffle.team6.carrot.product.model.ForAge
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.Status
 import waffle.team6.carrot.user.dto.UserDto
@@ -21,6 +22,7 @@ class ProductDto {
         val price: Long,
         val negotiable: Boolean,
         val category: Category,
+        val forAge: ForAge?,
         val location: String,
         val hit: Long,
         val likes: Long,
@@ -28,7 +30,8 @@ class ProductDto {
         val status: Status,
         val priceSuggestions: Long?,
         val createdAt: LocalDateTime,
-        val updatedAt: LocalDateTime
+        val updatedAt: LocalDateTime,
+        val lastBringUpMyPost: LocalDateTime
     ) {
         constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
@@ -39,6 +42,7 @@ class ProductDto {
             price = product.price,
             negotiable = product.negotiable,
             category = product.category,
+            forAge = product.forAge,
             location = product.location,
             hit = product.hit,
             likes = product.likes,
@@ -46,7 +50,8 @@ class ProductDto {
             status = product.status,
             priceSuggestions = if (isSeller) product.priceSuggestions else null,
             createdAt = product.createdAt,
-            updatedAt = product.updatedAt
+            updatedAt = product.updatedAt,
+            lastBringUpMyPost = product.lastBringUpMyPost
         )
     }
 
@@ -61,7 +66,8 @@ class ProductDto {
         val chats: Long,
         val status: Status,
         val createdAt: LocalDateTime,
-        val updatedAt: LocalDateTime
+        val updatedAt: LocalDateTime,
+        val lastBringUpMyPost: LocalDateTime
     ) {
         constructor(product: Product): this(
             id = product.id,
@@ -74,7 +80,8 @@ class ProductDto {
             chats = product.chats,
             status = product.status,
             createdAt = product.createdAt,
-            updatedAt = product.updatedAt
+            updatedAt = product.updatedAt,
+            lastBringUpMyPost = product.lastBringUpMyPost
         )
     }
 
@@ -90,6 +97,8 @@ class ProductDto {
         val negotiable: Boolean?,
         @field:Range(min = 1, max = 17)
         val category: Int,
+        @field:Range(min = 1, max = 6)
+        val forAge: Int? = null,
         @field:NotBlank
         val location: String,
         @field:Range(min = 0, max = 3)
@@ -108,6 +117,8 @@ class ProductDto {
         val negotiable: Boolean? = null,
         @field:Range(min = 1, max = 17)
         val category: Int? = null,
+        @field:Range(min = 1, max = 6)
+        val forAge: Int?,
         @field:Range(min = 0, max = 3)
         val rangeOfLocation: Int
     )
@@ -116,6 +127,7 @@ class ProductDto {
         val pageNumber: Int,
         val pageSize: Int,
         val title: String,
+        val rangeOfLocation: Int? = null,
         val categories: List<Category>? = null,
         val minPrice: Long? = null,
         val maxPrice: Long? = null
