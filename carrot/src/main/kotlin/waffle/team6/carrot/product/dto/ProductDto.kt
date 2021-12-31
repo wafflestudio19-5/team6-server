@@ -3,13 +3,12 @@ package waffle.team6.carrot.product.dto
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
-import org.springframework.validation.annotation.Validated
+import waffle.team6.carrot.image.dto.ImageDto
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.Status
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
-import javax.validation.Valid
 import javax.validation.constraints.*
 
 class ProductDto {
@@ -34,7 +33,7 @@ class ProductDto {
         constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            images = product.images,
+            images = product.images.map { it.id },
             title = product.title,
             content = product.content,
             price = product.price,
@@ -67,7 +66,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            image = product.images[0],
+            image = product.images[0].id,
             title = product.title,
             price = product.price,
             location = product.location,

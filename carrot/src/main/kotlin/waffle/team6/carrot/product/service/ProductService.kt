@@ -5,6 +5,9 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.image.exception.ImageNotFoundException
+import waffle.team6.carrot.image.model.Image
+import waffle.team6.carrot.image.repository.ImageRepository
 import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
@@ -15,6 +18,7 @@ import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.model.User
+import java.sql.SQLIntegrityConstraintViolationException
 
 @Service
 @Transactional(readOnly = true)
@@ -93,9 +97,17 @@ class ProductService (
 
     @Transactional
     fun addProducts(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
-        val product = productRepository.save(Product(user, productPostRequest))
-        user.products.add(product)
-        return ProductDto.ProductResponse(product, true)
+        val images: MutableList<Image> = mutableListOf()
+        for (imageId in productPostRequest.images) {
+            images.add(imageService.getImageByIdAndCheckAuthorization(imageId, user))
+        }
+        try {
+            val product = productRepository.save(Product(user, images, productPostRequest))
+            user.products.add(product)
+            return ProductDto.ProductResponse(product, true)
+        } catch (e: SQLIntegrityConstraintViolationException) {
+            throw ProductImageDuplicateException()
+        }
     }
 
     @Transactional
@@ -111,7 +123,7 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductDeleteByInvalidUserException()
         for (image in product.images) {
-            imageService.delete(image, user)
+            imageService.delete(image.id, user)
         }
         user.products.remove(product)
         productRepository.delete(product)
@@ -124,7 +136,8 @@ class ProductService (
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
 
-        product.images = productPatchRequest.images ?: product.images
+        product.images = productPatchRequest.images
+            ?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }?.toMutableList() ?: product.images
         product.title = productPatchRequest.title ?: product.title
         product.content = productPatchRequest.content ?: product.content
         product.price = productPatchRequest.price ?: product.price

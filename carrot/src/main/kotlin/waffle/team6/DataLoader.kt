@@ -36,52 +36,60 @@ class DataLoader(
 ): ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments?) {
-        BufferedReader(InputStreamReader(ClassPathResource("data/location.tsv").inputStream)).use { br ->
-            br.lines().forEach {
-                val rawLocation = it.split("\t")
-                val levelZero = mutableListOf<AdjacentLocation>()
-                val levelOne = mutableListOf<AdjacentLocation>()
-                val levelTwo = mutableListOf<AdjacentLocation>()
-                val levelThree = mutableListOf<AdjacentLocation>()
-                val levelZeroLocations = rawLocation[2].split(",")
-                val levelOneLocations = rawLocation[3].split(",")
-                val levelTwoLocations = rawLocation[4].split(",")
-                val levelThreeLocations = rawLocation[5].split(",")
-                for (adjacent in levelZeroLocations)
-                    levelZero.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
-                for (adjacent in levelOneLocations)
-                    levelOne.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
-                for (adjacent in levelTwoLocations)
-                    levelTwo.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
-                for (adjacent in levelThreeLocations)
-                    levelThree.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
-                locationRepository.save(Location(
-                    rawLocation[0].toLong(),
-                    rawLocation[1],
-                    levelZero.toList(),
-                    levelOne.toList(),
-                    levelTwo.toList(),
-                    levelThree.toList()
-                ))
+        if (locationRepository.count() == (0).toLong()) {
+            BufferedReader(InputStreamReader(ClassPathResource("data/location.tsv").inputStream)).use { br ->
+                br.lines().forEach {
+                    val rawLocation = it.split("\t")
+                    val levelZero = mutableListOf<AdjacentLocation>()
+                    val levelOne = mutableListOf<AdjacentLocation>()
+                    val levelTwo = mutableListOf<AdjacentLocation>()
+                    val levelThree = mutableListOf<AdjacentLocation>()
+                    val levelZeroLocations = rawLocation[2].split(",")
+                    val levelOneLocations = rawLocation[3].split(",")
+                    val levelTwoLocations = rawLocation[4].split(",")
+                    val levelThreeLocations = rawLocation[5].split(",")
+                    for (adjacent in levelZeroLocations)
+                        levelZero.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
+                    for (adjacent in levelOneLocations)
+                        levelOne.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
+                    for (adjacent in levelTwoLocations)
+                        levelTwo.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
+                    for (adjacent in levelThreeLocations)
+                        levelThree.add(adjacentLocationRepository.save(AdjacentLocation(name = adjacent)))
+                    locationRepository.save(
+                        Location(
+                            rawLocation[0].toLong(),
+                            rawLocation[1],
+                            levelZero.toList(),
+                            levelOne.toList(),
+                            levelTwo.toList(),
+                            levelThree.toList()
+                        )
+                    )
+                }
             }
         }
-        
-        BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
-            br.lines().forEach {
-                val rawUser = it.split(" ")
-                val user = userRepository.save(User(
-                    name = rawUser[0],
-                    nickname = rawUser[0],
-                    password = passwordEncoder.encode(rawUser[1]),
-                    email = rawUser[2],
-                    phone = rawUser[3],
-                    location = rawUser[4],
-                    rangeOfLocation = rawUser[5].toInt()
-                ))
-                for (i in 1..17) {
-                    user.categoriesOfInterest.add(
-                        categoryOfInterestRepository.save(CategoryOfInterest(user, Category.from(i)))
+
+        if (userRepository.count() == (0).toLong()) {
+            BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
+                br.lines().forEach {
+                    val rawUser = it.split(" ")
+                    val user = userRepository.save(
+                        User(
+                            name = rawUser[0],
+                            nickname = rawUser[0],
+                            password = passwordEncoder.encode(rawUser[1]),
+                            email = rawUser[2],
+                            phone = rawUser[3],
+                            location = rawUser[4],
+                            rangeOfLocation = rawUser[5].toInt()
+                        )
                     )
+                    for (i in 1..17) {
+                        user.categoriesOfInterest.add(
+                            categoryOfInterestRepository.save(CategoryOfInterest(user, Category.from(i)))
+                        )
+                    }
                 }
             }
         }

@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
+import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.user.model.User
 import javax.persistence.*
@@ -17,8 +18,8 @@ class Product (
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    var images: List<Long> = listOf(),
+    @OneToMany(cascade = [CascadeType.ALL])
+    var images: MutableList<Image> = mutableListOf(),
 
     @field:NotBlank
     var title: String,
@@ -60,9 +61,9 @@ class Product (
      var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     ) : BaseTimeEntity() {
-    constructor(user: User, productPostRequest: ProductDto.ProductPostRequest): this(
+    constructor(user: User, images: MutableList<Image>, productPostRequest: ProductDto.ProductPostRequest): this(
         user = user,
-        images = productPostRequest.images,
+        images = images,
         title = productPostRequest.title,
         content = productPostRequest.content,
         price = productPostRequest.price,
