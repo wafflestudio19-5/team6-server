@@ -3,20 +3,25 @@ package waffle.team6
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.core.io.ClassPathResource
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.repository.ImageRepository
 import waffle.team6.carrot.location.model.AdjacentLocation
 import waffle.team6.carrot.location.model.Location
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.location.repository.AdjacentLocationRepository
 import waffle.team6.carrot.location.repository.LocationRepository
+import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
+import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
 import java.io.BufferedReader
@@ -32,7 +37,8 @@ class DataLoader(
     private val imageRepository: ImageRepository,
     private val locationRepository: LocationRepository,
     private val adjacentLocationRepository: AdjacentLocationRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val productService: ProductService
 ): ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments?) {
@@ -71,18 +77,18 @@ class DataLoader(
         }
 
         if (userRepository.count() == (0).toLong()) {
-            BufferedReader(InputStreamReader(ClassPathResource("data/example_user.csv").inputStream)).use { br ->
+            BufferedReader(InputStreamReader(ClassPathResource("data/example_user.tsv").inputStream)).use { br ->
                 br.lines().forEach {
-                    val rawUser = it.split(" ")
+                    val rawUser = it.split("\t")
                     val user = userRepository.save(
                         User(
                             name = rawUser[0],
-                            nickname = rawUser[0],
-                            password = passwordEncoder.encode(rawUser[1]),
+                            nickname = rawUser[1],
                             email = rawUser[2],
                             phone = rawUser[3],
-                            location = rawUser[4],
-                            rangeOfLocation = rawUser[5].toInt()
+                            password = passwordEncoder.encode(rawUser[4]),
+                            location = rawUser[5],
+                            rangeOfLocation = RangeOfLocation.from(rawUser[6].toInt())
                         )
                     )
                     for (i in 1..17) {
@@ -94,6 +100,41 @@ class DataLoader(
             }
         }
 
+        if (imageRepository.count() == (0).toLong()) {
+            BufferedReader(InputStreamReader(ClassPathResource("data/example_image.tsv").inputStream)).use { br ->
+                br.lines().forEach {
+                    val rawImage = it.split("\t")
+                    imageRepository.save(
+                        Image(
+                            fileName = rawImage[0],
+                            contentType = rawImage[1],
+                            userId = rawImage[2].toLong()
+                        )
+                    )
+                }
+            }
+        }
+
+        if (productRepository.count() == (0).toLong()) {
+            BufferedReader(InputStreamReader(ClassPathResource("data/example_product.tsv").inputStream)).use { br ->
+                br.lines().forEach { line ->
+                    val rawProduct = line.split("\t")
+                    val user = userRepository.findByIdOrNull(rawProduct[8].toLong())
+                    val postRequest = ProductDto.ProductPostRequest(
+                        images = rawProduct[0].split(",").map { it.toLong() },
+                        title = rawProduct[1],
+                        content = rawProduct[2],
+                        price = rawProduct[3].toLong(),
+                        negotiable = rawProduct[4].toBoolean(),
+                        category = rawProduct[5].toInt(),
+                        rangeOfLocation = rawProduct[6].toInt(),
+                        forAge = rawProduct[7].toInt(),
+                        location = user!!.location
+                    )
+                    productService.addProduct(user, postRequest)
+                }
+            }
+        }
 
     }
 }

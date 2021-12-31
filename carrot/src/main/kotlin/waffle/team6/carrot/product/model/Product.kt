@@ -62,7 +62,7 @@ class Product (
     var status: Status,
 
     @field:BooleanFlag
-    var isHidden: Boolean,
+    var hidden: Boolean,
 
     var lastBringUpMyPost: LocalDateTime = LocalDateTime.now(),
 
@@ -86,6 +86,6 @@ class Product (
         chats = 0,
         priceSuggestions = 0,
         status = Status.FOR_SALE,
-        isHidden = false
+        hidden = false
     )
 }

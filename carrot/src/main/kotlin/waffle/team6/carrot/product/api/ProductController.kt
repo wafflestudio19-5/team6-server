@@ -71,7 +71,7 @@ class ProductController (
         @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid productPostRequest: ProductDto.ProductPostRequest
     ): ResponseEntity<ProductDto.ProductResponse> {
-        return ResponseEntity.ok().body(productService.addProducts(user, productPostRequest))
+        return ResponseEntity.ok().body(productService.addProduct(user, productPostRequest))
     }
 
     @GetMapping("/{product_id}/")
@@ -198,7 +198,7 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
-    @PostMapping("/{product_id}/hide/")
+    @PostMapping("/{product_id}/show/")
     fun showProduct(
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long

@@ -2,13 +2,13 @@ package waffle.team6.carrot.product.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import waffle.team6.carrot.image.exception.ImageNotFoundException
 import waffle.team6.carrot.image.model.Image
-import waffle.team6.carrot.image.repository.ImageRepository
 import waffle.team6.carrot.image.service.ImageService
+import waffle.team6.carrot.location.service.LocationService
 import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
@@ -27,77 +27,80 @@ class ProductService (
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
     private val purchaseRequestRepository: PurchaseRequestRepository,
-    private val imageService: ImageService
+    private val imageService: ImageService,
+    private val locationService: LocationService,
 ){
     fun getProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
-        val locations = listOf(user.location)
+        val locations = locationService.findAdjacentLocationsByName(user.location, user.rangeOfLocation)
         return productRepository
-            .findAllByCategoryInAndLocationInAndStatusIs(
-                PageRequest.of(pageNumber, pageSize),
+            .findAllByCategoryInAndLocationInAndHiddenIsFalse(
+                PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()),
                 user.categoriesOfInterest.map { it.category },
-                locations,
-                Status.FOR_SALE
+                locations
             )
             .map { ProductDto.ProductSimpleResponse(it) }
     }
 
     fun searchProducts(user: User, searchRequest: ProductDto.ProductSearchRequest
     ): Page<ProductDto.ProductSimpleResponse> {
-        val pageRequest = PageRequest.of(searchRequest.pageNumber, searchRequest.pageSize)
-        val locations = listOf(user.location)
+        val pageRequest = PageRequest.of(
+            searchRequest.pageNumber,
+            searchRequest.pageSize,
+            Sort.by("lastBringUpMyPost").descending()
+        )
+        val locations = locationService.findAdjacentLocationsByName(
+            user.location,
+            searchRequest.rangeOfLocation ?: user.rangeOfLocation
+        )
         val result: Page<Product>
         if (searchRequest.categories == null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndHiddenIsFalse(
                 pageRequest,
                 user.categoriesOfInterest.map { it.category },
                 locations,
-                searchRequest.title,
-                Status.FOR_SALE
+                searchRequest.title
             )
         } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndStatusIs(
-                pageRequest,
-                searchRequest.categories,
-                locations,
-                searchRequest.title,
-                searchRequest.minPrice,
-                searchRequest.maxPrice,
-                Status.FOR_SALE
-            )
-        } else if (searchRequest.minPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndStatusIs(
+                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
                     searchRequest.title,
                     searchRequest.minPrice,
-                    Status.FOR_SALE
+                    searchRequest.maxPrice
                 )
-        } else if (searchRequest.maxPrice != null) {
+        } else if (searchRequest.minPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndStatusIs(
+                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
                     searchRequest.title,
-                    searchRequest.maxPrice,
-                    Status.FOR_SALE
+                    searchRequest.minPrice
+                )
+        } else if (searchRequest.maxPrice != null) {
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
+                    pageRequest,
+                    searchRequest.categories,
+                    locations,
+                    searchRequest.title,
+                    searchRequest.maxPrice
                 )
         } else {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
+            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndHiddenIsFalse(
                 pageRequest,
                 searchRequest.categories,
                 locations,
-                searchRequest.title,
-                Status.FOR_SALE
+                searchRequest.title
             )
         }
         return result.map { ProductDto.ProductSimpleResponse(it) }
     }
 
     @Transactional
-    fun addProducts(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
+    fun addProduct(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
         val images: MutableList<Image> = mutableListOf()
         for (imageId in productPostRequest.images) {
             images.add(imageService.getImageByIdAndCheckAuthorization(imageId, user))
@@ -114,9 +117,12 @@ class ProductService (
     @Transactional
     fun getProduct(user: User, id: Long): ProductDto.ProductResponse {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        product.hit += 1
         return if (product.user.id == user.id) ProductDto.ProductResponse(product, true)
-        else ProductDto.ProductResponse(product, false)
+        else {
+            if (product.hidden) throw HiddenProductAccessException()
+            product.hit += 1
+            ProductDto.ProductResponse(product, false)
+        }
     }
 
     @Transactional
@@ -208,14 +214,14 @@ class ProductService (
     fun hideProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductHideByInvalidUserException()
-        product.isHidden = true
+        product.hidden = true
     }
 
     @Transactional
     fun showProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductShowByInvalidUserException()
-        product.isHidden = false
+        product.hidden = false
     }
 
     @Transactional
