@@ -263,4 +263,13 @@ class ProductController (
     ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
         return ResponseEntity.ok().body(productService.confirmProductPurchaseRequest(user, productId, purchaseRequestId))
     }
+
+    @PostMapping("/{product_id}/purchases/{purchase_request_id}/reject/")
+    fun rejectPurchaseRequest(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long,
+        @PathVariable("purchase_request_id") purchaseRequestId: Long
+    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
+        return ResponseEntity.ok().body(productService.rejectProductPurchaseRequest(user, productId, purchaseRequestId))
+    }
 }

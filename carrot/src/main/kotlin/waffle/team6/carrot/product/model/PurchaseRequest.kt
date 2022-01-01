@@ -22,7 +22,7 @@ class PurchaseRequest (
     val suggestedPrice: Long? = null,
 
     @field:BooleanFlag
-    var accepted: Boolean = false
+    var accepted: Boolean? = null
     ) : BaseTimeEntity() {
     constructor(user: User, product: Product, request: PurchaseRequestDto.PurchaseRequest): this(
         user = user,

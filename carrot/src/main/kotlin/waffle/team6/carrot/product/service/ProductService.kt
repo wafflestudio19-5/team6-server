@@ -267,5 +267,17 @@ class ProductService (
         purchaseRequest.accepted = true
         return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
     }
+
+    @Transactional
+    fun rejectProductPurchaseRequest(user: User, productId: Long, id: Long
+    ): PurchaseRequestDto.PurchaseRequestResponse {
+        productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestRejectByInvalidUserException()
+        purchaseRequest.accepted = false
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
+    }
 }
 
