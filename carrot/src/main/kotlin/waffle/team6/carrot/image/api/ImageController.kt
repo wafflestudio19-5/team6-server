@@ -20,18 +20,18 @@ class ImageController(
     private val imageService: ImageService
 ) {
     @PostMapping("/")
-    @Operation(summary = "이미지 업로드", description = "이미지가 S3 저장소에 업로드 됩니다", responses = [
+    @Operation(summary = "이미지 업로드", description = "이미지가 S3 저장소에 업로드 됩니다. 지원하는 이미지 타입:  " +
+            ".bmp, .gif, .png, .jpeg, .svg, .webp, .tiff", responses = [
         ApiResponse(responseCode = "201", description = "Success Response"),
-        ApiResponse(responseCode = "3301", description = "등록자가 아닌 다른 사용자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "3302", description = "등록자가 아닌 다른 사용자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "4300", description = "해당 이미지가 없는 경우"),
-        ApiResponse(responseCode = "10001", description = "이미지 업로드 실패할 경우")
+        ApiResponse(responseCode = "400", description = "images 파라미터가 없는 경우"),
+        ApiResponse(responseCode = "0401", description = "이미지 타입이 아니거나 null 인 경우"),
+        ApiResponse(responseCode = "10001", description = "이미지 업로드 실패한 경우")
     ])
     fun upload(
         @CurrentUser @ApiIgnore user: User,
-        @RequestPart image: MultipartFile
-    ): ResponseEntity<ImageDto.ImageResponse> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(imageService.upload(image, user))
+        @RequestPart images: List<MultipartFile>
+    ): ResponseEntity<ImageDto.ImageListResponse> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(imageService.upload(images, user))
     }
 
     @GetMapping("/{image_id}/")
@@ -48,6 +48,8 @@ class ImageController(
     @PutMapping("/{image_id}/")
     @Operation(summary = "이미지 업데이트", description = "S3 저장소에 업로드된 이미지와 교체됩니다", responses = [
         ApiResponse(responseCode = "201", description = "Success Response"),
+        ApiResponse(responseCode = "400", description = "images 파라미터가 없는 경우"),
+        ApiResponse(responseCode = "0401", description = "이미지 타입이 아니거나 null 인 경우"),
         ApiResponse(responseCode = "3301", description = "등록자가 아닌 다른 사용자가 요청을 시도한 경우"),
         ApiResponse(responseCode = "4300", description = "해당 이미지가 없는 경우"),
         ApiResponse(responseCode = "10001", description = "이미지 업로드 실패할 경우")
