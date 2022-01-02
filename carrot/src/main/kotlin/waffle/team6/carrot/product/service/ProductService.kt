@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.location.service.LocationService
-import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
@@ -233,19 +232,24 @@ class ProductService (
         } else throw ProductEarlyBumpException()
     }
 
-    fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
+    fun getProductPurchaseRequests(user: User, id: Long, pageNumber: Int, pageSize: Int
+    ): Page<PurchaseRequestDto.PurchaseRequestResponse> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return ListResponse(purchaseRequestRepository.findAllByProductId(id)
-            .map { PurchaseRequestDto.PurchaseRequestResponse(it, true) })
+        return purchaseRequestRepository.findAllByProductId(
+            PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending()),
+            id
+        ).map { PurchaseRequestDto.PurchaseRequestResponse(it, true) }
     }
 
-    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long
-    ): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
+    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long, pageNumber: Int, pageSize: Int
+    ): Page<PurchaseRequestDto.PurchaseRequestResponse> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return ListResponse(purchaseRequestRepository.findAllByProductIdAndSuggestedPriceIsNotNull(id)
-            .map { PurchaseRequestDto.PurchaseRequestResponse(it, true) })
+        return purchaseRequestRepository.findAllByProductIdAndSuggestedPriceIsNotNull(
+            PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending()),
+            id
+        ).map { PurchaseRequestDto.PurchaseRequestResponse(it, true) }
     }
 
     fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.PurchaseRequestResponse {

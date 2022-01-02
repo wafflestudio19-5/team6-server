@@ -2,14 +2,12 @@ package waffle.team6.carrot.product.api
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import org.apache.coyote.Response
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.location.model.RangeOfLocation
-import waffle.team6.carrot.product.dto.ListResponse
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.model.Category
@@ -225,11 +223,13 @@ class ProductController (
     fun getPurchaseRequests(
         @CurrentUser @ApiIgnore user: User,
         @PathVariable("product_id") productId: Long,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
         @RequestParam(required = false) withPriceSuggestion: Boolean
-    ): ResponseEntity<ListResponse<PurchaseRequestDto.PurchaseRequestResponse>> {
+    ): ResponseEntity<Page<PurchaseRequestDto.PurchaseRequestResponse>> {
         return if (withPriceSuggestion) ResponseEntity.ok().body(productService
-            .getProductPurchaseRequestsWithPriceSuggestion(user, productId))
-        else ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId))
+            .getProductPurchaseRequestsWithPriceSuggestion(user, productId, pageNumber, pageSize))
+        else ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId, pageNumber, pageSize))
     }
 
     @GetMapping("/{product_id}/purchases/{purchase_request_id}/")
