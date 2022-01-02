@@ -5,7 +5,7 @@ import waffle.team6.carrot.image.model.Image
 import java.time.LocalDateTime
 
 class ImageDto {
-    data class Response(
+    data class ImageResponse(
         val id: Long,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
@@ -20,4 +20,14 @@ class ImageDto {
     data class ImageResource(
         val image: InputStreamResource
     )
+
+    data class ImageListResponse(
+        val count: Int,
+        val contents: List<ImageResponse>
+    ) {
+        constructor(images: List<Image>): this(
+            count = images.count(),
+            contents = images.map { ImageResponse(it) }
+        )
+    }
 }

@@ -72,7 +72,7 @@ spring:
 
   servlet:
     multipart:
-      file-size-threshold: 3MB
+      file-size-threshold: 100MB
       location: /home/ec2-user/images
       max-file-size: 100MB
       max-request-size: 100MB

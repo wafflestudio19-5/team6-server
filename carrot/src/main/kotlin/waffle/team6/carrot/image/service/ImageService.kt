@@ -2,6 +2,7 @@ package waffle.team6.carrot.image.service
 
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.*
+import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
 import org.springframework.data.repository.findByIdOrNull
@@ -9,10 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import waffle.team6.carrot.image.dto.ImageDto
-import waffle.team6.carrot.image.exception.ImageDeleteByInvalidUserException
-import waffle.team6.carrot.image.exception.ImageLocalSaveFailException
-import waffle.team6.carrot.image.exception.ImageNotFoundException
-import waffle.team6.carrot.image.exception.ImageUpdateByInvalidUserException
+import waffle.team6.carrot.image.exception.*
 import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.repository.ImageRepository
 import waffle.team6.carrot.user.model.User
@@ -29,13 +27,29 @@ class ImageService(
     @Value("\${cloud.aws.s3.bucket}")
     lateinit var bucket: String
 
+    private val validContentTypes: List<String> = listOf(
+        ContentType.IMAGE_BMP.toString(),
+        ContentType.IMAGE_GIF.toString(),
+        ContentType.IMAGE_PNG.toString(),
+        ContentType.IMAGE_JPEG.toString(),
+        ContentType.IMAGE_SVG.toString(),
+        ContentType.IMAGE_WEBP.toString(),
+        ContentType.IMAGE_TIFF.toString()
+    )
+
     @Transactional
-    fun upload(image: MultipartFile, user: User): ImageDto.Response {
-        val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
-        val fileName = "images/server/" + UUID.randomUUID() + image.name
-        putFileToS3(file, fileName)
-        removeLocalFile(file)
-        return ImageDto.Response(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
+    fun upload(images: List<MultipartFile>, user: User): ImageDto.ImageListResponse {
+        val imageEntities: MutableList<Image> = mutableListOf()
+        for (image in images) {
+            val contentType = image.contentType.toString()
+            if (!validContentTypes.contains(contentType)) throw ImageInvalidContentTypeException()
+            val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
+            val fileName = "images/server/" + UUID.randomUUID() + image.name
+            putFileToS3(file, fileName)
+            removeLocalFile(file)
+            imageEntities.add(Image(fileName, contentType, user.id))
+        }
+        return ImageDto.ImageListResponse(imageRepository.saveAll(imageEntities))
     }
 
     fun download(id: Long): ImageDto.ImageResource {
@@ -44,17 +58,19 @@ class ImageService(
     }
 
     @Transactional
-    fun update(image: MultipartFile, id: Long, user: User): ImageDto.Response {
+    fun update(image: MultipartFile, id: Long, user: User): ImageDto.ImageResponse {
         val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
         if (imageEntity.userId != user.id) throw ImageUpdateByInvalidUserException()
         deleteFileInS3(imageEntity.fileName)
+        val contentType = image.contentType.toString()
+        if (!validContentTypes.contains(contentType)) throw ImageInvalidContentTypeException()
         val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
         val fileName = "images/server/" + UUID.randomUUID() + image.name
         putFileToS3(file, fileName)
         removeLocalFile(file)
         imageEntity.fileName = fileName
-        imageEntity.contentType = image.contentType.toString()
-        return ImageDto.Response(imageEntity)
+        imageEntity.contentType = contentType
+        return ImageDto.ImageResponse(imageEntity)
     }
 
     @Transactional

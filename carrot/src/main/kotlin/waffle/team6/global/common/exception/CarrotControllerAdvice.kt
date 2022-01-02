@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MultipartException
 import javax.validation.ConstraintViolationException
 
 @RestControllerAdvice
@@ -38,4 +39,8 @@ class CarrotControllerAdvice() {
     @ExceptionHandler(value = [ConstraintViolationException::class])
     fun invalidRequestParameter(e: ConstraintViolationException) =
         ResponseEntity(ErrorResponse(0, "INVALID_REQUEST_PARAMETER", e.message ?: ""), HttpStatus.BAD_REQUEST)
+
+    @ExceptionHandler(value = [MultipartException::class])
+    fun invalidMultipartRequest(e: MultipartException) =
+        ResponseEntity(ErrorResponse(0, "MISSING_IMAGE_FILE", e.message ?: ""), HttpStatus.BAD_REQUEST)
 }
