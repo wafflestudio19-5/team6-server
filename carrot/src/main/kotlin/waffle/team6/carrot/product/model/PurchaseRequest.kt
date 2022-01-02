@@ -36,6 +36,7 @@ class PurchaseRequest (
     fun update(request: PurchaseRequestDto.PurchaseRequest): PurchaseRequest {
         suggestedPrice = request.suggestedPrice
         message = request.message
+        accepted = null
         return this
     }
 }
