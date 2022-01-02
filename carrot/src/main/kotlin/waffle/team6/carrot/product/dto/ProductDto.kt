@@ -25,6 +25,7 @@ class ProductDto {
         val category: Category,
         val forAge: ForAge?,
         val location: String,
+        val rangeOfLocation: RangeOfLocation,
         val hit: Long,
         val likes: Long,
         val chats: Long,
@@ -45,6 +46,7 @@ class ProductDto {
             category = product.category,
             forAge = product.forAge,
             location = product.location,
+            rangeOfLocation = product.rangeOfLocation,
             hit = product.hit,
             likes = product.likes,
             chats = product.chats,
@@ -117,9 +119,9 @@ class ProductDto {
         @field:Range(min = 1, max = 17)
         val category: Int? = null,
         @field:Range(min = 1, max = 6)
-        val forAge: Int?,
+        val forAge: Int? = null,
         @field:Range(min = 0, max = 3)
-        val rangeOfLocation: Int
+        val rangeOfLocation: Int? = null
     )
 
     data class ProductSearchRequest(

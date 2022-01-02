@@ -4,6 +4,7 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.image.model.Image
+import waffle.team6.carrot.location.model.AdjacentLocation
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.user.model.User
@@ -46,6 +47,9 @@ class Product (
     @Enumerated(EnumType.STRING)
     var rangeOfLocation: RangeOfLocation,
 
+    @ElementCollection
+    var adjacentLocations: List<String> = listOf(),
+
     @field:PositiveOrZero
     var hit: Long,
 
@@ -70,7 +74,12 @@ class Product (
      var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     ) : BaseTimeEntity() {
-    constructor(user: User, images: MutableList<Image>, productPostRequest: ProductDto.ProductPostRequest): this(
+    constructor(
+        user: User,
+        images: MutableList<Image>,
+        adjacentLocations: List<String>,
+        productPostRequest: ProductDto.ProductPostRequest
+    ): this(
         user = user,
         images = images,
         title = productPostRequest.title,
@@ -81,6 +90,7 @@ class Product (
         forAge = if (productPostRequest.category == 4) productPostRequest.forAge?.let { ForAge.from(it) } else null,
         location = user.location,
         rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
+        adjacentLocations = adjacentLocations,
         hit = 1,
         likes = 0,
         chats = 0,

@@ -8,26 +8,26 @@ import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.Status
 
 interface ProductRepository: JpaRepository<Product, Long?> {
-    fun findAllByCategoryInAndLocationInAndHiddenIsFalse(
-        pageable: Pageable, categories: List<Category>, locations: List<String>
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndHiddenIsFalse(
-        pageable: Pageable, categories: List<Category>, locations: List<String>, title: String
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String, title: String
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String,
         title: String, minPrice: Long,
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String,
         title: String, maxPrice: Long
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String,
         title: String, minPrice: Long, maxPrice: Long
     ): Page<Product>
 

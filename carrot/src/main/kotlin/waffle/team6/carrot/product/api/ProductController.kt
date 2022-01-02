@@ -15,7 +15,6 @@ import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.carrot.user.model.User
 import javax.validation.Valid
-import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Positive
 import javax.validation.constraints.PositiveOrZero
 
@@ -36,7 +35,7 @@ class ProductController (
         @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int,
-        @RequestParam(required = false) @NotBlank title: String?,
+        @RequestParam(required = false) title: String?,
         @RequestParam(required = false) rangeOfLocation: Int?,
         @RequestParam(required = false) categories: List<Int>?,
         @RequestParam(required = false) @Positive minPrice: Long?,

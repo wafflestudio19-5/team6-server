@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.service.ImageService
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.location.service.LocationService
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
@@ -31,10 +32,11 @@ class ProductService (
     fun getProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
         val locations = locationService.findAdjacentLocationsByName(user.location, user.rangeOfLocation)
         return productRepository
-            .findAllByCategoryInAndLocationInAndHiddenIsFalse(
+            .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndHiddenIsFalse(
                 PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()),
                 user.categoriesOfInterest.map { it.category },
-                locations
+                locations,
+                user.location
             )
             .map { ProductDto.ProductSimpleResponse(it) }
     }
@@ -52,47 +54,54 @@ class ProductService (
         )
         val result: Page<Product>
         if (searchRequest.categories == null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndHiddenIsFalse(
-                pageRequest,
-                user.categoriesOfInterest.map { it.category },
-                locations,
-                searchRequest.title
-            )
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
+                    pageRequest,
+                    user.categoriesOfInterest.map { it.category },
+                    locations,
+                    user.location,
+                    searchRequest.title
+                )
         } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
+                    user.location,
                     searchRequest.title,
                     searchRequest.minPrice,
                     searchRequest.maxPrice
                 )
         } else if (searchRequest.minPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
+                    user.location,
                     searchRequest.title,
                     searchRequest.minPrice
                 )
         } else if (searchRequest.maxPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
+                    user.location,
                     searchRequest.title,
                     searchRequest.maxPrice
                 )
         } else {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndHiddenIsFalse(
-                pageRequest,
-                searchRequest.categories,
-                locations,
-                searchRequest.title
-            )
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
+                    pageRequest,
+                    searchRequest.categories,
+                    locations,
+                    user.location,
+                    searchRequest.title
+                )
         }
         return result.map { ProductDto.ProductSimpleResponse(it) }
     }
@@ -103,7 +112,9 @@ class ProductService (
         for (imageId in productPostRequest.images) {
             images.add(imageService.getImageByIdAndCheckAuthorization(imageId, user))
         }
-        val product = productRepository.save(Product(user, images, productPostRequest))
+        val adjacentLocations = locationService
+            .findAdjacentLocationsByName(user.location, RangeOfLocation.from(productPostRequest.rangeOfLocation))
+        val product = productRepository.save(Product(user, images, adjacentLocations, productPostRequest))
         user.products.add(product)
         return ProductDto.ProductResponse(product, true)
     }
@@ -137,6 +148,8 @@ class ProductService (
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         val imagesToRemove = product.images.filterNot { productPatchRequest.images?.contains(it.id) ?: true }
+        val adjacentLocations = productPatchRequest.rangeOfLocation?.let { locationService
+            .findAdjacentLocationsByName(product.location, RangeOfLocation.from(productPatchRequest.rangeOfLocation))}
 
         product.images = productPatchRequest.images
             ?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }?.toMutableList() ?: product.images
@@ -145,6 +158,9 @@ class ProductService (
         product.price = productPatchRequest.price ?: product.price
         product.negotiable = productPatchRequest.negotiable ?: product.negotiable
         product.category = productPatchRequest.category?.let { Category.from(it) } ?: product.category
+        product.forAge = if (productPatchRequest.category == 4) productPatchRequest.forAge?.let {
+            ForAge.from(it) } else null
+        product.adjacentLocations = adjacentLocations ?: product.adjacentLocations
 
         for (image in imagesToRemove) {
             imageService.delete(image.id, user)
