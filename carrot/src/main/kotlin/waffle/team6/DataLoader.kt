@@ -128,10 +128,9 @@ class DataLoader(
                         negotiable = rawProduct[4].toBoolean(),
                         category = rawProduct[5].toInt(),
                         rangeOfLocation = rawProduct[6].toInt(),
-                        forAge = rawProduct[7].toInt(),
-                        location = user!!.location
+                        forAge = rawProduct[7].toInt()
                     )
-                    productService.addProduct(user, postRequest)
+                    productService.addProduct(user!!, postRequest)
                 }
             }
         }

@@ -79,7 +79,7 @@ class Product (
         negotiable = productPostRequest.negotiable?: true,
         category = Category.from(productPostRequest.category),
         forAge = if (productPostRequest.category == 4) productPostRequest.forAge?.let { ForAge.from(it) } else null,
-        location = productPostRequest.location,
+        location = user.location,
         rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
         hit = 1,
         likes = 0,

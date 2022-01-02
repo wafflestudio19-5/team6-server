@@ -100,8 +100,6 @@ class ProductDto {
         val category: Int,
         @field:Range(min = 1, max = 6)
         val forAge: Int? = null,
-        @field:NotBlank
-        val location: String,
         @field:Range(min = 0, max = 3)
         val rangeOfLocation: Int
     )
@@ -132,5 +130,15 @@ class ProductDto {
         val categories: List<Category>? = null,
         val minPrice: Long? = null,
         val maxPrice: Long? = null
+    )
+
+    data class ProductStatusUpdateRequest(
+        @field:NotBlank
+        val action: String
+    )
+
+    data class ProductPurchaseRequestApprovalRequest(
+        @field:BooleanFlag
+        val accepted: Boolean
     )
 }
