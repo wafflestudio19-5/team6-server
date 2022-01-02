@@ -247,6 +247,16 @@ class ProductController (
         return ResponseEntity.ok().body(productService.getProductPurchaseRequest(user, productId, purchaseRequestId))
     }
 
+    @PutMapping("/{product_id}/purchases/{purchase_request_id}/")
+    fun chatAgain(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long,
+        @PathVariable("purchase_request_id") purchaseRequestId: Long,
+        @RequestBody @Valid purchaseRequest: PurchaseRequestDto.PurchaseRequest
+    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
+        return ResponseEntity.ok().body(productService.chatAgain(user, productId, purchaseRequestId, purchaseRequest))
+    }
+
     @PostMapping("/{product_id}/purchases/{purchase_request_id}/confirm/")
     @Operation(summary = "구매 확정", description = "해당 판매글에 대한 구매 요청이 확정됩니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),

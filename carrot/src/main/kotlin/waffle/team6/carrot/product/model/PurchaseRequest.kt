@@ -19,7 +19,9 @@ class PurchaseRequest (
     val product: Product,
 
     @field:PositiveOrZero
-    val suggestedPrice: Long? = null,
+    var suggestedPrice: Long? = null,
+
+    var message: String? = null,
 
     @field:BooleanFlag
     var accepted: Boolean? = null
@@ -27,6 +29,13 @@ class PurchaseRequest (
     constructor(user: User, product: Product, request: PurchaseRequestDto.PurchaseRequest): this(
         user = user,
         product = product,
-        suggestedPrice = request.suggestedPrice
+        suggestedPrice = request.suggestedPrice,
+        message = request.message
     )
+
+    fun update(request: PurchaseRequestDto.PurchaseRequest): PurchaseRequest {
+        suggestedPrice = request.suggestedPrice
+        message = request.message
+        return this
+    }
 }
