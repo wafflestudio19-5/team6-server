@@ -1,7 +1,10 @@
 package waffle.team6.carrot.user.api
 
+import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
@@ -64,15 +67,15 @@ class UserController(
     }
 
     @GetMapping("/me/purchase_requests/")
-    fun getMyPurchaseRequests(@CurrentUser user: User) {
-        userService.findMyPurchaseRequests(user)
+    fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user))
     }
 
     @GetMapping("/me/products/")
     fun getMyProducts(@CurrentUser user: User,
                       @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
-                      @RequestParam(required = true) @Positive pageSize: Int) {
-        userService.findMyProducts(user, pageNumber, pageSize)
+                      @RequestParam(required = true) @Positive pageSize: Int): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize))
     }
 
     @GetMapping("/me/likes/")

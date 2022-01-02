@@ -2,7 +2,6 @@ package waffle.team6.carrot.user.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +16,6 @@ import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
-import waffle.team6.global.config.SecurityConfig
 
 @Service
 @Transactional(readOnly = true)
@@ -69,17 +67,24 @@ class UserService(
     }
 
     // TODO: 자주 쓰는 문구
+    fun addMyPhrase() {
+
+    }
+
+    fun getMyPhrases() {
+
+    }
 
 
-    fun findMyPurchaseRequests(user: User): List<PurchaseRequestDto.PurchaseRequestResponse> {
+    fun findMyPurchaseRequests(user: User): List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser> {
         return purchaseRequestRepository.findAllByUser(user).map {
-            PurchaseRequestDto.PurchaseRequestResponse(it, true)
+            PurchaseRequestDto.PurchaseRequestResponseWithoutUser(it)
         }
     }
 
-    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
+    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponseWithoutUser> {
         return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize), user.id).map {
-            ProductDto.ProductSimpleResponse(it)
+            ProductDto.ProductSimpleResponseWithoutUser(it)
         }
     }
 
