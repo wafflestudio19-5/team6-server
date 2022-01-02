@@ -8,10 +8,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import waffle.team6.carrot.image.dto.ImageDto
-import waffle.team6.carrot.image.exception.ImageDeleteByInvalidUserException
-import waffle.team6.carrot.image.exception.ImageLocalSaveFailException
-import waffle.team6.carrot.image.exception.ImageNotFoundException
-import waffle.team6.carrot.image.exception.ImageUpdateByInvalidUserException
+import waffle.team6.carrot.image.exception.*
 import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.repository.ImageRepository
 import waffle.team6.carrot.user.model.User
@@ -27,12 +24,12 @@ class ImageService(
     @Value("\${cloud.aws.s3.bucket}")
     lateinit var bucket: String
 
-    fun upload(image: MultipartFile, user: User): ImageDto.Response {
+    fun upload(image: MultipartFile, user: User): ImageDto.ImageResponse {
         val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
         val fileName = "images/server/" + UUID.randomUUID() + image.name
         putFileToS3(file, fileName)
         removeLocalFile(file)
-        return ImageDto.Response(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
+        return ImageDto.ImageResponse(imageRepository.save(Image(fileName, image.contentType.toString(), user.id)))
     }
 
     fun download(id: Long): ImageDto.ImageResource {
@@ -40,7 +37,7 @@ class ImageService(
         return ImageDto.ImageResource(InputStreamResource(getFileFromS3(image.fileName)))
     }
 
-    fun update(image: MultipartFile, id: Long, user: User): ImageDto.Response {
+    fun update(image: MultipartFile, id: Long, user: User): ImageDto.ImageResponse {
         val imageEntity = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
         if (imageEntity.userId != user.id) throw ImageUpdateByInvalidUserException()
         deleteFileInS3(imageEntity.fileName)
@@ -51,7 +48,7 @@ class ImageService(
         imageEntity.fileName = fileName
         imageEntity.contentType = image.contentType.toString()
         imageRepository.flush()
-        return ImageDto.Response(imageEntity)
+        return ImageDto.ImageResponse(imageEntity)
     }
 
     fun delete(id: Long, user: User) {
@@ -59,6 +56,12 @@ class ImageService(
         if (imageEntity.userId != user.id) throw ImageDeleteByInvalidUserException()
         deleteFileInS3(imageEntity.fileName)
         imageRepository.delete(imageEntity)
+    }
+
+    fun getImageByIdAndCheckAuthorization(imageId: Long, user: User): Image {
+        val image = imageRepository.findByIdOrNull(imageId) ?: throw ImageNotFoundException()
+        if (image.userId != user.id) throw ImageAccessByInvalidUserException()
+        return image
     }
 
     fun getContentType(id: Long): String {

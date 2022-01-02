@@ -30,7 +30,7 @@ class ImageController(
     fun upload(
         @CurrentUser @ApiIgnore user: User,
         @RequestPart image: MultipartFile
-    ): ResponseEntity<ImageDto.Response> {
+    ): ResponseEntity<ImageDto.ImageResponse> {
         return ResponseEntity.status(HttpStatus.CREATED).body(imageService.upload(image, user))
     }
 
@@ -56,7 +56,7 @@ class ImageController(
         @CurrentUser @ApiIgnore user: User,
         @RequestPart image: MultipartFile,
         @PathVariable("image_id") imageId: Long
-    ): ResponseEntity<ImageDto.Response> {
+    ): ResponseEntity<ImageDto.ImageResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(imageService.update(image, imageId, user))
     }
 

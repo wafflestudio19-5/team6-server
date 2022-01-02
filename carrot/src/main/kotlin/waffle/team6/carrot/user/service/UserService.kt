@@ -4,6 +4,7 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.repository.LikeRepository
@@ -35,7 +36,7 @@ class UserService(
             email = signUpRequest.email,
             phone = signUpRequest.phone,
             location = signUpRequest.location,
-            rangeOfLocation = signUpRequest.rangeOfLocation,
+            rangeOfLocation = RangeOfLocation.from(signUpRequest.rangeOfLocation),
         )
 
         return UserDto.Response(userRepository.save(newUser))

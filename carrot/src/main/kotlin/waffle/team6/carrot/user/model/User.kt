@@ -10,6 +10,7 @@ import javax.persistence.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import org.hibernate.validator.constraints.Range
+import waffle.team6.carrot.location.model.RangeOfLocation
 
 @Entity
 @Table(name = "user")
@@ -44,8 +45,7 @@ class User(
     @field: NotBlank
     var location: String,
 
-    @field: Range(min=0, max=3)
-    var rangeOfLocation: Int, // 0, 1, 2, 3
+    var rangeOfLocation: RangeOfLocation,
 
 ): BaseTimeEntity() {
         fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest) {

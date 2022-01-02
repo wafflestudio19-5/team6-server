@@ -1,5 +1,7 @@
 package waffle.team6.carrot.location.model
 
+import waffle.team6.carrot.location.exception.InvalidRangeOfLocationLevelException
+
 enum class RangeOfLocation(
     val level: Int
 ) {
@@ -9,6 +11,12 @@ enum class RangeOfLocation(
     LEVEL_THREE(3);
 
     companion object {
-        fun from (findLevel: Int): RangeOfLocation = RangeOfLocation.values().first { it.level == findLevel }
+        fun from (findLevel: Int): RangeOfLocation {
+            return try {
+                values().first { it.level == findLevel }
+            } catch (e: NoSuchElementException) {
+                throw InvalidRangeOfLocationLevelException()
+            }
+        }
     }
 }

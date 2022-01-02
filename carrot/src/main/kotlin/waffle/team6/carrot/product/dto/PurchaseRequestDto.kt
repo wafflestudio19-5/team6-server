@@ -9,7 +9,8 @@ class PurchaseRequestDto {
         val user: UserDto.Response,
         val product: ProductDto.ProductResponse,
         val suggestedPrice: Long?,
-        val accepted: Boolean,
+        val message: String?,
+        val accepted: Boolean?,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
     ) {
@@ -17,6 +18,7 @@ class PurchaseRequestDto {
             user = UserDto.Response(purchaseRequest.user),
             product = ProductDto.ProductResponse(purchaseRequest.product, isSeller),
             suggestedPrice = purchaseRequest.suggestedPrice,
+            message = purchaseRequest.message,
             accepted = purchaseRequest.accepted,
             updatedAt = purchaseRequest.updatedAt,
             createdAt = purchaseRequest.createdAt
@@ -25,6 +27,7 @@ class PurchaseRequestDto {
 
     data class PurchaseRequest(
         @field:PositiveOrZero
-        val suggestedPrice: Long?
+        val suggestedPrice: Long?,
+        val message: String? = null
     )
 }
