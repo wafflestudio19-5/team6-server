@@ -2,11 +2,14 @@ package waffle.team6.carrot.product.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.image.service.ImageService
-import waffle.team6.carrot.product.dto.ListResponse
+import waffle.team6.carrot.location.model.RangeOfLocation
+import waffle.team6.carrot.location.service.LocationService
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.exception.*
@@ -15,6 +18,7 @@ import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.model.User
+import java.time.LocalDateTime
 
 @Service
 @Transactional(readOnly = true)
@@ -22,78 +26,95 @@ class ProductService (
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
     private val purchaseRequestRepository: PurchaseRequestRepository,
-    private val imageService: ImageService
+    private val imageService: ImageService,
+    private val locationService: LocationService,
 ){
     fun getProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
-        val locations = listOf(user.location)
+        val locations = locationService.findAdjacentLocationsByName(user.location, user.rangeOfLocation)
         return productRepository
-            .findAllByCategoryInAndLocationInAndStatusIs(
-                PageRequest.of(pageNumber, pageSize),
+            .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndHiddenIsFalse(
+                PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()),
                 user.categoriesOfInterest.map { it.category },
                 locations,
-                Status.FOR_SALE
+                user.location
             )
             .map { ProductDto.ProductSimpleResponse(it) }
     }
 
     fun searchProducts(user: User, searchRequest: ProductDto.ProductSearchRequest
     ): Page<ProductDto.ProductSimpleResponse> {
-        val pageRequest = PageRequest.of(searchRequest.pageNumber, searchRequest.pageSize)
-        val locations = listOf(user.location)
+        val pageRequest = PageRequest.of(
+            searchRequest.pageNumber,
+            searchRequest.pageSize,
+            Sort.by("lastBringUpMyPost").descending()
+        )
+        val locations = locationService.findAdjacentLocationsByName(
+            user.location,
+            searchRequest.rangeOfLocation ?: user.rangeOfLocation
+        )
         val result: Page<Product>
         if (searchRequest.categories == null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
-                pageRequest,
-                user.categoriesOfInterest.map { it.category },
-                locations,
-                searchRequest.title,
-                Status.FOR_SALE
-            )
-        } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndStatusIs(
-                pageRequest,
-                searchRequest.categories,
-                locations,
-                searchRequest.title,
-                searchRequest.minPrice,
-                searchRequest.maxPrice,
-                Status.FOR_SALE
-            )
-        } else if (searchRequest.minPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndStatusIs(
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
+                    pageRequest,
+                    user.categoriesOfInterest.map { it.category },
+                    locations,
+                    user.location,
+                    searchRequest.title
+                )
+        } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
+                    user.location,
                     searchRequest.title,
                     searchRequest.minPrice,
-                    Status.FOR_SALE
+                    searchRequest.maxPrice
+                )
+        } else if (searchRequest.minPrice != null) {
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
+                    pageRequest,
+                    searchRequest.categories,
+                    locations,
+                    user.location,
+                    searchRequest.title,
+                    searchRequest.minPrice
                 )
         } else if (searchRequest.maxPrice != null) {
             result = productRepository
-                .findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndStatusIs(
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
                     pageRequest,
                     searchRequest.categories,
                     locations,
+                    user.location,
                     searchRequest.title,
-                    searchRequest.maxPrice,
-                    Status.FOR_SALE
+                    searchRequest.maxPrice
                 )
         } else {
-            result = productRepository.findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
-                pageRequest,
-                searchRequest.categories,
-                locations,
-                searchRequest.title,
-                Status.FOR_SALE
-            )
+            result = productRepository
+                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
+                    pageRequest,
+                    searchRequest.categories,
+                    locations,
+                    user.location,
+                    searchRequest.title
+                )
         }
         return result.map { ProductDto.ProductSimpleResponse(it) }
     }
 
     @Transactional
-    fun addProducts(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
-        val product = productRepository.save(Product(user, productPostRequest))
+    fun addProduct(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
+        val images: MutableList<Image> = mutableListOf()
+        for (imageId in productPostRequest.images) {
+            images.add(imageService.getImageByIdAndCheckAuthorization(imageId, user))
+        }
+        val adjacentLocations = locationService
+            .findAdjacentLocationsByName(user.location, RangeOfLocation.from(productPostRequest.rangeOfLocation))
+        val product = productRepository.save(Product(user, images, adjacentLocations, productPostRequest))
         user.products.add(product)
         return ProductDto.ProductResponse(product, true)
     }
@@ -101,9 +122,12 @@ class ProductService (
     @Transactional
     fun getProduct(user: User, id: Long): ProductDto.ProductResponse {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        product.hit += 1
         return if (product.user.id == user.id) ProductDto.ProductResponse(product, true)
-        else ProductDto.ProductResponse(product, false)
+        else {
+            if (product.hidden) throw HiddenProductAccessException()
+            product.hit += 1
+            ProductDto.ProductResponse(product, false)
+        }
     }
 
     @Transactional
@@ -111,7 +135,7 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductDeleteByInvalidUserException()
         for (image in product.images) {
-            imageService.delete(image, user)
+            imageService.delete(image.id, user)
         }
         user.products.remove(product)
         productRepository.delete(product)
@@ -123,14 +147,24 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        val imagesToRemove = product.images.filterNot { productPatchRequest.images?.contains(it.id) ?: true }
+        val adjacentLocations = productPatchRequest.rangeOfLocation?.let { locationService
+            .findAdjacentLocationsByName(product.location, RangeOfLocation.from(productPatchRequest.rangeOfLocation))}
 
-        product.images = productPatchRequest.images ?: product.images
+        product.images = productPatchRequest.images
+            ?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }?.toMutableList() ?: product.images
         product.title = productPatchRequest.title ?: product.title
         product.content = productPatchRequest.content ?: product.content
         product.price = productPatchRequest.price ?: product.price
         product.negotiable = productPatchRequest.negotiable ?: product.negotiable
         product.category = productPatchRequest.category?.let { Category.from(it) } ?: product.category
+        product.forAge = if (productPatchRequest.category == 4) productPatchRequest.forAge?.let {
+            ForAge.from(it) } else null
+        product.adjacentLocations = adjacentLocations ?: product.adjacentLocations
 
+        for (image in imagesToRemove) {
+            imageService.delete(image.id, user)
+        }
         return ProductDto.ProductResponse(product, true)
     }
 
@@ -175,7 +209,7 @@ class ProductService (
     }
 
     @Transactional
-    fun reserve(user: User, id: Long) {
+    fun reserveProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.user.id != user.id) throw ProductReserveByInvalidUserException()
@@ -183,26 +217,54 @@ class ProductService (
     }
 
     @Transactional
-    fun cancelReserve(user: User, id: Long) {
+    fun cancelReservedProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.user.id != user.id) throw ProductReserveCancelByInvalidUserException()
         if (product.status == Status.RESERVED) product.status = Status.FOR_SALE
     }
 
-    fun getProductPurchaseRequests(user: User, id: Long): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
+    @Transactional
+    fun hideProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return ListResponse(purchaseRequestRepository.findAllByProductId(id)
-            .map { PurchaseRequestDto.PurchaseRequestResponse(it, true) })
+        if (product.user.id != user.id) throw ProductHideByInvalidUserException()
+        product.hidden = true
     }
 
-    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long
-    ): ListResponse<PurchaseRequestDto.PurchaseRequestResponse> {
+    @Transactional
+    fun showProduct(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductShowByInvalidUserException()
+        product.hidden = false
+    }
+
+    @Transactional
+    fun bringUpMyPost(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductBumpByInvalidUserException()
+        if (product.lastBringUpMyPost.isBefore(LocalDateTime.now().minusDays(1))) {
+            product.lastBringUpMyPost = LocalDateTime.now()
+        } else throw ProductEarlyBumpException()
+    }
+
+    fun getProductPurchaseRequests(user: User, id: Long, pageNumber: Int, pageSize: Int
+    ): Page<PurchaseRequestDto.PurchaseRequestResponse> {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
-        return ListResponse(purchaseRequestRepository.findAllByProductIdAndSuggestedPriceIsNotNull(id)
-            .map { PurchaseRequestDto.PurchaseRequestResponse(it, true) })
+        return purchaseRequestRepository.findAllByProductId(
+            PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending()),
+            id
+        ).map { PurchaseRequestDto.PurchaseRequestResponse(it, true) }
+    }
+
+    fun getProductPurchaseRequestsWithPriceSuggestion(user: User, id: Long, pageNumber: Int, pageSize: Int
+    ): Page<PurchaseRequestDto.PurchaseRequestResponse> {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductPurchaseRequestLookupByInvalidUserException()
+        return purchaseRequestRepository.findAllByProductIdAndSuggestedPriceIsNotNull(
+            PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending()),
+            id
+        ).map { PurchaseRequestDto.PurchaseRequestResponse(it, true) }
     }
 
     fun getProductPurchaseRequest(user: User, productId: Long, id: Long): PurchaseRequestDto.PurchaseRequestResponse {
@@ -215,14 +277,38 @@ class ProductService (
     @Transactional
     fun confirmProductPurchaseRequest(user: User, productId: Long, id: Long
     ): PurchaseRequestDto.PurchaseRequestResponse {
+        productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestApprovalByInvalidUserException()
+        if (purchaseRequest.accepted == false) throw ProductPurchaseRequestAlreadyRejectedException()
+        purchaseRequest.product.status = Status.SOLD_OUT
+        purchaseRequest.accepted = true
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
+    }
+
+    @Transactional
+    fun rejectProductPurchaseRequest(user: User, productId: Long, id: Long
+    ): PurchaseRequestDto.PurchaseRequestResponse {
+        productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestApprovalByInvalidUserException()
+        purchaseRequest.accepted = false
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
+    }
+
+    @Transactional
+    fun chatAgain(user: User, productId: Long, id: Long, request: PurchaseRequestDto.PurchaseRequest
+    ): PurchaseRequestDto.PurchaseRequestResponse {
         productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
         if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestConfirmByInvalidUserException()
-        purchaseRequest.product.status = Status.SOLD_OUT
-        purchaseRequest.accepted = true
-        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
+        if (purchaseRequest.user.id != user.id) throw ProductPurchaseRequestUpdateByInvalidUserException()
+        return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest.update(request), false)
     }
 }
 

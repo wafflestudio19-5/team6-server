@@ -81,6 +81,12 @@ class ImageService(
         imageRepository.delete(imageEntity)
     }
 
+    fun getImageByIdAndCheckAuthorization(imageId: Long, user: User): Image {
+        val image = imageRepository.findByIdOrNull(imageId) ?: throw ImageNotFoundException()
+        if (image.userId != user.id) throw ImageAccessByInvalidUserException()
+        return image
+    }
+
     fun getContentType(id: Long): String {
         val image = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
         return image.contentType
