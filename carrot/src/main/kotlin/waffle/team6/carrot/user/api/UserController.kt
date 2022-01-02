@@ -61,7 +61,7 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
-    @GetMapping("/duplicate")
+    @GetMapping("/duplicate/")
     fun checkDuplicatedNameForSignUp(@RequestParam name: String): ResponseEntity<Boolean> {
         return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
