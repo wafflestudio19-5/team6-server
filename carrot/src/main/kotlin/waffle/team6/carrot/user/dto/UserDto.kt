@@ -1,6 +1,7 @@
 package waffle.team6.carrot.user.dto
 
 
+import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.user.model.User
@@ -15,7 +16,7 @@ class UserDto {
         val nickname: String,
         val email: String?,
         val location: String,
-        val rangeOfLocation: Int,
+        val rangeOfLocation: RangeOfLocation,
     ) {
         constructor(user: User): this(
             name = user.name,

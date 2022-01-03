@@ -8,32 +8,30 @@ import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.Status
 
 interface ProductRepository: JpaRepository<Product, Long?> {
-    fun findAllByCategoryInAndLocationInAndStatusIs(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
-        status: Status
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndStatusIs(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
-        title: String, status: Status
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String, title: String
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsGreaterThanEqualAndStatusIs(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
-        title: String, minPrice: Long, status: Status
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String,
+        title: String, minPrice: Long,
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsLessThanEqualAndStatusIs(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
-        title: String, maxPrice: Long, status: Status
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String,
+        title: String, maxPrice: Long
     ): Page<Product>
 
-    fun findAllByCategoryInAndLocationInAndTitleContainingAndPriceIsBetweenAndStatusIs(
-        pageable: Pageable, categories: List<Category>, locations: List<String>,
-        title: String, minPrice: Long, maxPrice: Long, status: Status
+    fun findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
+        pageable: Pageable, categories: List<Category>, locations: List<String>, source: String,
+        title: String, minPrice: Long, maxPrice: Long
     ): Page<Product>
 
-    fun findAllByUserId(
-        pageable: Pageable, userId: Long
-    ): Page<Product>
+    fun findAllByUserIdAndStatusInAndHiddenIsFalse(pageable: Pageable, userId: Long, status: List<Status>): Page<Product>
+
+    fun findAllByUserIdAndHiddenIsTrue(pageable: Pageable, userId: Long): Page<Product>
 }
