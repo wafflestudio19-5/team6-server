@@ -64,6 +64,7 @@ class SecurityConfig(
             .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs").permitAll() // swagger docs
             .antMatchers("/ping-test/").permitAll()  // ping test
             .antMatchers("/api/v1/users/signin/").permitAll()  // Auth entrypoint
+            .antMatchers(HttpMethod.GET, "/api/v1/users/duplicate/").permitAll()  // Auth entrypoint
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
             .anyRequest().authenticated()
     }
