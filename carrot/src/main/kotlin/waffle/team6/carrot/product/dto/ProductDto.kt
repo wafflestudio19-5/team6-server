@@ -102,7 +102,7 @@ class ProductDto {
     ) {
         constructor(product: Product): this(
             id = product.id,
-            image = product.images[0],
+            image = product.images[0].id,
             title = product.title,
             price = product.price,
             location = product.location,

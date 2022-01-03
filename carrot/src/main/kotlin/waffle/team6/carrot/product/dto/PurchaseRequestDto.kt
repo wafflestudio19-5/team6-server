@@ -34,7 +34,7 @@ class PurchaseRequestDto {
     data class PurchaseRequestResponseWithoutUser(
         val product: ProductDto.ProductSimpleResponse,
         val suggestedPrice: Long?,
-        val accepted: Boolean,
+        val accepted: Boolean?,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
     ) {

@@ -34,4 +34,6 @@ interface ProductRepository: JpaRepository<Product, Long?> {
     fun findAllByUserIdAndStatusInAndHiddenIsFalse(pageable: Pageable, userId: Long, status: List<Status>): Page<Product>
 
     fun findAllByUserIdAndHiddenIsTrue(pageable: Pageable, userId: Long): Page<Product>
+
+    fun findAllByUserId(pageable: Pageable, userId: Long): Page<Product>
 }

@@ -22,7 +22,6 @@ import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
-import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.carrot.user.model.User
