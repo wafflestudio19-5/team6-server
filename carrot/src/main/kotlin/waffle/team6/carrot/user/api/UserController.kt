@@ -1,13 +1,18 @@
 package waffle.team6.carrot.user.api
 
+import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.global.auth.jwt.JwtTokenProvider
 import javax.validation.Valid
+import javax.validation.constraints.Positive
+import javax.validation.constraints.PositiveOrZero
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -56,23 +61,25 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
-    @GetMapping("/duplicate")
+    @GetMapping("/duplicate/")
     fun checkDuplicatedNameForSignUp(@RequestParam name: String): ResponseEntity<Boolean> {
         return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
 
-//    @GetMapping("/me/purchase_requests/")
-//    fun getMyPurchaseRequests(@CurrentUser user: User) {
-//        userService.findMyPurchaseRequests(user)
-//    }
-//
-//    @GetMapping("/me/products/")
-//    fun getMyProducts(@CurrentUser user: User) {
-//        userService.findMyProducts(user)
-//    }
-//
-//    @GetMapping("/me/likes/")
-//    fun getMyLikes(@CurrentUser user: User) {
-//        userService.findMyLikes(user)
-//    }
+    @GetMapping("/me/purchase-requests/")
+    fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user))
+    }
+
+    @GetMapping("/me/products/")
+    fun getMyProducts(@CurrentUser user: User,
+                      @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+                      @RequestParam(required = true) @Positive pageSize: Int): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize))
+    }
+
+    @GetMapping("/me/likes/")
+    fun getMyLikes(@CurrentUser user: User) {
+        userService.findMyLikes(user)
+    }
 }

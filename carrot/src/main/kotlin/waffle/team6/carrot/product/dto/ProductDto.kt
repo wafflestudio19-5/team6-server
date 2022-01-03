@@ -88,6 +88,32 @@ class ProductDto {
         )
     }
 
+    data class ProductSimpleResponseWithoutUser(
+        val id: Long,
+        val image: Long,
+        val title: String,
+        val price: Long,
+        val location: String,
+        val likes: Long,
+        val chats: Long,
+        val status: Status,
+        val createdAt: LocalDateTime,
+        val updatedAt: LocalDateTime
+    ) {
+        constructor(product: Product): this(
+            id = product.id,
+            image = product.images[0].id,
+            title = product.title,
+            price = product.price,
+            location = product.location,
+            likes = product.likes,
+            chats = product.chats,
+            status = product.status,
+            createdAt = product.createdAt,
+            updatedAt = product.updatedAt
+        )
+    }
+
     data class ProductPostRequest(
         val images: List<Long>,
         @field:NotBlank

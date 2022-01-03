@@ -1,9 +1,11 @@
 package waffle.team6.carrot.user.service
 
-import org.springframework.security.core.AuthenticationException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
@@ -15,7 +17,6 @@ import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
-import waffle.team6.global.config.SecurityConfig
 
 @Service
 @Transactional(readOnly = true)
@@ -67,22 +68,36 @@ class UserService(
     }
 
     // TODO: 자주 쓰는 문구
+    fun addMyPhrase() {
+
+    }
+
+    fun getMyPhrases() {
+
+    }
 
 
-//    fun findMyPurchaseRequests(user: User): List<PurchaseRequestDto.PurchaseRequestResponse> {
-//        return purchaseRequestRepository.
-//    }
-//
-//    fun findMyProducts(user: User): List<ProductDto.ProductSimpleResponse>{
-//
-//    }
-//
-//    fun findMyCategoriesOfInterests(user: User): List<String> {
-//
-//    }
-//
-//    fun findMyLikes(user: User) {
-//
-//    }
+    fun findMyPurchaseRequests(user: User): List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser> {
+        return purchaseRequestRepository.findAllByUser(user).map {
+            PurchaseRequestDto.PurchaseRequestResponseWithoutUser(it)
+        }
+    }
+
+    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize), user.id).map {
+            ProductDto.ProductSimpleResponseWithoutUser(it)
+        }
+    }
+
+    fun findMyCategoriesOfInterests(user: User): List<String> {
+        // TODO
+        return listOf("NOT_YET_IMPLEMENTED")
+    }
+
+    fun findMyLikes(user: User): List<LikeDto.LikeResponse> {
+        return likeRepository.findAllByUser(user).map {
+            LikeDto.LikeResponse(it)
+        }
+    }
 }
 

@@ -14,10 +14,12 @@ import waffle.team6.carrot.location.model.Location
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.location.repository.AdjacentLocationRepository
 import waffle.team6.carrot.location.repository.LocationRepository
+
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
+
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
@@ -100,6 +102,7 @@ class DataLoader(
             }
         }
 
+
         if (imageRepository.count() == (0).toLong()) {
             BufferedReader(InputStreamReader(ClassPathResource("data/example_image.tsv").inputStream)).use { br ->
                 br.lines().forEach {
@@ -110,6 +113,7 @@ class DataLoader(
                             contentType = rawImage[1],
                             userId = rawImage[2].toLong()
                         )
+
                     )
                 }
             }

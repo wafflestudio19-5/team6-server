@@ -30,4 +30,20 @@ class PurchaseRequestDto {
         val suggestedPrice: Long?,
         val message: String? = null
     )
+
+    data class PurchaseRequestResponseWithoutUser(
+        val product: ProductDto.ProductSimpleResponse,
+        val suggestedPrice: Long?,
+        val accepted: Boolean?,
+        val updatedAt: LocalDateTime,
+        val createdAt: LocalDateTime
+    ) {
+        constructor(purchaseRequest: waffle.team6.carrot.product.model.PurchaseRequest): this(
+            product = ProductDto.ProductSimpleResponse(purchaseRequest.product),
+            suggestedPrice = purchaseRequest.suggestedPrice,
+            accepted = purchaseRequest.accepted,
+            updatedAt = purchaseRequest.updatedAt,
+            createdAt = purchaseRequest.createdAt
+        )
+    }
 }
