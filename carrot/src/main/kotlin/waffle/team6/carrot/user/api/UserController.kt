@@ -66,7 +66,7 @@ class UserController(
         return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
 
-    @GetMapping("/me/purchase_requests/")
+    @GetMapping("/me/purchase-requests/")
     fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser>> {
         return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user))
     }
