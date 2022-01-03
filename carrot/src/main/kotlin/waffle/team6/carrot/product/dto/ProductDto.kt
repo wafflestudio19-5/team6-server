@@ -23,7 +23,7 @@ class ProductDto {
         val price: Long,
         val negotiable: Boolean,
         val category: Category,
-        val forAge: ForAge?,
+        val forAge: List<ForAge>?,
         val location: String,
         val rangeOfLocation: RangeOfLocation,
         val hit: Long,
@@ -100,8 +100,7 @@ class ProductDto {
         val negotiable: Boolean?,
         @field:Range(min = 1, max = 17)
         val category: Int,
-        @field:Range(min = 1, max = 6)
-        val forAge: Int? = null,
+        val forAge: List<Int>? = null,
         @field:Range(min = 0, max = 3)
         val rangeOfLocation: Int
     )
@@ -118,8 +117,7 @@ class ProductDto {
         val negotiable: Boolean? = null,
         @field:Range(min = 1, max = 17)
         val category: Int? = null,
-        @field:Range(min = 1, max = 6)
-        val forAge: Int? = null,
+        val forAge: List<Int>? = null,
         @field:Range(min = 0, max = 3)
         val rangeOfLocation: Int? = null
     )

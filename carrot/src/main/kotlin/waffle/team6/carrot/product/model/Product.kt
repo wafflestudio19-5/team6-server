@@ -38,8 +38,8 @@ class Product (
     @Enumerated(EnumType.STRING)
     var category: Category,
 
-    @Enumerated(EnumType.STRING)
-    var forAge: ForAge?,
+    @ElementCollection
+    var forAge: MutableList<ForAge>? = null,
 
     @field:NotBlank
     val location: String,
@@ -87,7 +87,8 @@ class Product (
         price = productPostRequest.price,
         negotiable = productPostRequest.negotiable?: true,
         category = Category.from(productPostRequest.category),
-        forAge = if (productPostRequest.category == 4) productPostRequest.forAge?.let { ForAge.from(it) } else null,
+        forAge = ((if (productPostRequest.category == 4) productPostRequest.forAge?.map {
+            ForAge.from(it) } else null) as MutableList<ForAge>?),
         location = user.location,
         rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
         adjacentLocations = adjacentLocations,

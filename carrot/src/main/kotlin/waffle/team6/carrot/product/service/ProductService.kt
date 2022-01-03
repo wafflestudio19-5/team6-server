@@ -158,8 +158,8 @@ class ProductService (
         product.price = productPatchRequest.price ?: product.price
         product.negotiable = productPatchRequest.negotiable ?: product.negotiable
         product.category = productPatchRequest.category?.let { Category.from(it) } ?: product.category
-        product.forAge = if (productPatchRequest.category == 4) productPatchRequest.forAge?.let {
-            ForAge.from(it) } else null
+        product.forAge = (if (productPatchRequest.category == 4) productPatchRequest.forAge?.map {
+            ForAge.from(it) } else null) as MutableList<ForAge>
         product.adjacentLocations = adjacentLocations ?: product.adjacentLocations
         product.rangeOfLocation = productPatchRequest.rangeOfLocation?.let {
             RangeOfLocation.from(it) } ?: product.rangeOfLocation
