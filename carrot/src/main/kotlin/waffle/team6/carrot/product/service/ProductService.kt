@@ -161,6 +161,8 @@ class ProductService (
         product.forAge = if (productPatchRequest.category == 4) productPatchRequest.forAge?.let {
             ForAge.from(it) } else null
         product.adjacentLocations = adjacentLocations ?: product.adjacentLocations
+        product.rangeOfLocation = productPatchRequest.rangeOfLocation?.let {
+            RangeOfLocation.from(it) } ?: product.rangeOfLocation
 
         for (image in imagesToRemove) {
             imageService.delete(image.id, user)
