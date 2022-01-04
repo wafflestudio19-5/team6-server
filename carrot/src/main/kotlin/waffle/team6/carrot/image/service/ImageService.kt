@@ -2,9 +2,9 @@ package waffle.team6.carrot.image.service
 
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.*
+import com.amazonaws.util.IOUtils
 import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.InputStreamResource
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -54,7 +54,7 @@ class ImageService(
 
     fun download(id: Long): ImageDto.ImageResource {
         val image = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
-        return ImageDto.ImageResource(InputStreamResource(getFileFromS3(image.fileName)))
+        return ImageDto.ImageResource(image.contentType, IOUtils.toByteArray(getFileFromS3(image.fileName)))
     }
 
     @Transactional
@@ -85,11 +85,6 @@ class ImageService(
         val image = imageRepository.findByIdOrNull(imageId) ?: throw ImageNotFoundException()
         if (image.userId != user.id) throw ImageAccessByInvalidUserException()
         return image
-    }
-
-    fun getContentType(id: Long): String {
-        val image = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
-        return image.contentType
     }
 
     fun putFileToS3(file: File, fileName: String) {
