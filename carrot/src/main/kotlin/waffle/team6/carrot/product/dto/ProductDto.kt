@@ -17,13 +17,13 @@ class ProductDto {
     data class ProductResponse(
         val id: Long,
         val user: UserDto.Response,
-        val images: List<Long>,
+        val images: List<Long>? = null,
         val title: String,
         val content: String,
         val price: Long,
         val negotiable: Boolean,
         val category: Category,
-        val forAge: List<ForAge>?,
+        val forAge: List<ForAge>? = null,
         val location: String,
         val rangeOfLocation: RangeOfLocation,
         val hit: Long,
@@ -38,7 +38,7 @@ class ProductDto {
         constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            images = product.images.map { it.id },
+            images = product.images?.map { it.id },
             title = product.title,
             content = product.content,
             price = product.price,
@@ -61,7 +61,7 @@ class ProductDto {
     data class ProductSimpleResponse(
         val id: Long,
         val user: UserDto.Response,
-        val image: Long,
+        val image: Long?,
         val title: String,
         val price: Long,
         val location: String,
@@ -75,7 +75,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            image = product.images[0].id,
+            image = product.images?.get(0)?.id,
             title = product.title,
             price = product.price,
             location = product.location,
@@ -89,7 +89,7 @@ class ProductDto {
     }
 
     data class ProductPostRequest(
-        val images: List<Long>,
+        val images: List<Long>? = null,
         @field:NotBlank
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -97,7 +97,7 @@ class ProductDto {
         @field:PositiveOrZero
         val price: Long,
         @field:BooleanFlag
-        val negotiable: Boolean?,
+        val negotiable: Boolean = true,
         @field:Range(min = 1, max = 17)
         val category: Int,
         val forAge: List<Int>? = null,
