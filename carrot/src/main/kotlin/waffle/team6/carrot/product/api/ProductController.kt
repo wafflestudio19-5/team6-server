@@ -221,6 +221,7 @@ class ProductController (
         ApiResponse(responseCode = "200", description = "Success Response"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
         ApiResponse(responseCode = "0202", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
+        ApiResponse(responseCode = "0205", description = "해당 판매요청이 이미 수락된 경우"),
         ApiResponse(responseCode = "3213", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
         ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
         ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
@@ -232,6 +233,24 @@ class ProductController (
         @RequestBody @Valid purchaseRequest: PurchaseRequestDto.PurchaseRequest
     ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
         return ResponseEntity.ok().body(productService.chatAgain(user, productId, purchaseRequestId, purchaseRequest))
+    }
+
+    @DeleteMapping("/{product_id}/purchases/{purchase_request_id}/")
+    @Operation(summary = "구매 요청 취소", description = "해당 구매 요청을 취소합니다", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "0205", description = "해당 판매요청이 이미 수락된 경우"),
+        ApiResponse(responseCode = "0202", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
+        ApiResponse(responseCode = "3204", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
+        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
+        ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
+    ])
+    fun deleteChat(
+        @CurrentUser @ApiIgnore user: User,
+        @PathVariable("product_id") productId: Long,
+        @PathVariable("purchase_request_id") purchaseRequestId: Long
+    ): ResponseEntity<Any> {
+        productService.deleteChat(user, productId, purchaseRequestId)
+        return ResponseEntity.noContent().build()
     }
 
     @PutMapping("/{product_id}/purchases/{purchase_request_id}/approval/")

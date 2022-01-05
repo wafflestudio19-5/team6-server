@@ -305,12 +305,24 @@ class ProductService (
     @Transactional
     fun chatAgain(user: User, productId: Long, id: Long, request: PurchaseRequestDto.PurchaseRequest
     ): PurchaseRequestDto.PurchaseRequestResponse {
-        productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
         if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (purchaseRequest.accepted == true) throw ProductPurchaseRequestAlreadyAcceptedException()
         if (purchaseRequest.user.id != user.id) throw ProductPurchaseRequestUpdateByInvalidUserException()
         return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest.update(request), false)
+    }
+
+    @Transactional
+    fun deleteChat(user: User, productId: Long, id: Long) {
+        productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.accepted == true) throw ProductPurchaseRequestAlreadyAcceptedException()
+        if (purchaseRequest.user.id != user.id) throw ProductPurchaseRequestDeleteByInvalidUserException()
+        user.purchaseRequests.remove(purchaseRequest)
+        purchaseRequestRepository.delete(purchaseRequest)
     }
 }
 
