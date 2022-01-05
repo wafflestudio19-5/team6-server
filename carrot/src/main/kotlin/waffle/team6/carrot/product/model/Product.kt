@@ -21,7 +21,7 @@ class Product (
     val user: User,
 
     @OneToMany(cascade = [CascadeType.ALL])
-    var images: MutableList<Image> = mutableListOf(),
+    var images: MutableList<Image>? = null,
 
     @field:NotBlank
     var title: String,
@@ -38,8 +38,8 @@ class Product (
     @Enumerated(EnumType.STRING)
     var category: Category,
 
-    @Enumerated(EnumType.STRING)
-    var forAge: ForAge?,
+    @ElementCollection
+    var forAge: MutableList<ForAge>? = null,
 
     @field:NotBlank
     val location: String,
@@ -76,7 +76,7 @@ class Product (
     ) : BaseTimeEntity() {
     constructor(
         user: User,
-        images: MutableList<Image>,
+        images: MutableList<Image>?,
         adjacentLocations: List<String>,
         productPostRequest: ProductDto.ProductPostRequest
     ): this(
@@ -85,9 +85,10 @@ class Product (
         title = productPostRequest.title,
         content = productPostRequest.content,
         price = productPostRequest.price,
-        negotiable = productPostRequest.negotiable?: true,
+        negotiable = productPostRequest.negotiable,
         category = Category.from(productPostRequest.category),
-        forAge = if (productPostRequest.category == 4) productPostRequest.forAge?.let { ForAge.from(it) } else null,
+        forAge = (if (productPostRequest.category == 4) productPostRequest.forAge
+            ?.map { ForAge.from(it) } else null) as MutableList<ForAge>?,
         location = user.location,
         rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
         adjacentLocations = adjacentLocations,

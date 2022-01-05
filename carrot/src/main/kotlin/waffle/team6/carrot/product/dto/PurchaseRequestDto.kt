@@ -6,19 +6,23 @@ import javax.validation.constraints.PositiveOrZero
 
 class PurchaseRequestDto {
     data class PurchaseRequestResponse(
+        val id: Long,
         val user: UserDto.Response,
         val product: ProductDto.ProductResponse,
         val suggestedPrice: Long?,
         val message: String?,
+        val lastMessageTime: LocalDateTime?,
         val accepted: Boolean?,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
     ) {
         constructor(purchaseRequest: waffle.team6.carrot.product.model.PurchaseRequest, isSeller: Boolean): this(
+            id = purchaseRequest.id,
             user = UserDto.Response(purchaseRequest.user),
             product = ProductDto.ProductResponse(purchaseRequest.product, isSeller),
             suggestedPrice = purchaseRequest.suggestedPrice,
             message = purchaseRequest.message,
+            lastMessageTime = purchaseRequest.lastMessageTime,
             accepted = purchaseRequest.accepted,
             updatedAt = purchaseRequest.updatedAt,
             createdAt = purchaseRequest.createdAt

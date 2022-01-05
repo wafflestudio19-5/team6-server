@@ -15,7 +15,7 @@ enum class ForAge(
     companion object {
         fun from (findValue: Int): ForAge {
             return try {
-                ForAge.values().first { it.value == findValue }
+                values().first { it.value == findValue }
             } catch (e: NoSuchElementException) {
                 throw InvalidForAgeValueException()
             }

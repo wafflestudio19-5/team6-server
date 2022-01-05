@@ -108,13 +108,11 @@ class ProductService (
 
     @Transactional
     fun addProduct(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
-        val images: MutableList<Image> = mutableListOf()
-        for (imageId in productPostRequest.images) {
-            images.add(imageService.getImageByIdAndCheckAuthorization(imageId, user))
-        }
+        val images = productPostRequest.images?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }
         val adjacentLocations = locationService
             .findAdjacentLocationsByName(user.location, RangeOfLocation.from(productPostRequest.rangeOfLocation))
-        val product = productRepository.save(Product(user, images, adjacentLocations, productPostRequest))
+        val product = productRepository.save(Product(user,
+            images as MutableList<Image>?, adjacentLocations, productPostRequest))
         user.products.add(product)
         return ProductDto.ProductResponse(product, true)
     }
@@ -134,9 +132,7 @@ class ProductService (
     fun deleteProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductDeleteByInvalidUserException()
-        for (image in product.images) {
-            imageService.delete(image.id, user)
-        }
+        product.images?.forEach { imageService.delete(it.id, user) }
         user.products.remove(product)
         productRepository.delete(product)
     }
@@ -147,7 +143,7 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        val imagesToRemove = product.images.filterNot { productPatchRequest.images?.contains(it.id) ?: true }
+        val imagesToRemove = product.images?.filterNot { productPatchRequest.images?.contains(it.id) ?: true }
         val adjacentLocations = productPatchRequest.rangeOfLocation?.let { locationService
             .findAdjacentLocationsByName(product.location, RangeOfLocation.from(productPatchRequest.rangeOfLocation))}
 
@@ -158,13 +154,14 @@ class ProductService (
         product.price = productPatchRequest.price ?: product.price
         product.negotiable = productPatchRequest.negotiable ?: product.negotiable
         product.category = productPatchRequest.category?.let { Category.from(it) } ?: product.category
-        product.forAge = if (productPatchRequest.category == 4) productPatchRequest.forAge?.let {
-            ForAge.from(it) } else null
+        product.forAge = (if (productPatchRequest.category == 4) productPatchRequest.forAge
+            ?.map { ForAge.from(it) } else null) as MutableList<ForAge>
         product.adjacentLocations = adjacentLocations ?: product.adjacentLocations
+        product.rangeOfLocation = productPatchRequest.rangeOfLocation
+            ?.let { RangeOfLocation.from(it) } ?: product.rangeOfLocation
 
-        for (image in imagesToRemove) {
-            imageService.delete(image.id, user)
-        }
+        if (product.images?.isEmpty() == true) product.images= null
+        imagesToRemove?.forEach { imageService.delete(it.id, user) }
         return ProductDto.ProductResponse(product, true)
     }
 
@@ -209,19 +206,24 @@ class ProductService (
     }
 
     @Transactional
-    fun reserveProduct(user: User, id: Long) {
+    fun changeProductStatusToReserved(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        if (product.user.id != user.id) throw ProductReserveByInvalidUserException()
-        if (product.status == Status.FOR_SALE) product.status = Status.RESERVED
+        if (product.user.id != user.id) throw ProductStatusChangeByInvalidUserException()
+        product.status = Status.RESERVED
     }
 
     @Transactional
-    fun cancelReservedProduct(user: User, id: Long) {
+    fun changeProductStatusToSoldOut(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        if (product.user.id != user.id) throw ProductReserveCancelByInvalidUserException()
-        if (product.status == Status.RESERVED) product.status = Status.FOR_SALE
+        if (product.user.id != user.id) throw ProductStatusChangeByInvalidUserException()
+        product.status = Status.SOLD_OUT
+    }
+
+    @Transactional
+    fun changeProductStatusToForSale(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductStatusChangeByInvalidUserException()
+        product.status = Status.FOR_SALE
     }
 
     @Transactional
@@ -283,7 +285,6 @@ class ProductService (
         if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestApprovalByInvalidUserException()
         if (purchaseRequest.accepted == false) throw ProductPurchaseRequestAlreadyRejectedException()
-        purchaseRequest.product.status = Status.SOLD_OUT
         purchaseRequest.accepted = true
         return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
     }
@@ -303,12 +304,24 @@ class ProductService (
     @Transactional
     fun chatAgain(user: User, productId: Long, id: Long, request: PurchaseRequestDto.PurchaseRequest
     ): PurchaseRequestDto.PurchaseRequestResponse {
-        productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
         val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
         if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
         if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
+        if (purchaseRequest.accepted == true) throw ProductPurchaseRequestAlreadyAcceptedException()
         if (purchaseRequest.user.id != user.id) throw ProductPurchaseRequestUpdateByInvalidUserException()
         return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest.update(request), false)
+    }
+
+    @Transactional
+    fun deleteChat(user: User, productId: Long, id: Long) {
+        productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
+        val purchaseRequest = purchaseRequestRepository.findByIdOrNull(id) ?: throw ProductPurchaseNotFoundException()
+        if (purchaseRequest.product.id != productId) throw ProductPurchaseRequestMismatchException()
+        if (purchaseRequest.accepted == true) throw ProductPurchaseRequestAlreadyAcceptedException()
+        if (purchaseRequest.user.id != user.id) throw ProductPurchaseRequestDeleteByInvalidUserException()
+        user.purchaseRequests.remove(purchaseRequest)
+        purchaseRequestRepository.delete(purchaseRequest)
     }
 }
 
