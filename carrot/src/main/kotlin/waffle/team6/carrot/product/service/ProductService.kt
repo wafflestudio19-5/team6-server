@@ -285,7 +285,6 @@ class ProductService (
         if (purchaseRequest.product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (purchaseRequest.product.user.id != user.id) throw ProductPurchaseRequestApprovalByInvalidUserException()
         if (purchaseRequest.accepted == false) throw ProductPurchaseRequestAlreadyRejectedException()
-        purchaseRequest.product.status = Status.SOLD_OUT
         purchaseRequest.accepted = true
         return PurchaseRequestDto.PurchaseRequestResponse(purchaseRequest, true)
     }
