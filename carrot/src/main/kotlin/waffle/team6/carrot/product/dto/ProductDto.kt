@@ -90,7 +90,7 @@ class ProductDto {
 
     data class ProductSimpleResponseWithoutUser(
         val id: Long,
-        val image: Long,
+        val image: Long?,
         val title: String,
         val price: Long,
         val location: String,
@@ -102,7 +102,7 @@ class ProductDto {
     ) {
         constructor(product: Product): this(
             id = product.id,
-            image = product.images[0].id,
+            image = product.images?.get(0)?.id,
             title = product.title,
             price = product.price,
             location = product.location,
