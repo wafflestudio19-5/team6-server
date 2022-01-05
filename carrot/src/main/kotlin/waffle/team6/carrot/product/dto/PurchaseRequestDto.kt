@@ -10,6 +10,7 @@ class PurchaseRequestDto {
         val product: ProductDto.ProductResponse,
         val suggestedPrice: Long?,
         val message: String?,
+        val lastMessageTime: LocalDateTime?,
         val accepted: Boolean?,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
@@ -19,6 +20,7 @@ class PurchaseRequestDto {
             product = ProductDto.ProductResponse(purchaseRequest.product, isSeller),
             suggestedPrice = purchaseRequest.suggestedPrice,
             message = purchaseRequest.message,
+            lastMessageTime = purchaseRequest.lastMessageTime,
             accepted = purchaseRequest.accepted,
             updatedAt = purchaseRequest.updatedAt,
             createdAt = purchaseRequest.createdAt
