@@ -206,19 +206,24 @@ class ProductService (
     }
 
     @Transactional
-    fun reserveProduct(user: User, id: Long) {
+    fun changeProductStatusToReserved(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        if (product.user.id != user.id) throw ProductReserveByInvalidUserException()
-        if (product.status == Status.FOR_SALE) product.status = Status.RESERVED
+        if (product.user.id != user.id) throw ProductStatusChangeByInvalidUserException()
+        product.status = Status.RESERVED
     }
 
     @Transactional
-    fun cancelReservedProduct(user: User, id: Long) {
+    fun changeProductStatusToSoldOut(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
-        if (product.status == Status.SOLD_OUT) throw ProductAlreadySoldOutException()
-        if (product.user.id != user.id) throw ProductReserveCancelByInvalidUserException()
-        if (product.status == Status.RESERVED) product.status = Status.FOR_SALE
+        if (product.user.id != user.id) throw ProductStatusChangeByInvalidUserException()
+        product.status = Status.SOLD_OUT
+    }
+
+    @Transactional
+    fun changeProductStatusToForSale(user: User, id: Long) {
+        val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw ProductStatusChangeByInvalidUserException()
+        product.status = Status.FOR_SALE
     }
 
     @Transactional

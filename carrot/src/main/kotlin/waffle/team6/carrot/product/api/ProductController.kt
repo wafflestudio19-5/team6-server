@@ -157,12 +157,11 @@ class ProductController (
 
     @PutMapping("/{product_id}/status/")
     @Operation(summary = "판매글 상태를 변경합니다", description = "action으로 넣을 수 있는 값은 다음과 같습니다:" +
-            "reserve(예약중으로 변경), cancel reserve(다시 판매중으로 변경), hide(숨김), show(다시 노출), bump(끌올)", responses = [
+            "reserved(예약중), sold out(판매완료), for sale(판매중), hide(숨김), show(다시 노출), bump(끌올)", responses = [
         ApiResponse(responseCode = "204", description = "Success Response"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우 (hide/show 는 상관없음)"),
         ApiResponse(responseCode = "0203", description = "마지막으로 끌올(생성)한 지 하루가 지나지 않았을 경우 (bump 요청)"),
-        ApiResponse(responseCode = "3203", description = "판매자가 아닌 다른 사용자가 reserve 요청을 시도한 경우"),
-        ApiResponse(responseCode = "3204", description = "판매자가 아닌 다른 사용자가 cancel reserve 요청을 시도한 경우"),
+        ApiResponse(responseCode = "3203", description = "판매자가 아닌 다른 사용자가 reserved/sold out/for sale 요청을 시도한 경우"),
         ApiResponse(responseCode = "3209", description = "판매자가 아닌 다른 사용자가 hide 요청을 시도한 경우"),
         ApiResponse(responseCode = "3210", description = "판매자가 아닌 다른 사용자가 show 요청을 시도한 경우"),
         ApiResponse(responseCode = "3211", description = "판매자가 아닌 다른 사용자가 bump 요청을 시도한 경우"),
@@ -174,8 +173,9 @@ class ProductController (
         @RequestBody @Valid productStatusUpdateRequest: ProductDto.ProductStatusUpdateRequest
     ): ResponseEntity<Any> {
         when (productStatusUpdateRequest.action) {
-            "reserve" -> productService.reserveProduct(user, productId)
-            "cancel reserve" -> productService.cancelReservedProduct(user, productId)
+            "reserved" -> productService.changeProductStatusToReserved(user, productId)
+            "sold out" -> productService.changeProductStatusToSoldOut(user, productId)
+            "for sale" -> productService.changeProductStatusToForSale(user, productId)
             "hide" -> productService.hideProduct(user, productId)
             "show" -> productService.showProduct(user, productId)
             "bump" -> productService.bringUpMyPost(user, productId)
