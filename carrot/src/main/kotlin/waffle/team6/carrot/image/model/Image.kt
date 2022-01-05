@@ -14,6 +14,9 @@ class Image(
     @field:NotBlank
     var contentType: String,
 
+    @field:NotBlank
+    var url: String,
+
     @field:NotNull
     val userId: Long
 ): BaseTimeEntity()

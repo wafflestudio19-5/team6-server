@@ -111,6 +111,7 @@ class DataLoader(
                         Image(
                             fileName = rawImage[0],
                             contentType = rawImage[1],
+                            url = "",
                             userId = rawImage[2].toLong()
                         )
 

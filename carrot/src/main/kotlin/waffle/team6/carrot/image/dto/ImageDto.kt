@@ -1,6 +1,5 @@
 package waffle.team6.carrot.image.dto
 
-import org.springframework.core.io.InputStreamResource
 import waffle.team6.carrot.image.model.Image
 import java.time.LocalDateTime
 
@@ -17,8 +16,8 @@ class ImageDto {
         )
     }
 
-    data class ImageResource(
-        val image: InputStreamResource
+    data class ImageUrlResponse(
+        val url: String
     )
 
     data class ImageListResponse(

@@ -2,9 +2,9 @@ package waffle.team6.carrot.image.service
 
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.*
+import com.amazonaws.util.IOUtils
 import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.InputStreamResource
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -45,16 +45,17 @@ class ImageService(
             if (!validContentTypes.contains(contentType)) throw ImageInvalidContentTypeException()
             val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
             val fileName = "images/server/" + UUID.randomUUID() + image.name
+            val url = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/$fileName"
             putFileToS3(file, fileName)
             removeLocalFile(file)
-            imageEntities.add(Image(fileName, contentType, user.id))
+            imageEntities.add(Image(fileName, contentType, url, user.id))
         }
         return ImageDto.ImageListResponse(imageRepository.saveAll(imageEntities))
     }
 
-    fun download(id: Long): ImageDto.ImageResource {
+    fun download(id: Long): ImageDto.ImageUrlResponse {
         val image = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
-        return ImageDto.ImageResource(InputStreamResource(getFileFromS3(image.fileName)))
+        return ImageDto.ImageUrlResponse(image.url)
     }
 
     @Transactional
@@ -66,10 +67,12 @@ class ImageService(
         if (!validContentTypes.contains(contentType)) throw ImageInvalidContentTypeException()
         val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
         val fileName = "images/server/" + UUID.randomUUID() + image.name
+        val url = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/$fileName"
         putFileToS3(file, fileName)
         removeLocalFile(file)
         imageEntity.fileName = fileName
         imageEntity.contentType = contentType
+        imageEntity.url = url
         return ImageDto.ImageResponse(imageEntity)
     }
 
@@ -87,17 +90,8 @@ class ImageService(
         return image
     }
 
-    fun getContentType(id: Long): String {
-        val image = imageRepository.findByIdOrNull(id) ?: throw ImageNotFoundException()
-        return image.contentType
-    }
-
     fun putFileToS3(file: File, fileName: String) {
         amazonS3Client.putObject(PutObjectRequest(bucket, fileName, file).withCannedAcl(CannedAccessControlList.PublicRead))
-    }
-
-    fun getFileFromS3(fileName: String): S3ObjectInputStream {
-        return amazonS3Client.getObject(GetObjectRequest(bucket, fileName)).objectContent
     }
 
     fun deleteFileInS3(fileName: String) {

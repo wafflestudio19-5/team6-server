@@ -2,6 +2,7 @@ package waffle.team6.carrot.image.api
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import org.apache.http.entity.ContentType
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -39,10 +40,10 @@ class ImageController(
         ApiResponse(responseCode = "201", description = "Success Response"),
         ApiResponse(responseCode = "4300", description = "해당 이미지가 없는 경우")
     ])
-    fun download(@PathVariable("image_id") imageId: Long): ResponseEntity<InputStreamResource> {
+    fun download(@PathVariable("image_id") imageId: Long): ResponseEntity<ImageDto.ImageUrlResponse> {
+        val imageDto = imageService.download(imageId)
         return ResponseEntity.status(HttpStatus.OK)
-            .header(HttpHeaders.CONTENT_TYPE, imageService.getContentType(imageId))
-            .body(imageService.download(imageId).image)
+            .body(imageService.download(imageId))
     }
 
     @PutMapping("/{image_id}/")
