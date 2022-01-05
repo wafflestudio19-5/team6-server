@@ -16,25 +16,9 @@ class ImageDto {
         )
     }
 
-    data class ImageResource(
-        val contentType: String,
-        val byteImage: ByteArray
-    ) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as ImageResource
-
-            if (!byteImage.contentEquals(other.byteImage)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return byteImage.contentHashCode()
-        }
-    }
+    data class ImageUrlResponse(
+        val url: String
+    )
 
     data class ImageListResponse(
         val count: Int,

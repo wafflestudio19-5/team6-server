@@ -40,12 +40,10 @@ class ImageController(
         ApiResponse(responseCode = "201", description = "Success Response"),
         ApiResponse(responseCode = "4300", description = "해당 이미지가 없는 경우")
     ])
-    fun download(@PathVariable("image_id") imageId: Long): ResponseEntity<ByteArray> {
+    fun download(@PathVariable("image_id") imageId: Long): ResponseEntity<ImageDto.ImageUrlResponse> {
         val imageDto = imageService.download(imageId)
         return ResponseEntity.status(HttpStatus.OK)
-            .header(HttpHeaders.CONTENT_TYPE, imageDto.contentType)
-            .header(HttpHeaders.CONTENT_LENGTH, imageDto.byteImage.size.toString())
-            .body(imageDto.byteImage)
+            .body(imageService.download(imageId))
     }
 
     @PutMapping("/{image_id}/")
