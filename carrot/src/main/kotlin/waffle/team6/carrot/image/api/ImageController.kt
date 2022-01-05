@@ -41,7 +41,6 @@ class ImageController(
         ApiResponse(responseCode = "4300", description = "해당 이미지가 없는 경우")
     ])
     fun download(@PathVariable("image_id") imageId: Long): ResponseEntity<ImageDto.ImageUrlResponse> {
-        val imageDto = imageService.download(imageId)
         return ResponseEntity.status(HttpStatus.OK)
             .body(imageService.download(imageId))
     }
