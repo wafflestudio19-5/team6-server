@@ -10,6 +10,8 @@ import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
@@ -28,6 +30,7 @@ class UserService(
     private val purchaseRequestRepository: PurchaseRequestRepository,
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
+    private val categoryOfInterestRepository: CategoryOfInterestRepository,
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
@@ -93,9 +96,8 @@ class UserService(
         }
     }
 
-    fun findMyCategoriesOfInterests(user: User): List<String> {
-        // TODO
-        return listOf("NOT_YET_IMPLEMENTED")
+    fun findMyCategoriesOfInterests(user: User): List<CategoryOfInterest> {
+        return categoryOfInterestRepository.findAllByUser(user)
     }
 
     fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {

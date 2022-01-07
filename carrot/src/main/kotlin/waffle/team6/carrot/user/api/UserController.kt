@@ -102,4 +102,9 @@ class UserController(
     ): ResponseEntity<Page<LikeDto.LikeResponse>> {
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
+
+    @GetMapping("/me/categoryOfInterest/")
+    fun getMyCategoryOfInterest(@CurrentUser user: User): ResponseEntity<List<Any>> {
+        return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
+    }
 }
