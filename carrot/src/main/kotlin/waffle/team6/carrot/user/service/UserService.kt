@@ -47,9 +47,7 @@ class UserService(
 
     @Transactional
     fun updateUserProfile(user: User, updateProfileRequest: UserDto.UpdateProfileRequest): UserDto.Response {
-        user.email = updateProfileRequest.email ?: user.email
-        user.phone = updateProfileRequest.phone ?: user.phone
-        return UserDto.Response(userRepository.save(user))
+        return UserDto.Response(user.modifyProfile(updateProfileRequest))
     }
 
     @Transactional
