@@ -2,6 +2,7 @@ package waffle.team6.carrot.user.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,6 +16,7 @@ import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
+import waffle.team6.carrot.user.exception.UserNotFoundException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
 
@@ -67,6 +69,10 @@ class UserService(
         return UserDto.Response(user)
     }
 
+    fun findWithId(id: Long): UserDto.Response {
+        return UserDto.Response(userRepository.findByIdOrNull(id) ?: throw UserNotFoundException())
+    }
+
     // TODO: 자주 쓰는 문구
     fun addMyPhrase() {
 
@@ -94,8 +100,8 @@ class UserService(
         return listOf("NOT_YET_IMPLEMENTED")
     }
 
-    fun findMyLikes(user: User): List<LikeDto.LikeResponse> {
-        return likeRepository.findAllByUser(user).map {
+    fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {
+        return likeRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize), user.id).map {
             LikeDto.LikeResponse(it)
         }
     }
