@@ -2,10 +2,7 @@ package waffle.team6.carrot.user.dto
 
 
 import waffle.team6.carrot.location.model.RangeOfLocation
-import waffle.team6.carrot.product.dto.ProductDto
-import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.user.model.User
-import javax.persistence.Column
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -14,16 +11,16 @@ class UserDto {
     data class Response(
         val name: String,
         val nickname: String,
-        val email: String?,
+        val email: String,
         val location: String,
         val rangeOfLocation: RangeOfLocation,
     ) {
         constructor(user: User): this(
             name = user.name,
-            nickname = user.nickname,
-            email = user.email,
-            location = user.location,
-            rangeOfLocation = user.rangeOfLocation,
+            nickname = user.nickname!!,
+            email = user.email!!,
+            location = user.location!!,
+            rangeOfLocation = user.rangeOfLocation!!,
         )
     }
 
@@ -57,6 +54,12 @@ class UserDto {
         var email: String?,
 
         var phone: String?,
+
+        var nickname: String?,
+
+        var location: String?,
+
+        var rangeOfLocation: RangeOfLocation?,
     )
 
     data class UpdatePasswordRequest(
