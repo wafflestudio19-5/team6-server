@@ -3,6 +3,7 @@ package waffle.team6.carrot.user.api
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
@@ -41,7 +42,7 @@ class UserController(
 
     @PatchMapping("/me/")
     fun updateMyProfile(
-        @CurrentUser user: User,
+        @ApiIgnore @CurrentUser user: User,
         @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest
     ): ResponseEntity<UserDto.Response> {
         userService.updateUserProfile(user, updateProfileRequest)

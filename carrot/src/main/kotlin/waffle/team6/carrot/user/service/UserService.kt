@@ -42,7 +42,7 @@ class UserService(
             email = signUpRequest.email,
             phone = signUpRequest.phone,
             location = signUpRequest.location,
-            rangeOfLocation = RangeOfLocation.from(signUpRequest.rangeOfLocation),
+            rangeOfLocation = signUpRequest.rangeOfLocation,
         )
 
         return UserDto.Response(userRepository.save(newUser))

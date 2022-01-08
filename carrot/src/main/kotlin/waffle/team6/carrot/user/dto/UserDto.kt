@@ -5,6 +5,7 @@ import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.user.model.User
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 class UserDto {
@@ -17,10 +18,10 @@ class UserDto {
     ) {
         constructor(user: User): this(
             name = user.name,
-            nickname = user.nickname!!,
-            email = user.email!!,
-            location = user.location!!,
-            rangeOfLocation = user.rangeOfLocation!!,
+            nickname = user.nickname,
+            email = user.email,
+            location = user.location,
+            rangeOfLocation = user.rangeOfLocation,
         )
     }
 
@@ -45,7 +46,9 @@ class UserDto {
         val password: String,
 
         val location: String,
-        val rangeOfLocation: Int,
+
+        @field: NotNull
+        val rangeOfLocation: RangeOfLocation,
     )
 
 
