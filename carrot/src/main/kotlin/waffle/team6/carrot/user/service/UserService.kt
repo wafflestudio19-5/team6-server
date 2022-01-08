@@ -2,6 +2,7 @@ package waffle.team6.carrot.user.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -91,7 +92,7 @@ class UserService(
     }
 
     fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponseWithoutUser> {
-        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize), user.id).map {
+        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()), user.id).map {
             ProductDto.ProductSimpleResponseWithoutUser(it)
         }
     }
@@ -101,7 +102,8 @@ class UserService(
     }
 
     fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {
-        return likeRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize), user.id).map {
+        return likeRepository.findAllByUserId(
+            PageRequest.of(pageNumber, pageSize, Sort.by("id").descending()), user.id).map {
             LikeDto.LikeResponse(it)
         }
     }
