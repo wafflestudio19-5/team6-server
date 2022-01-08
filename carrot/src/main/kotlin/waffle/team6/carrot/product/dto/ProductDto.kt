@@ -75,7 +75,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            image = product.images?.get(0)?.id,
+            image = if (product.images?.isNotEmpty() == true) product.images!![0].id else null,
             title = product.title,
             price = product.price,
             location = product.location,

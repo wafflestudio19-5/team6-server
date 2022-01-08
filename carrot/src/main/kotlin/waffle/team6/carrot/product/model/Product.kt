@@ -71,7 +71,7 @@ class Product (
     var lastBringUpMyPost: LocalDateTime = LocalDateTime.now(),
 
     @OneToMany(cascade = [CascadeType.PERSIST], mappedBy = "product")
-     var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
+    var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
 
     ) : BaseTimeEntity() {
     constructor(
