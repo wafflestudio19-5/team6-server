@@ -3,6 +3,8 @@ package waffle.team6.carrot.user.api
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import springfox.documentation.annotations.ApiIgnore
+import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.user.dto.UserDto
@@ -24,9 +26,11 @@ class UserController(
     @PostMapping("/")
     fun signUp(@RequestBody @Valid signUpRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.Response> {
         return ResponseEntity.noContent().header(
-                "Authentication",
-                jwtTokenProvider.generateToken(
-                    userService.createUser(signUpRequest).name))
+            "Authentication",
+            jwtTokenProvider.generateToken(
+                userService.createUser(signUpRequest).name
+            )
+        )
             .build()
     }
 
@@ -37,19 +41,25 @@ class UserController(
     }
 
     @PatchMapping("/me/")
-    fun updateMyProfile(@CurrentUser user: User,
-                       @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest): ResponseEntity<UserDto.Response> {
+    fun updateMyProfile(
+        @ApiIgnore @CurrentUser user: User,
+        @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest
+    ): ResponseEntity<UserDto.Response> {
         userService.updateUserProfile(user, updateProfileRequest)
         return ResponseEntity.ok().build()
     }
 
     @PatchMapping("/me/password/")
-    fun updateMyPassword(@CurrentUser user: User,
-                         @RequestBody @Valid updatePasswordRequest: UserDto.UpdatePasswordRequest): ResponseEntity<Any> {
+    fun updateMyPassword(
+        @CurrentUser user: User,
+        @RequestBody @Valid updatePasswordRequest: UserDto.UpdatePasswordRequest
+    ): ResponseEntity<Any> {
         return ResponseEntity.noContent().header(
-                "Authentication",
-                jwtTokenProvider.generateToken(
-                    userService.updateUserPassword(user, updatePasswordRequest).name))
+            "Authentication",
+            jwtTokenProvider.generateToken(
+                userService.updateUserPassword(user, updatePasswordRequest).name
+            )
+        )
             .build()
     }
 
@@ -58,6 +68,11 @@ class UserController(
 
     @GetMapping("/me/")
     fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.findMe(user))
+    }
+
+    @GetMapping("/{userId}/")
+    fun getUser(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
@@ -72,14 +87,25 @@ class UserController(
     }
 
     @GetMapping("/me/products/")
-    fun getMyProducts(@CurrentUser user: User,
-                      @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
-                      @RequestParam(required = true) @Positive pageSize: Int): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
+    fun getMyProducts(
+        @CurrentUser user: User,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
         return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize))
     }
 
     @GetMapping("/me/likes/")
-    fun getMyLikes(@CurrentUser user: User) {
-        userService.findMyLikes(user)
+    fun getMyLikes(
+        @CurrentUser user: User,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int
+    ): ResponseEntity<Page<LikeDto.LikeResponse>> {
+        return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
+    }
+
+    @GetMapping("/me/categoryOfInterest/")
+    fun getMyCategoryOfInterest(@CurrentUser user: User): ResponseEntity<List<Any>> {
+        return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
     }
 }

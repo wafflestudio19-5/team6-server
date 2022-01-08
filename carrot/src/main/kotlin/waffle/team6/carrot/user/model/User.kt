@@ -9,8 +9,8 @@ import waffle.team6.carrot.user.dto.UserDto
 import javax.persistence.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
-import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.location.model.RangeOfLocation
+import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "user")
@@ -32,12 +32,12 @@ class User(
     val name: String,
 
     @field: NotBlank
-    val nickname: String,
+    var nickname: String,
 
     @field: Email
-    var email: String?,
+    var email: String,
 
-    var phone: String?,
+    var phone: String,
 
     @field: NotBlank
     var password: String,
@@ -45,11 +45,16 @@ class User(
     @field: NotBlank
     var location: String,
 
+    @field: NotNull
     var rangeOfLocation: RangeOfLocation,
 
 ): BaseTimeEntity() {
-        fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest) {
-            email = updateProfileRequest.email
-            phone = updateProfileRequest.phone
+        fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest): User {
+            email = updateProfileRequest.email ?: email
+            phone = updateProfileRequest.phone ?: phone
+            nickname = updateProfileRequest.nickname ?: nickname
+            location = updateProfileRequest.location ?: location
+            rangeOfLocation = updateProfileRequest.rangeOfLocation ?: rangeOfLocation
+            return this
         }
     }

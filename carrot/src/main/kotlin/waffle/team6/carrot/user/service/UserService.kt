@@ -2,6 +2,8 @@ package waffle.team6.carrot.user.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -9,12 +11,15 @@ import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.product.repository.PurchaseRequestRepository
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
+import waffle.team6.carrot.user.exception.UserNotFoundException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
 
@@ -26,6 +31,7 @@ class UserService(
     private val purchaseRequestRepository: PurchaseRequestRepository,
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
+    private val categoryOfInterestRepository: CategoryOfInterestRepository,
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
@@ -37,7 +43,7 @@ class UserService(
             email = signUpRequest.email,
             phone = signUpRequest.phone,
             location = signUpRequest.location,
-            rangeOfLocation = RangeOfLocation.from(signUpRequest.rangeOfLocation),
+            rangeOfLocation = signUpRequest.rangeOfLocation,
         )
 
         return UserDto.Response(userRepository.save(newUser))
@@ -45,9 +51,7 @@ class UserService(
 
     @Transactional
     fun updateUserProfile(user: User, updateProfileRequest: UserDto.UpdateProfileRequest): UserDto.Response {
-        user.email = updateProfileRequest.email ?: user.email
-        user.phone = updateProfileRequest.phone ?: user.phone
-        return UserDto.Response(userRepository.save(user))
+        return UserDto.Response(user.modifyProfile(updateProfileRequest))
     }
 
     @Transactional
@@ -67,6 +71,10 @@ class UserService(
         return UserDto.Response(user)
     }
 
+    fun findWithId(id: Long): UserDto.Response {
+        return UserDto.Response(userRepository.findByIdOrNull(id) ?: throw UserNotFoundException())
+    }
+
     // TODO: 자주 쓰는 문구
     fun addMyPhrase() {
 
@@ -84,18 +92,18 @@ class UserService(
     }
 
     fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponseWithoutUser> {
-        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize), user.id).map {
+        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()), user.id).map {
             ProductDto.ProductSimpleResponseWithoutUser(it)
         }
     }
 
-    fun findMyCategoriesOfInterests(user: User): List<String> {
-        // TODO
-        return listOf("NOT_YET_IMPLEMENTED")
+    fun findMyCategoriesOfInterests(user: User): List<CategoryOfInterest> {
+        return categoryOfInterestRepository.findAllByUser(user)
     }
 
-    fun findMyLikes(user: User): List<LikeDto.LikeResponse> {
-        return likeRepository.findAllByUser(user).map {
+    fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {
+        return likeRepository.findAllByUserId(
+            PageRequest.of(pageNumber, pageSize, Sort.by("id").descending()), user.id).map {
             LikeDto.LikeResponse(it)
         }
     }
