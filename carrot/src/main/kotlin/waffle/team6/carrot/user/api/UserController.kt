@@ -42,7 +42,7 @@ class UserController(
 
     @PatchMapping("/me/")
     fun updateMyProfile(
-        @ApiIgnore @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest
     ): ResponseEntity<UserDto.Response> {
         userService.updateUserProfile(user, updateProfileRequest)
@@ -51,7 +51,7 @@ class UserController(
 
     @PatchMapping("/me/password/")
     fun updateMyPassword(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid updatePasswordRequest: UserDto.UpdatePasswordRequest
     ): ResponseEntity<Any> {
         return ResponseEntity.noContent().header(
@@ -67,13 +67,13 @@ class UserController(
 
 
     @GetMapping("/me/")
-    fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
+    fun getMe(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
     @GetMapping("/{userId}/")
-    fun getUser(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
-        return ResponseEntity.ok().body(userService.findMe(user))
+    fun getUser(@PathVariable userId: Long): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.findWithId(userId))
     }
 
     @GetMapping("/duplicate/")
@@ -81,23 +81,29 @@ class UserController(
         return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
 
-    @GetMapping("/me/purchase-requests/")
-    fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseOrderDto.PurchaseOrderResponseWithoutUser>> {
-        return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user))
+    @GetMapping("/me/purchase-orders/")
+    fun getMyPurchaseRequests(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) status: String
+    ): ResponseEntity<Page<PurchaseOrderDto.PurchaseOrderResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user, pageNumber, pageSize, status))
     }
 
     @GetMapping("/me/products/")
     fun getMyProducts(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
-        @RequestParam(required = true) @Positive pageSize: Int
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) status: String
     ): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
-        return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize))
+        return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize, status))
     }
 
     @GetMapping("/me/likes/")
     fun getMyLikes(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int
     ): ResponseEntity<Page<LikeDto.LikeResponse>> {
@@ -105,7 +111,7 @@ class UserController(
     }
 
     @GetMapping("/me/categoryOfInterest/")
-    fun getMyCategoryOfInterest(@CurrentUser user: User): ResponseEntity<List<Any>> {
+    fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<List<Any>> {
         return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
     }
 }

@@ -10,11 +10,11 @@ import waffle.team6.carrot.user.model.User
 interface PurchaseOrderRepository:JpaRepository<PurchaseOrder, Long?> {
     fun findAllByProductId(pageable: Pageable, productId: Long): Page<PurchaseOrder>
 
-    fun findAllByUser(user: User): List<PurchaseOrder>
-
     fun findAllByProductIdAndSuggestedPriceIsNotNull(pageable: Pageable, productId: Long): Page<PurchaseOrder>
 
     fun findAllByProductIdAndStatusIs(pageable: Pageable, productId: Long, status: PurchaseOrderStatus): Page<PurchaseOrder>
 
-    fun findAllByUserIdAndStatusIs(pageable: Pageable, userId: Long, status: PurchaseOrderStatus): Page<PurchaseOrder>
+    fun findAllByUserAndStatusEquals(pageable: Pageable, user: User, status: List<PurchaseOrderStatus>): Page<PurchaseOrder>
+
+    fun findAllByUserAndStatusIsNull(pageable: Pageable, user: User): Page<PurchaseOrder>
 }

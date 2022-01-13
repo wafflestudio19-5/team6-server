@@ -11,11 +11,14 @@ import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.model.ProductStatus
 import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
+import waffle.team6.carrot.purchaseOrders.model.PurchaseOrderStatus
 import waffle.team6.carrot.purchaseOrders.repository.PurchaseOrderRepository
 import waffle.team6.carrot.user.dto.UserDto
+import waffle.team6.carrot.user.exception.InvalidStatusException
 import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
 import waffle.team6.carrot.user.exception.UserNotFoundException
@@ -69,21 +72,50 @@ class UserService(
 
     }
 
+    fun deleteMyPhrase() {
+
+    }
+
     fun getMyPhrases() {
 
     }
 
-
-    fun findMyPurchaseRequests(user: User): List<PurchaseOrderDto.PurchaseOrderResponseWithoutUser> {
-        return purchaseOrderRepository.findAllByUser(user).map {
-            PurchaseOrderDto.PurchaseOrderResponseWithoutUser(it)
-        }
+    fun findMyPurchaseRequests(user: User, pageNumber: Int, pageSize: Int, status: String
+    ): Page<PurchaseOrderDto.PurchaseOrderResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
+        return when (status) {
+            "pending" -> purchaseOrderRepository.findAllByUserAndStatusIsNull(pageRequest, user)
+            "accepted" -> purchaseOrderRepository.findAllByUserAndStatusEquals(
+                pageRequest,
+                user,
+                listOf(PurchaseOrderStatus.ACCEPTED, PurchaseOrderStatus.CONFIRMED)
+            )
+            "rejected" -> purchaseOrderRepository.findAllByUserAndStatusEquals(
+                pageRequest,
+                user,
+                listOf(PurchaseOrderStatus.REJECTED)
+            )
+            else -> throw InvalidStatusException()
+        }.map { PurchaseOrderDto.PurchaseOrderResponseWithoutUser(it) }
     }
 
-    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponseWithoutUser> {
-        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()), user.id).map {
-            ProductDto.ProductSimpleResponseWithoutUser(it)
-        }
+    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int, status: String
+    ): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending())
+        return when (status) {
+            "for-sale" -> productRepository.findAllByUserAndStatusInAndHiddenIsFalse(
+                pageRequest,
+                user,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED)
+            )
+            "sold-out" -> productRepository.findAllByUserAndStatusInAndHiddenIsFalse(
+                pageRequest,
+                user,
+                listOf(ProductStatus.SOLD_OUT)
+            )
+            "hidden" -> productRepository.findAllByUserAndHiddenIsTrue(pageRequest, user)
+            else -> throw InvalidStatusException()
+        }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 
     fun findMyCategoriesOfInterests(user: User): List<CategoryOfInterest> {
