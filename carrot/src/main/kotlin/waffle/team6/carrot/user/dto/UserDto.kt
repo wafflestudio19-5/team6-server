@@ -13,15 +13,21 @@ class UserDto {
         val name: String,
         val nickname: String,
         val email: String,
+        val phone: String,
+        val imageUrl: String?,
         val location: String,
         val rangeOfLocation: RangeOfLocation,
+        val isActive: Boolean,
     ) {
         constructor(user: User): this(
             name = user.name,
             nickname = user.nickname,
             email = user.email,
+            phone = user.phone,
+            imageUrl = user.imageUrl,
             location = user.location,
             rangeOfLocation = user.rangeOfLocation,
+            isActive = user.isActive
         )
     }
 
@@ -50,7 +56,6 @@ class UserDto {
         @field: NotNull
         val rangeOfLocation: RangeOfLocation,
     )
-
 
     data class UpdateProfileRequest(
         @field: Email
