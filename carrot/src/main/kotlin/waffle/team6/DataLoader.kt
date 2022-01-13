@@ -90,7 +90,9 @@ class DataLoader(
                             phone = rawUser[3],
                             password = passwordEncoder.encode(rawUser[4]),
                             location = rawUser[5],
-                            rangeOfLocation = RangeOfLocation.from(rawUser[6].toInt())
+                            rangeOfLocation = RangeOfLocation.from(rawUser[6].toInt()),
+                            imageUrl = null,
+                            isActive = true
                         )
                     )
                     for (i in 1..17) {
@@ -111,7 +113,7 @@ class DataLoader(
                         Image(
                             fileName = rawImage[0],
                             contentType = rawImage[1],
-                            url = "",
+                            url = "sample url",
                             userId = rawImage[2].toLong()
                         )
 

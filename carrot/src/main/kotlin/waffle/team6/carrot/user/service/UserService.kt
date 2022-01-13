@@ -99,12 +99,12 @@ class UserService(
         val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
         return when (status) {
             "pending" -> purchaseOrderRepository.findAllByUserAndStatusIsNull(pageRequest, user)
-            "accepted" -> purchaseOrderRepository.findAllByUserAndStatusEquals(
+            "accepted" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
                 pageRequest,
                 user,
                 listOf(PurchaseOrderStatus.ACCEPTED, PurchaseOrderStatus.CONFIRMED)
             )
-            "rejected" -> purchaseOrderRepository.findAllByUserAndStatusEquals(
+            "rejected" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
                 pageRequest,
                 user,
                 listOf(PurchaseOrderStatus.REJECTED)
