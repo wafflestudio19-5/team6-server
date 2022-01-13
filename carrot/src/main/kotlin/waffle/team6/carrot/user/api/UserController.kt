@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.LikeDto
+import waffle.team6.carrot.product.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
@@ -113,5 +114,21 @@ class UserController(
     @GetMapping("/me/categoryOfInterest/")
     fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<List<Any>> {
         return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
+    }
+
+    @PostMapping("/me/phrases/")
+    fun addMyPhrase(@CurrentUser @ApiIgnore user: User, @RequestBody @Valid phrase: PhraseDto.PhrasePostRequest
+    ): ResponseEntity<PhraseDto.PhraseResponse> {
+        return ResponseEntity.ok().body(userService.addMyPhrase(user, phrase))
+    }
+
+    @DeleteMapping("/me/phrases/{index}/")
+    fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
+    }
+
+    @GetMapping("/me/phrases/")
+    fun getMyPhrases(@CurrentUser @ApiIgnore user: User): ResponseEntity<PhraseDto.PhraseResponse> {
+        return ResponseEntity.ok().body(userService.getMyPhrases(user))
     }
 }

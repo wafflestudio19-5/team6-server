@@ -31,7 +31,6 @@ class UserDto {
         )
     }
 
-
     data class SignUpRequest(
         @field: NotBlank
         val name: String,

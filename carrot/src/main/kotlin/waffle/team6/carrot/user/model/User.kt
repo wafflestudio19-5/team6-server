@@ -53,6 +53,9 @@ class User(
 
     @field: BooleanFlag
     var isActive: Boolean,
+
+    @ElementCollection
+    var myPhrases: MutableList<String> = mutableListOf(),
 ): BaseTimeEntity() {
     constructor(signUpRequest: UserDto.SignUpRequest, encodedPassword: String): this(
         name = signUpRequest.name,

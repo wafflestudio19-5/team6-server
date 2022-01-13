@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.product.dto.LikeDto
+import waffle.team6.carrot.product.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
@@ -67,17 +68,19 @@ class UserService(
         return UserDto.Response(userRepository.findByIdOrNull(id) ?: throw UserNotFoundException())
     }
 
-    // TODO: 자주 쓰는 문구
-    fun addMyPhrase() {
-
+    @Transactional
+    fun addMyPhrase(user: User, phrase: PhraseDto.PhrasePostRequest): PhraseDto.PhraseResponse {
+        user.myPhrases.add(phrase.phrase)
+        return PhraseDto.PhraseResponse(user.myPhrases)
     }
 
-    fun deleteMyPhrase() {
-
+    @Transactional
+    fun deleteMyPhrase(user: User, index: Int) {
+        user.myPhrases.removeAt(index)
     }
 
-    fun getMyPhrases() {
-
+    fun getMyPhrases(user: User): PhraseDto.PhraseResponse {
+        return PhraseDto.PhraseResponse(user.myPhrases)
     }
 
     fun findMyPurchaseRequests(user: User, pageNumber: Int, pageSize: Int, status: String
