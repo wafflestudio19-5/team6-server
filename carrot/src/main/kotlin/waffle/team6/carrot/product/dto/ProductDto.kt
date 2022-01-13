@@ -115,11 +115,11 @@ class ProductDto {
 
     data class ProductPostRequest(
         val images: List<Long>? = null,
-        @field:NotBlank
+        @field:Length(min = 1, max = 50)
         val title: String,
         @field:Length(min = 1, max = 300)
         val content: String,
-        @field:PositiveOrZero
+        @field:Range(min = 0, max = 10000000000)
         val price: Long,
         @field:BooleanFlag
         val negotiable: Boolean = true,
@@ -132,11 +132,11 @@ class ProductDto {
 
     data class ProductUpdateRequest(
         val images: List<Long>? = null,
-        @field:NotBlank
+        @field:Length(min = 1, max = 50)
         val title: String? = null,
         @field:Length(min = 1, max = 300)
         val content: String? = null,
-        @field:PositiveOrZero
+        @field:Range(min = 0, max = 10000000000)
         val price: Long? = null,
         @field:BooleanFlag
         val negotiable: Boolean? = null,

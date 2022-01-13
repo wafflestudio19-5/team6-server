@@ -2,6 +2,7 @@ package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
+import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.location.model.RangeOfLocation
@@ -23,13 +24,13 @@ class Product (
     @OneToMany(cascade = [CascadeType.ALL])
     var images: MutableList<Image>? = null,
 
-    @field:NotBlank
+    @field:Length(min = 1, max = 50)
     var title: String,
 
     @field:Length(min = 1, max = 300)
     var content: String,
 
-    @field:PositiveOrZero
+    @field:Range(min = 0, max = 10000000000)
     var price: Long,
 
     @field:BooleanFlag
