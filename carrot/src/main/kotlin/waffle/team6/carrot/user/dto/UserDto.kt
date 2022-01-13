@@ -54,15 +54,17 @@ class UserDto {
 
     data class UpdateProfileRequest(
         @field: Email
-        var email: String?,
+        val email: String?,
 
-        var phone: String?,
+        val phone: String?,
 
-        var nickname: String?,
+        val nickname: String?,
 
-        var location: String?,
+        val location: String?,
 
-        var rangeOfLocation: RangeOfLocation?,
+        val rangeOfLocation: RangeOfLocation?,
+
+        val imageUrl: String?,
     )
 
     data class UpdatePasswordRequest(

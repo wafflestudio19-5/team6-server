@@ -4,4 +4,4 @@ import waffle.team6.global.common.exception.ErrorType
 import waffle.team6.global.common.exception.InvalidRequestException
 
 class UserInvalidCurrentPasswordException(detail: String = ""):
-    InvalidRequestException(ErrorType.USER_INVALID_PASSWORD)
+    InvalidRequestException(ErrorType.USER_INVALID_PASSWORD, detail)

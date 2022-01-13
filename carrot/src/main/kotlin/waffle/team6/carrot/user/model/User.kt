@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.model
 
+import jdk.jfr.BooleanFlag
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.model.Like
@@ -48,13 +49,30 @@ class User(
     @field: NotNull
     var rangeOfLocation: RangeOfLocation,
 
-    ): BaseTimeEntity() {
-        fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest): User {
-            email = updateProfileRequest.email ?: email
-            phone = updateProfileRequest.phone ?: phone
-            nickname = updateProfileRequest.nickname ?: nickname
-            location = updateProfileRequest.location ?: location
-            rangeOfLocation = updateProfileRequest.rangeOfLocation ?: rangeOfLocation
-            return this
+    var imageUrl: String?,
+
+    @field: BooleanFlag
+    var isActive: Boolean,
+): BaseTimeEntity() {
+    constructor(signUpRequest: UserDto.SignUpRequest, encodedPassword: String): this(
+        name = signUpRequest.name,
+        nickname = signUpRequest.nickname,
+        password = encodedPassword,
+        email = signUpRequest.email,
+        phone = signUpRequest.phone,
+        location = signUpRequest.location,
+        rangeOfLocation = signUpRequest.rangeOfLocation,
+        imageUrl = null,
+        isActive = true
+    )
+
+    fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest): User {
+        email = updateProfileRequest.email ?: email
+        phone = updateProfileRequest.phone ?: phone
+        nickname = updateProfileRequest.nickname ?: nickname
+        location = updateProfileRequest.location ?: location
+        rangeOfLocation = updateProfileRequest.rangeOfLocation ?: rangeOfLocation
+        imageUrl = updateProfileRequest.imageUrl ?: imageUrl
+        return this
         }
-    }
+}

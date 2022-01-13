@@ -35,17 +35,7 @@ class UserService(
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
         if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
-        val newUser = User(
-            name = signUpRequest.name,
-            nickname = signUpRequest.nickname,
-            password = passwordEncoder.encode(signUpRequest.password),
-            email = signUpRequest.email,
-            phone = signUpRequest.phone,
-            location = signUpRequest.location,
-            rangeOfLocation = signUpRequest.rangeOfLocation,
-        )
-
-        return UserDto.Response(userRepository.save(newUser))
+        return UserDto.Response(userRepository.save(User(signUpRequest, passwordEncoder.encode(signUpRequest.password))))
     }
 
     @Transactional
