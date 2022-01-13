@@ -113,6 +113,11 @@ class PurchaseOrderService(
             "confirm" -> {
                 if (purchaseOrder.status != PurchaseOrderStatus.ACCEPTED) throw UnacceptedPurchaseOrderConfirmException()
                 purchaseOrder.status = PurchaseOrderStatus.CONFIRMED
+                purchaseOrder.product.status = ProductStatus.SOLD_OUT
+                for (otherPurchaseOrder in purchaseOrder.product.purchaseOrders) {
+                    if (otherPurchaseOrder.id != purchaseOrder.id)
+                        otherPurchaseOrder.status = PurchaseOrderStatus.REJECTED
+                }
             }
         }
         return PurchaseOrderDto.PurchaseOrderResponse(purchaseOrder, true)
