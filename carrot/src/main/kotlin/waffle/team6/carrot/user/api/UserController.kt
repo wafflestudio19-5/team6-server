@@ -46,8 +46,12 @@ class UserController(
         @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest
     ): ResponseEntity<UserDto.Response> {
-        userService.updateUserProfile(user, updateProfileRequest)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok().body(userService.updateUserProfile(user, updateProfileRequest))
+    }
+
+    @DeleteMapping("/me/")
+    fun deleteMyAccount(@CurrentUser @ApiIgnore user: User): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(userService.deleteMyAccount(user))
     }
 
     @PatchMapping("/me/password/")

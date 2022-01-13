@@ -56,6 +56,17 @@ class UserService(
         return UserDto.Response(userRepository.save(user))
     }
 
+    @Transactional
+    fun deleteMyAccount(user: User) {
+        user.isActive = false
+        for (purchaseOrder in user.purchaseOrders) {
+            if (purchaseOrder.status == null || purchaseOrder.status == PurchaseOrderStatus.REJECTED) {
+                purchaseOrderRepository.delete(purchaseOrder)
+                user.purchaseOrders.remove(purchaseOrder)
+            }
+        }
+    }
+
     fun isUserNameDuplicated(name: String): Boolean {
         return userRepository.existsByName(name)
     }
