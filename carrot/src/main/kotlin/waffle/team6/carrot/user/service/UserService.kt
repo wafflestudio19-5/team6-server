@@ -8,14 +8,13 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.product.dto.LikeDto
-import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
-import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
-import waffle.team6.carrot.product.repository.PurchaseRequestRepository
+import waffle.team6.carrot.purchaseOrders.repository.PurchaseOrderRepository
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
@@ -28,7 +27,7 @@ import waffle.team6.carrot.user.repository.UserRepository
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val purchaseRequestRepository: PurchaseRequestRepository,
+    private val purchaseOrderRepository: PurchaseOrderRepository,
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
     private val categoryOfInterestRepository: CategoryOfInterestRepository,
@@ -85,9 +84,9 @@ class UserService(
     }
 
 
-    fun findMyPurchaseRequests(user: User): List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser> {
-        return purchaseRequestRepository.findAllByUser(user).map {
-            PurchaseRequestDto.PurchaseRequestResponseWithoutUser(it)
+    fun findMyPurchaseRequests(user: User): List<PurchaseOrderDto.PurchaseOrderResponseWithoutUser> {
+        return purchaseOrderRepository.findAllByUser(user).map {
+            PurchaseOrderDto.PurchaseOrderResponseWithoutUser(it)
         }
     }
 

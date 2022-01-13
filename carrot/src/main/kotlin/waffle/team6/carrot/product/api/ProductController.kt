@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
-import waffle.team6.carrot.product.dto.PurchaseRequestDto
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.global.auth.CurrentUser
@@ -21,9 +20,9 @@ import javax.validation.constraints.PositiveOrZero
 @Validated
 @RestController
 @RequestMapping("/api/v1/products")
-class ProductController (
+class ProductController(
     private val productService: ProductService
-    ) {
+) {
     @GetMapping("/")
     @Operation(summary = "전체 판매글 조회/검색", description = "전체 판매글을 조회하거나 검색합니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
@@ -139,22 +138,6 @@ class ProductController (
         return ResponseEntity.noContent().build()
     }
 
-    @PostMapping("/{product_id}/purchases/")
-    @Operation(summary = "구매 요청", description = "해당 판매글에 대해 구매 요청을 보냅니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
-        ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
-        ApiResponse(responseCode = "3208", description = "판매자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
-        ApiResponse(responseCode = "9202", description = "해당 판매글에 이미 구매 요청을 보낸 경우")
-    ])
-    fun chat(
-        @CurrentUser @ApiIgnore user: User,
-        @PathVariable("product_id") productId: Long,
-        @RequestBody @Valid purchaseRequest: PurchaseRequestDto.PurchaseRequest
-    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
-        return ResponseEntity.ok().body(productService.chat(user, productId, purchaseRequest))
-    }
-
     @PutMapping("/{product_id}/status/")
     @Operation(summary = "판매글 상태를 변경합니다", description = "action으로 넣을 수 있는 값은 다음과 같습니다:" +
             "reserved(예약중), sold out(판매완료), for sale(판매중), hide(숨김), show(다시 노출), bump(끌올)", responses = [
@@ -181,97 +164,5 @@ class ProductController (
             "bump" -> productService.bringUpMyPost(user, productId)
         }
         return ResponseEntity.noContent().build()
-    }
-
-    @GetMapping("/{product_id}/purchases/")
-    @Operation(summary = "구매 요청 조회", description = "해당 판매글에 대한 모든 구매 요청이 조회됩니다. 가격 제안이 있는 구매 요청을 따로 볼 수 있습니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
-        ApiResponse(responseCode = "3205", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")
-    ])
-    fun getPurchaseRequests(
-        @CurrentUser @ApiIgnore user: User,
-        @PathVariable("product_id") productId: Long,
-        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
-        @RequestParam(required = true) @Positive pageSize: Int,
-        @RequestParam(required = false) withPriceSuggestion: Boolean
-    ): ResponseEntity<Page<PurchaseRequestDto.PurchaseRequestResponse>> {
-        return if (withPriceSuggestion) ResponseEntity.ok().body(productService
-            .getProductPurchaseRequestsWithPriceSuggestion(user, productId, pageNumber, pageSize))
-        else ResponseEntity.ok().body(productService.getProductPurchaseRequests(user, productId, pageNumber, pageSize))
-    }
-
-    @GetMapping("/{product_id}/purchases/{purchase_request_id}/")
-    @Operation(summary = "개별 구매 요청 조회", description = "해당 판매글에 대한 개별 구매 요청이 조회됩니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
-        ApiResponse(responseCode = "0202", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
-        ApiResponse(responseCode = "3205", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
-    ])
-    fun getPurchaseRequest(
-        @CurrentUser @ApiIgnore user: User,
-        @PathVariable("product_id") productId: Long,
-        @PathVariable("purchase_request_id") purchaseRequestId: Long
-    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
-        return ResponseEntity.ok().body(productService.getProductPurchaseRequest(user, productId, purchaseRequestId))
-    }
-
-    @PutMapping("/{product_id}/purchases/{purchase_request_id}/")
-    @Operation(summary = "구매 요청 다시 보내기", description = "해당 구매 요청을 바꿔서 다시 보냅니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
-        ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
-        ApiResponse(responseCode = "0202", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
-        ApiResponse(responseCode = "0205", description = "해당 판매요청이 이미 수락된 경우"),
-        ApiResponse(responseCode = "3213", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
-        ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
-    ])
-    fun chatAgain(
-        @CurrentUser @ApiIgnore user: User,
-        @PathVariable("product_id") productId: Long,
-        @PathVariable("purchase_request_id") purchaseRequestId: Long,
-        @RequestBody @Valid purchaseRequest: PurchaseRequestDto.PurchaseRequest
-    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
-        return ResponseEntity.ok().body(productService.chatAgain(user, productId, purchaseRequestId, purchaseRequest))
-    }
-
-    @DeleteMapping("/{product_id}/purchases/{purchase_request_id}/")
-    @Operation(summary = "구매 요청 취소", description = "해당 구매 요청을 취소합니다", responses = [
-        ApiResponse(responseCode = "204", description = "Success Response"),
-        ApiResponse(responseCode = "0205", description = "해당 판매요청이 이미 수락된 경우"),
-        ApiResponse(responseCode = "0202", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
-        ApiResponse(responseCode = "3204", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
-        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
-        ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
-    ])
-    fun deleteChat(
-        @CurrentUser @ApiIgnore user: User,
-        @PathVariable("product_id") productId: Long,
-        @PathVariable("purchase_request_id") purchaseRequestId: Long
-    ): ResponseEntity<Any> {
-        productService.deleteChat(user, productId, purchaseRequestId)
-        return ResponseEntity.noContent().build()
-    }
-
-    @PutMapping("/{product_id}/purchases/{purchase_request_id}/approval/")
-    @Operation(summary = "구매 수락/거절", description = "해당 판매글에 대한 구매 요청이 확정됩니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
-        ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
-        ApiResponse(responseCode = "0202", description = "해당 판매글에 대한 구매 요청이 아닌 경우"),
-        ApiResponse(responseCode = "0204", description = "해당 판매요청을 이미 거절한 경우"),
-        ApiResponse(responseCode = "3206", description = "판매자가 아닌 다른 사용자가 수락을 시도한 경우"),
-        ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
-        ApiResponse(responseCode = "4201", description = "해당 판매 요청이 없는 경우")
-    ])
-    fun confirmPurchaseRequest(
-        @CurrentUser @ApiIgnore user: User,
-        @PathVariable("product_id") productId: Long,
-        @PathVariable("purchase_request_id") purchaseRequestId: Long,
-        @RequestBody @Valid approval: ProductDto.ProductPurchaseRequestApprovalRequest
-    ): ResponseEntity<PurchaseRequestDto.PurchaseRequestResponse> {
-        return if (approval.accepted) ResponseEntity.ok()
-            .body(productService.confirmProductPurchaseRequest(user, productId, purchaseRequestId))
-        else return ResponseEntity.ok()
-            .body(productService.rejectProductPurchaseRequest(user, productId, purchaseRequestId))
     }
 }

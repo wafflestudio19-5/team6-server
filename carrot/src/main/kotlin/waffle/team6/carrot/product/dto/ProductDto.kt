@@ -3,12 +3,11 @@ package waffle.team6.carrot.product.dto
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
-import waffle.team6.carrot.image.dto.ImageDto
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.ForAge
 import waffle.team6.carrot.product.model.Product
-import waffle.team6.carrot.product.model.Status
+import waffle.team6.carrot.product.model.ProductStatus
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
 import javax.validation.constraints.*
@@ -29,7 +28,7 @@ class ProductDto {
         val hit: Long,
         val likes: Long,
         val chats: Long,
-        val status: Status,
+        val status: ProductStatus,
         val priceSuggestions: Long?,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime,
@@ -67,7 +66,7 @@ class ProductDto {
         val location: String,
         val likes: Long,
         val chats: Long,
-        val status: Status,
+        val status: ProductStatus,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime,
         val lastBringUpMyPost: LocalDateTime
@@ -96,7 +95,7 @@ class ProductDto {
         val location: String,
         val likes: Long,
         val chats: Long,
-        val status: Status,
+        val status: ProductStatus,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
@@ -161,10 +160,5 @@ class ProductDto {
     data class ProductStatusUpdateRequest(
         @field:NotBlank
         val action: String
-    )
-
-    data class ProductPurchaseRequestApprovalRequest(
-        @field:BooleanFlag
-        val accepted: Boolean
     )
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.product.dto.ProductDto
-import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
@@ -82,7 +82,7 @@ class UserController(
     }
 
     @GetMapping("/me/purchase-requests/")
-    fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseRequestDto.PurchaseRequestResponseWithoutUser>> {
+    fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseOrderDto.PurchaseOrderResponseWithoutUser>> {
         return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user))
     }
 
