@@ -3,12 +3,11 @@ package waffle.team6.carrot.product.dto
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
-import waffle.team6.carrot.image.dto.ImageDto
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.product.model.ForAge
 import waffle.team6.carrot.product.model.Product
-import waffle.team6.carrot.product.model.Status
+import waffle.team6.carrot.product.model.ProductStatus
 import waffle.team6.carrot.user.dto.UserDto
 import java.time.LocalDateTime
 import javax.validation.constraints.*
@@ -17,7 +16,7 @@ class ProductDto {
     data class ProductResponse(
         val id: Long,
         val user: UserDto.Response,
-        val images: List<Long>? = null,
+        val images: List<String>? = null,
         val title: String,
         val content: String,
         val price: Long,
@@ -29,7 +28,7 @@ class ProductDto {
         val hit: Long,
         val likes: Long,
         val chats: Long,
-        val status: Status,
+        val status: ProductStatus,
         val priceSuggestions: Long?,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime,
@@ -38,7 +37,7 @@ class ProductDto {
         constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            images = product.images?.map { it.id },
+            images = product.images?.map { it.url },
             title = product.title,
             content = product.content,
             price = product.price,
@@ -61,13 +60,13 @@ class ProductDto {
     data class ProductSimpleResponse(
         val id: Long,
         val user: UserDto.Response,
-        val image: Long?,
+        val image: String?,
         val title: String,
         val price: Long,
         val location: String,
         val likes: Long,
         val chats: Long,
-        val status: Status,
+        val status: ProductStatus,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime,
         val lastBringUpMyPost: LocalDateTime
@@ -75,7 +74,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            image = if (product.images?.isNotEmpty() == true) product.images!![0].id else null,
+            image = if (product.images?.isNotEmpty() == true) product.images!![0].url else null,
             title = product.title,
             price = product.price,
             location = product.location,
@@ -90,19 +89,19 @@ class ProductDto {
 
     data class ProductSimpleResponseWithoutUser(
         val id: Long,
-        val image: Long?,
+        val image: String?,
         val title: String,
         val price: Long,
         val location: String,
         val likes: Long,
         val chats: Long,
-        val status: Status,
+        val status: ProductStatus,
         val createdAt: LocalDateTime,
         val updatedAt: LocalDateTime
     ) {
         constructor(product: Product): this(
             id = product.id,
-            image = product.images?.get(0)?.id,
+            image = product.images?.get(0)?.url,
             title = product.title,
             price = product.price,
             location = product.location,
@@ -116,11 +115,11 @@ class ProductDto {
 
     data class ProductPostRequest(
         val images: List<Long>? = null,
-        @field:NotBlank
+        @field:Length(min = 1, max = 50)
         val title: String,
         @field:Length(min = 1, max = 300)
         val content: String,
-        @field:PositiveOrZero
+        @field:Range(min = 0, max = 10000000000)
         val price: Long,
         @field:BooleanFlag
         val negotiable: Boolean = true,
@@ -133,11 +132,11 @@ class ProductDto {
 
     data class ProductUpdateRequest(
         val images: List<Long>? = null,
-        @field:NotBlank
+        @field:Length(min = 1, max = 50)
         val title: String? = null,
         @field:Length(min = 1, max = 300)
         val content: String? = null,
-        @field:PositiveOrZero
+        @field:Range(min = 0, max = 10000000000)
         val price: Long? = null,
         @field:BooleanFlag
         val negotiable: Boolean? = null,
@@ -161,10 +160,5 @@ class ProductDto {
     data class ProductStatusUpdateRequest(
         @field:NotBlank
         val action: String
-    )
-
-    data class ProductPurchaseRequestApprovalRequest(
-        @field:BooleanFlag
-        val accepted: Boolean
     )
 }

@@ -2,11 +2,12 @@ package waffle.team6.carrot.product.model
 
 import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
+import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.image.model.Image
-import waffle.team6.carrot.location.model.AdjacentLocation
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.purchaseOrders.model.PurchaseOrder
 import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 import javax.persistence.*
@@ -23,13 +24,13 @@ class Product (
     @OneToMany(cascade = [CascadeType.ALL])
     var images: MutableList<Image>? = null,
 
-    @field:NotBlank
+    @field:Length(min = 1, max = 50)
     var title: String,
 
     @field:Length(min = 1, max = 300)
     var content: String,
 
-    @field:PositiveOrZero
+    @field:Range(min = 0, max = 10000000000)
     var price: Long,
 
     @field:BooleanFlag
@@ -63,7 +64,7 @@ class Product (
     var priceSuggestions: Long,
 
     @Enumerated(EnumType.STRING)
-    var status: Status,
+    var status: ProductStatus,
 
     @field:BooleanFlag
     var hidden: Boolean,
@@ -71,7 +72,7 @@ class Product (
     var lastBringUpMyPost: LocalDateTime = LocalDateTime.now(),
 
     @OneToMany(cascade = [CascadeType.PERSIST], mappedBy = "product")
-    var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
+    var purchaseOrders: MutableList<PurchaseOrder> = mutableListOf(),
 
     ) : BaseTimeEntity() {
     constructor(
@@ -96,7 +97,7 @@ class Product (
         likes = 0,
         chats = 0,
         priceSuggestions = 0,
-        status = Status.FOR_SALE,
+        status = ProductStatus.FOR_SALE,
         hidden = false
     )
 }

@@ -1,16 +1,16 @@
-package waffle.team6.carrot.product.model
+package waffle.team6.carrot.purchaseOrders.model
 
-import jdk.jfr.BooleanFlag
 import waffle.team6.carrot.BaseTimeEntity
-import waffle.team6.carrot.product.dto.PurchaseRequestDto
+import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
+import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.PositiveOrZero
 
 @Entity
-@Table(name = "purchase_request")
-class PurchaseRequest (
+@Table(name = "purchase_order")
+class PurchaseOrder (
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
@@ -26,10 +26,9 @@ class PurchaseRequest (
 
     var lastMessageTime: LocalDateTime? = null,
 
-    @field:BooleanFlag
-    var accepted: Boolean? = null
+    var status: PurchaseOrderStatus? = null
     ) : BaseTimeEntity() {
-    constructor(user: User, product: Product, request: PurchaseRequestDto.PurchaseRequest): this(
+    constructor(user: User, product: Product, request: PurchaseOrderDto.PurchaseOrderPostRequest): this(
         user = user,
         product = product,
         suggestedPrice = request.suggestedPrice,
@@ -37,11 +36,11 @@ class PurchaseRequest (
         lastMessageTime = if (request.message != null) LocalDateTime.now() else null
     )
 
-    fun update(request: PurchaseRequestDto.PurchaseRequest): PurchaseRequest {
+    fun update(request: PurchaseOrderDto.PurchaseOrderUpdateRequest): PurchaseOrder {
         suggestedPrice = request.suggestedPrice
         message = request.message
         lastMessageTime = if (request.message != null) LocalDateTime.now() else null
-        accepted = null
+        status = null
         return this
     }
 }

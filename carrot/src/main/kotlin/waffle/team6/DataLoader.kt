@@ -22,7 +22,7 @@ import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
-import waffle.team6.carrot.product.repository.PurchaseRequestRepository
+import waffle.team6.carrot.purchaseOrders.repository.PurchaseOrderRepository
 import waffle.team6.carrot.product.service.ProductService
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.repository.UserRepository
@@ -33,7 +33,7 @@ import java.io.InputStreamReader
 class DataLoader(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
-    private val purchaseRequestRepository: PurchaseRequestRepository,
+    private val purchaseOrderRepository: PurchaseOrderRepository,
     private val likeRepository: LikeRepository,
     private val categoryOfInterestRepository: CategoryOfInterestRepository,
     private val imageRepository: ImageRepository,

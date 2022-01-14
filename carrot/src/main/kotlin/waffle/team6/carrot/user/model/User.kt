@@ -4,7 +4,7 @@ import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.model.Like
 import waffle.team6.carrot.product.model.Product
-import waffle.team6.carrot.product.model.PurchaseRequest
+import waffle.team6.carrot.purchaseOrders.model.PurchaseOrder
 import waffle.team6.carrot.user.dto.UserDto
 import javax.persistence.*
 import javax.validation.constraints.Email
@@ -19,7 +19,7 @@ class User(
     var products: MutableList<Product> = mutableListOf(),
 
     @OneToMany(mappedBy = "user")
-    var purchaseRequests: MutableList<PurchaseRequest> = mutableListOf(),
+    var purchaseOrders: MutableList<PurchaseOrder> = mutableListOf(),
 
     @OneToMany(mappedBy = "user")
     var likes: MutableList<Like> = mutableListOf(),
@@ -48,7 +48,7 @@ class User(
     @field: NotNull
     var rangeOfLocation: RangeOfLocation,
 
-): BaseTimeEntity() {
+    ): BaseTimeEntity() {
         fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest): User {
             email = updateProfileRequest.email ?: email
             phone = updateProfileRequest.phone ?: phone
