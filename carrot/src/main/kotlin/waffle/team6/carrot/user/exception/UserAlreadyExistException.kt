@@ -4,4 +4,4 @@ import waffle.team6.global.common.exception.ConflictException
 import waffle.team6.global.common.exception.ErrorType
 
 class UserAlreadyExistException(detail: String = ""):
-    ConflictException(ErrorType.USER_CONFLICT)
+    ConflictException(ErrorType.USER_CONFLICT, detail)

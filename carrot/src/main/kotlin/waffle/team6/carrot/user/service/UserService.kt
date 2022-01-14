@@ -8,14 +8,18 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.product.dto.LikeDto
+import waffle.team6.carrot.product.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.model.ProductStatus
 import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
+import waffle.team6.carrot.purchaseOrders.model.PurchaseOrderStatus
 import waffle.team6.carrot.purchaseOrders.repository.PurchaseOrderRepository
 import waffle.team6.carrot.user.dto.UserDto
+import waffle.team6.carrot.user.exception.InvalidStatusException
 import waffle.team6.carrot.user.exception.UserAlreadyExistException
 import waffle.team6.carrot.user.exception.UserInvalidCurrentPasswordException
 import waffle.team6.carrot.user.exception.UserNotFoundException
@@ -35,17 +39,7 @@ class UserService(
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
         if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
-        val newUser = User(
-            name = signUpRequest.name,
-            nickname = signUpRequest.nickname,
-            password = passwordEncoder.encode(signUpRequest.password),
-            email = signUpRequest.email,
-            phone = signUpRequest.phone,
-            location = signUpRequest.location,
-            rangeOfLocation = signUpRequest.rangeOfLocation,
-        )
-
-        return UserDto.Response(userRepository.save(newUser))
+        return UserDto.Response(userRepository.save(User(signUpRequest, passwordEncoder.encode(signUpRequest.password))))
     }
 
     @Transactional
@@ -62,6 +56,17 @@ class UserService(
         return UserDto.Response(userRepository.save(user))
     }
 
+    @Transactional
+    fun deleteMyAccount(user: User) {
+        user.isActive = false
+        for (purchaseOrder in user.purchaseOrders) {
+            if (purchaseOrder.status == null || purchaseOrder.status == PurchaseOrderStatus.REJECTED) {
+                purchaseOrderRepository.delete(purchaseOrder)
+                user.purchaseOrders.remove(purchaseOrder)
+            }
+        }
+    }
+
     fun isUserNameDuplicated(name: String): Boolean {
         return userRepository.existsByName(name)
     }
@@ -74,26 +79,57 @@ class UserService(
         return UserDto.Response(userRepository.findByIdOrNull(id) ?: throw UserNotFoundException())
     }
 
-    // TODO: 자주 쓰는 문구
-    fun addMyPhrase() {
-
+    @Transactional
+    fun addMyPhrase(user: User, phrase: PhraseDto.PhrasePostRequest): PhraseDto.PhraseResponse {
+        user.myPhrases.add(phrase.phrase)
+        return PhraseDto.PhraseResponse(user.myPhrases)
     }
 
-    fun getMyPhrases() {
-
+    @Transactional
+    fun deleteMyPhrase(user: User, index: Int) {
+        user.myPhrases.removeAt(index)
     }
 
-
-    fun findMyPurchaseRequests(user: User): List<PurchaseOrderDto.PurchaseOrderResponseWithoutUser> {
-        return purchaseOrderRepository.findAllByUser(user).map {
-            PurchaseOrderDto.PurchaseOrderResponseWithoutUser(it)
-        }
+    fun getMyPhrases(user: User): PhraseDto.PhraseResponse {
+        return PhraseDto.PhraseResponse(user.myPhrases)
     }
 
-    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponseWithoutUser> {
-        return productRepository.findAllByUserId(PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()), user.id).map {
-            ProductDto.ProductSimpleResponseWithoutUser(it)
-        }
+    fun findMyPurchaseRequests(user: User, pageNumber: Int, pageSize: Int, status: String
+    ): Page<PurchaseOrderDto.PurchaseOrderResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
+        return when (status) {
+            "pending" -> purchaseOrderRepository.findAllByUserAndStatusIsNull(pageRequest, user)
+            "accepted" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
+                pageRequest,
+                user,
+                listOf(PurchaseOrderStatus.ACCEPTED, PurchaseOrderStatus.CONFIRMED)
+            )
+            "rejected" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
+                pageRequest,
+                user,
+                listOf(PurchaseOrderStatus.REJECTED)
+            )
+            else -> throw InvalidStatusException()
+        }.map { PurchaseOrderDto.PurchaseOrderResponseWithoutUser(it) }
+    }
+
+    fun findMyProducts(user: User, pageNumber: Int, pageSize: Int, status: String
+    ): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending())
+        return when (status) {
+            "for-sale" -> productRepository.findAllByUserAndStatusInAndHiddenIsFalse(
+                pageRequest,
+                user,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED)
+            )
+            "sold-out" -> productRepository.findAllByUserAndStatusInAndHiddenIsFalse(
+                pageRequest,
+                user,
+                listOf(ProductStatus.SOLD_OUT)
+            )
+            "hidden" -> productRepository.findAllByUserAndHiddenIsTrue(pageRequest, user)
+            else -> throw InvalidStatusException()
+        }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 
     fun findMyCategoriesOfInterests(user: User): List<CategoryOfInterest> {

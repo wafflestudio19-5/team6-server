@@ -1,5 +1,6 @@
 package waffle.team6.carrot.purchaseOrders.model
 
+import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.Product
@@ -10,7 +11,7 @@ import javax.validation.constraints.PositiveOrZero
 
 @Entity
 @Table(name = "purchase_order")
-class PurchaseOrder (
+class PurchaseOrder(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
@@ -19,15 +20,16 @@ class PurchaseOrder (
     @JoinColumn(name = "product", referencedColumnName = "id")
     val product: Product,
 
-    @field:PositiveOrZero
+    @field:Range(min = 0, max = 10000000000)
     var suggestedPrice: Long? = null,
 
     var message: String? = null,
 
     var lastMessageTime: LocalDateTime? = null,
 
+    @Enumerated(EnumType.STRING)
     var status: PurchaseOrderStatus? = null
-    ) : BaseTimeEntity() {
+) : BaseTimeEntity() {
     constructor(user: User, product: Product, request: PurchaseOrderDto.PurchaseOrderPostRequest): this(
         user = user,
         product = product,

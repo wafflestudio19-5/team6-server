@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.LikeDto
+import waffle.team6.carrot.product.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
@@ -42,16 +43,20 @@ class UserController(
 
     @PatchMapping("/me/")
     fun updateMyProfile(
-        @ApiIgnore @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid updateProfileRequest: UserDto.UpdateProfileRequest
     ): ResponseEntity<UserDto.Response> {
-        userService.updateUserProfile(user, updateProfileRequest)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok().body(userService.updateUserProfile(user, updateProfileRequest))
+    }
+
+    @DeleteMapping("/me/")
+    fun deleteMyAccount(@CurrentUser @ApiIgnore user: User): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(userService.deleteMyAccount(user))
     }
 
     @PatchMapping("/me/password/")
     fun updateMyPassword(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestBody @Valid updatePasswordRequest: UserDto.UpdatePasswordRequest
     ): ResponseEntity<Any> {
         return ResponseEntity.noContent().header(
@@ -67,13 +72,13 @@ class UserController(
 
 
     @GetMapping("/me/")
-    fun getMe(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
+    fun getMe(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
     @GetMapping("/{userId}/")
-    fun getUser(@CurrentUser user: User): ResponseEntity<UserDto.Response> {
-        return ResponseEntity.ok().body(userService.findMe(user))
+    fun getUser(@PathVariable userId: Long): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.findWithId(userId))
     }
 
     @GetMapping("/duplicate/")
@@ -81,23 +86,29 @@ class UserController(
         return ResponseEntity.ok().body(userService.isUserNameDuplicated(name))
     }
 
-    @GetMapping("/me/purchase-requests/")
-    fun getMyPurchaseRequests(@CurrentUser user: User): ResponseEntity<List<PurchaseOrderDto.PurchaseOrderResponseWithoutUser>> {
-        return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user))
+    @GetMapping("/me/purchase-orders/")
+    fun getMyPurchaseRequests(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) status: String
+    ): ResponseEntity<Page<PurchaseOrderDto.PurchaseOrderResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findMyPurchaseRequests(user, pageNumber, pageSize, status))
     }
 
     @GetMapping("/me/products/")
     fun getMyProducts(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
-        @RequestParam(required = true) @Positive pageSize: Int
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) status: String
     ): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
-        return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize))
+        return ResponseEntity.ok().body(userService.findMyProducts(user, pageNumber, pageSize, status))
     }
 
     @GetMapping("/me/likes/")
     fun getMyLikes(
-        @CurrentUser user: User,
+        @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int
     ): ResponseEntity<Page<LikeDto.LikeResponse>> {
@@ -105,7 +116,23 @@ class UserController(
     }
 
     @GetMapping("/me/categoryOfInterest/")
-    fun getMyCategoryOfInterest(@CurrentUser user: User): ResponseEntity<List<Any>> {
+    fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<List<Any>> {
         return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
+    }
+
+    @PostMapping("/me/phrases/")
+    fun addMyPhrase(@CurrentUser @ApiIgnore user: User, @RequestBody @Valid phrase: PhraseDto.PhrasePostRequest
+    ): ResponseEntity<PhraseDto.PhraseResponse> {
+        return ResponseEntity.ok().body(userService.addMyPhrase(user, phrase))
+    }
+
+    @DeleteMapping("/me/phrases/{index}/")
+    fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
+    }
+
+    @GetMapping("/me/phrases/")
+    fun getMyPhrases(@CurrentUser @ApiIgnore user: User): ResponseEntity<PhraseDto.PhraseResponse> {
+        return ResponseEntity.ok().body(userService.getMyPhrases(user))
     }
 }

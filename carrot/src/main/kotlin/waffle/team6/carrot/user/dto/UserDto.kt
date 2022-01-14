@@ -13,18 +13,23 @@ class UserDto {
         val name: String,
         val nickname: String,
         val email: String,
+        val phone: String,
+        val imageUrl: String?,
         val location: String,
         val rangeOfLocation: RangeOfLocation,
+        val isActive: Boolean,
     ) {
         constructor(user: User): this(
             name = user.name,
             nickname = user.nickname,
             email = user.email,
+            phone = user.phone,
+            imageUrl = user.imageUrl,
             location = user.location,
             rangeOfLocation = user.rangeOfLocation,
+            isActive = user.isActive
         )
     }
-
 
     data class SignUpRequest(
         @field: NotBlank
@@ -51,18 +56,19 @@ class UserDto {
         val rangeOfLocation: RangeOfLocation,
     )
 
-
     data class UpdateProfileRequest(
         @field: Email
-        var email: String?,
+        val email: String?,
 
-        var phone: String?,
+        val phone: String?,
 
-        var nickname: String?,
+        val nickname: String?,
 
-        var location: String?,
+        val location: String?,
 
-        var rangeOfLocation: RangeOfLocation?,
+        val rangeOfLocation: RangeOfLocation?,
+
+        val imageUrl: String?,
     )
 
     data class UpdatePasswordRequest(
