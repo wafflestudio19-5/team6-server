@@ -15,5 +15,5 @@ interface KakaoClient {
         @RequestParam client_id: String = KakaoConf.CLIENT_ID,
         @RequestParam redirect_uri: String = KakaoConf.REDIRECT_URI,
         @RequestParam code: String = KakaoConf.REDIRECT_URI
-    ): ResponseEntity<SocialLoginDto.kakaoTokenResponse>
+    ): ResponseEntity<SocialLoginDto.KakaoTokenResponse>
 }
