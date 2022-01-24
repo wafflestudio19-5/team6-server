@@ -15,6 +15,7 @@ import waffle.team6.carrot.purchaseOrders.model.PurchaseOrder
 import waffle.team6.carrot.purchaseOrders.model.PurchaseOrderStatus
 import waffle.team6.carrot.purchaseOrders.repository.PurchaseOrderRepository
 import waffle.team6.carrot.user.exception.UserLocationNotVerifiedException
+import waffle.team6.carrot.user.exception.UserNotActiveException
 import waffle.team6.carrot.user.model.User
 
 @Service
@@ -67,6 +68,7 @@ class PurchaseOrderService(
         val product = productRepository.findByIdOrNull(request.productId) ?: throw ProductNotFoundException()
         if (product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.purchaseOrders.any { it.user.id == user.id }) throw ProductAlreadyRequestedPurchaseException()
+        if (!product.user.isActive) throw UserNotActiveException()
         if (product.user.id == user.id) throw ProductChatBySellerException()
         val purchaseOrder = PurchaseOrder(user, product, request)
         if (request.suggestedPrice != null) product.priceSuggestions += 1
@@ -84,6 +86,7 @@ class PurchaseOrderService(
         if (purchaseOrder.product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (purchaseOrder.status == PurchaseOrderStatus.ACCEPTED ||
             purchaseOrder.status == PurchaseOrderStatus.CONFIRMED) throw PurchaseOrderAlreadyHandledException()
+        if (purchaseOrder.product.user.isActive) throw UserNotActiveException()
         if (purchaseOrder.user.id != user.id) throw PurchaseOrderUpdateByInvalidUserException()
         return PurchaseOrderDto.PurchaseOrderResponse(purchaseOrder.update(request), false)
     }

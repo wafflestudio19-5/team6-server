@@ -115,6 +115,7 @@ class ProductController(
     @PostMapping("/{product_id}/likes/")
     @Operation(summary = "판매글 관심목록 등록", description = "판매글을 관심목록에 등록합니다", responses = [
         ApiResponse(responseCode = "204", description = "Success Response"),
+        ApiResponse(responseCode = "0102", description = "판매글을 올린 회원이 탈퇴한 경우"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
         ApiResponse(responseCode = "3207", description = "판매자가 요청을 시도한 경우"),
         ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우")

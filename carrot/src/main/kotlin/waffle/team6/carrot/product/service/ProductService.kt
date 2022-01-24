@@ -16,6 +16,7 @@ import waffle.team6.carrot.product.model.*
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
 import waffle.team6.carrot.user.exception.UserLocationNotVerifiedException
+import waffle.team6.carrot.user.exception.UserNotActiveException
 import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 
@@ -169,6 +170,7 @@ class ProductService (
     fun likeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id == user.id) throw ProductLikeBySellerException()
+        if (!product.user.isActive) throw UserNotActiveException()
         if (product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
 
         if (!user.likes.any { it.product.id == product.id}) {
