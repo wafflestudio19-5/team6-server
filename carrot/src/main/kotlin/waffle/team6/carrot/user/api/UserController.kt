@@ -40,6 +40,18 @@ class UserController(
             .build()
     }
 
+    @GetMapping("/")
+    @Operation(summary = "회원검색", description = "회원검색", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun searchUser(
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) name: String
+    ): ResponseEntity<Page<UserDto.UserSimpleResponse>> {
+        return ResponseEntity.ok().body(userService.findUser(pageNumber, pageSize, name))
+    }
+
     @PatchMapping("/me/")
     @Operation(summary = "프로필 정보 수정", description = "프로필 정보 수정", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
@@ -95,6 +107,21 @@ class UserController(
     ])
     fun getUser(@PathVariable userId: Long): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.findWithId(userId))
+    }
+
+    @GetMapping("/{user_id}/products/")
+    @Operation(summary = "유저 판매글 조회", description = "status로 가능한 값: for-sale,sold-out,all", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "400", description = "pageNumber, pageSize, status가 올바르지 않은 경우"),
+        ApiResponse(responseCode = "0004", description = "status가 올바르지 않은 경우"),
+    ])
+    fun getUserProducts(
+        @PathVariable("user_id") userId: Long,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) status: String
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findUserProducts(userId, pageNumber, pageSize, status))
     }
 
     @GetMapping("/duplicate/")

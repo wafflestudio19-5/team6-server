@@ -142,5 +142,34 @@ class UserService(
             LikeDto.LikeResponse(it)
         }
     }
+
+    fun findUser(pageNumber: Int, pageSize: Int, name: String): Page<UserDto.UserSimpleResponse> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
+        return userRepository.findAllByNameContainingOrNicknameContaining(pageRequest, name, name)
+            .map { UserDto.UserSimpleResponse(it) }
+    }
+
+    fun findUserProducts(userId: Long, pageNumber: Int, pageSize: Int, status: String
+    ): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending())
+        return when (status) {
+            "all" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED, ProductStatus.SOLD_OUT)
+            )
+            "for-sale" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED)
+            )
+            "sold-out" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.SOLD_OUT)
+            )
+            else -> throw InvalidStatusException()
+        }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
+    }
 }
 

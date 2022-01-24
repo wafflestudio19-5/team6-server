@@ -31,6 +31,18 @@ class UserDto {
         )
     }
 
+    data class UserSimpleResponse(
+        val name: String,
+        val nickname: String,
+        val isActive: Boolean
+    ) {
+        constructor(user: User): this(
+            name = user.name,
+            nickname = user.nickname,
+            isActive = user.isActive,
+        )
+    }
+
     data class SignUpRequest(
         @field: NotBlank
         val name: String,
