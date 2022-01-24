@@ -207,4 +207,49 @@ class UserController(
     fun getMyPhrases(@CurrentUser @ApiIgnore user: User): ResponseEntity<PhraseDto.PhraseResponse> {
         return ResponseEntity.ok().body(userService.getMyPhrases(user))
     }
+
+    @PostMapping("/me/location/")
+    @Operation(summary = "지역 정보 추가", description = "지역 정보를 추가하고 추가된 지역정보가 활성화됩니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun addLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestBody updateLocationRequest: UserDto.UpdateLocationRequest
+    ): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.addAnotherUserLocation(user, updateLocationRequest))
+    }
+
+    @PutMapping("/me/location/")
+    @Operation(summary = "지역 정보 수정", description = "현재 활성화된 지역정보를 수정합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun updateLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestBody updateLocationRequest: UserDto.UpdateLocationRequest
+    ): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.updateUserCurrentLocation(user, updateLocationRequest))
+    }
+
+    @PatchMapping("/me/location/")
+    @Operation(summary = "지역 정보 인증/변경", description = "지역 정보 인증하거나 저장된 다른 지역 정보를 활성화합니다. action으로 가능한 값은 verify, alter이며, 그 외에는 아무런 변화가 없습니다.", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun patchLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestBody action: String
+    ): ResponseEntity<UserDto.Response> {
+        return when (action) {
+            "verify" -> ResponseEntity.ok().body(userService.verifyUserLocation(user))
+            "alter" -> ResponseEntity.ok().body(userService.changeToAnotherUserLocation(user))
+            else -> ResponseEntity.ok().body(UserDto.Response(user))
+        }
+    }
+
+    @DeleteMapping("/me/location/")
+    @Operation(summary = "지역 정보 삭제", description = "현재 비활성화된 지역정보를 삭제합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun deleteLocation(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.deleteUserInactiveLocation(user))
+    }
 }

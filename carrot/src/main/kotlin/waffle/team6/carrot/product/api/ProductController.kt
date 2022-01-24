@@ -56,6 +56,7 @@ class ProductController(
     @Operation(summary = "판매글 등록", description = "판매글을 등록합니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
         ApiResponse(responseCode = "400", description = "Request Body 에 누락이나 잘못된 값이 들어간 경우"),
+        ApiResponse(responseCode = "3101", description = "사용자 지역 정보가 인증이 안 된 경우"),
         ApiResponse(responseCode = "3303", description = "현재 사용자가 올린 이미지가 아닌 경우"),
         ApiResponse(responseCode = "9201", description = "이미지가 이미 다른 판매글에 등록된 경우")
     ])
@@ -97,6 +98,7 @@ class ProductController(
     @Operation(summary = "판매글 수정", description = "판매글의 상세 정보를 수정합니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3101", description = "사용자 지역 정보가 인증이 안 된 경우"),
         ApiResponse(responseCode = "3201", description = "판매자가 아닌 다른 사용자가 수정 요청을 시도한 경우"),
         ApiResponse(responseCode = "3303", description = "현재 사용자가 올린 이미지가 아닌 경우"),
         ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
@@ -144,6 +146,7 @@ class ProductController(
         ApiResponse(responseCode = "204", description = "Success Response"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우 (hide/show 는 상관없음)"),
         ApiResponse(responseCode = "0203", description = "마지막으로 끌올(생성)한 지 하루가 지나지 않았을 경우 (bump 요청)"),
+        ApiResponse(responseCode = "3101", description = "사용자 지역 정보가 인증이 안 된 경우 (bump 요청)"),
         ApiResponse(responseCode = "3203", description = "판매자가 아닌 다른 사용자가 reserved/sold out/for sale 요청을 시도한 경우"),
         ApiResponse(responseCode = "3209", description = "판매자가 아닌 다른 사용자가 hide 요청을 시도한 경우"),
         ApiResponse(responseCode = "3210", description = "판매자가 아닌 다른 사용자가 show 요청을 시도한 경우"),

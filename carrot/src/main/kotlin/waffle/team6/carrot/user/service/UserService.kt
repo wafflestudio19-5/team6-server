@@ -57,6 +57,31 @@ class UserService(
     }
 
     @Transactional
+    fun verifyUserLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.verifyLocation())
+    }
+
+    @Transactional
+    fun addAnotherUserLocation(user: User, updateLocationRequest: UserDto.UpdateLocationRequest): UserDto.Response {
+        return UserDto.Response(user.addLocation(updateLocationRequest))
+    }
+
+    @Transactional
+    fun updateUserCurrentLocation(user: User, updateLocationRequest: UserDto.UpdateLocationRequest): UserDto.Response {
+        return UserDto.Response(user.updateLocation(updateLocationRequest))
+    }
+
+    @Transactional
+    fun deleteUserInactiveLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.deleteLocation())
+    }
+
+    @Transactional
+    fun changeToAnotherUserLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.changeLocation())
+    }
+
+    @Transactional
     fun deleteMyAccount(user: User) {
         user.isActive = false
         for (purchaseOrder in user.purchaseOrders) {

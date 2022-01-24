@@ -90,7 +90,7 @@ class Product (
         category = Category.from(productPostRequest.category),
         forAge = (if (productPostRequest.category == 4) productPostRequest.forAge
             ?.map { ForAge.from(it) } else null) as MutableList<ForAge>?,
-        location = user.location,
+        location = user.activeLocation,
         rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
         adjacentLocations = adjacentLocations,
         hit = 1,
