@@ -4,4 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import waffle.team6.carrot.image.model.Image
 
 interface ImageRepository:JpaRepository<Image, Long?> {
+    fun findByUrlIs(url: String): Image
 }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.product.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
@@ -35,6 +36,7 @@ class UserService(
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
     private val categoryOfInterestRepository: CategoryOfInterestRepository,
+    private val imageService: ImageService
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
@@ -44,7 +46,14 @@ class UserService(
 
     @Transactional
     fun updateUserProfile(user: User, updateProfileRequest: UserDto.UpdateProfileRequest): UserDto.Response {
+        if (updateProfileRequest.imageUrl != null) user.imageUrl?.let { imageService.deleteByUrl(it, user.id) }
         return UserDto.Response(user.modifyProfile(updateProfileRequest))
+    }
+
+    @Transactional
+    fun deleteUserImage(user: User): UserDto.Response {
+        user.imageUrl?.let { imageService.deleteByUrl(it, user.id) }
+        return UserDto.Response(user.deleteImage())
     }
 
     @Transactional

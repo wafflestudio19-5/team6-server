@@ -77,5 +77,10 @@ class User(
         rangeOfLocation = updateProfileRequest.rangeOfLocation ?: rangeOfLocation
         imageUrl = updateProfileRequest.imageUrl ?: imageUrl
         return this
-        }
+    }
+
+    fun deleteImage(): User {
+        imageUrl = null
+        return this
+    }
 }
