@@ -60,7 +60,7 @@ class ProductDto {
     data class ProductSimpleResponse(
         val id: Long,
         val user: UserDto.Response,
-        val image: String?,
+        val imageUrl: String?,
         val title: String,
         val price: Long,
         val location: String,
@@ -74,7 +74,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            image = if (product.imageUrls.isNotEmpty()) product.imageUrls[0] else null,
+            imageUrl = if (product.imageUrls.isNotEmpty()) product.imageUrls[0] else null,
             title = product.title,
             price = product.price,
             location = product.location,
@@ -89,7 +89,7 @@ class ProductDto {
 
     data class ProductSimpleResponseWithoutUser(
         val id: Long,
-        val image: String?,
+        val imageUrl: String?,
         val title: String,
         val price: Long,
         val location: String,
@@ -101,7 +101,7 @@ class ProductDto {
     ) {
         constructor(product: Product): this(
             id = product.id,
-            image = product.imageUrls[0],
+            imageUrl = if (product.imageUrls.isNotEmpty()) product.imageUrls[0] else null,
             title = product.title,
             price = product.price,
             location = product.location,

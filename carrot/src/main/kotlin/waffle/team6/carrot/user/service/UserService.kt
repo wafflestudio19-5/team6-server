@@ -11,6 +11,7 @@ import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.model.ProductStatus
@@ -41,7 +42,11 @@ class UserService(
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
         if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
-        return UserDto.Response(userRepository.save(User(signUpRequest, passwordEncoder.encode(signUpRequest.password))))
+        val user = userRepository.save(User(signUpRequest, passwordEncoder.encode(signUpRequest.password)))
+        for (category in Category.values()) {
+            categoryOfInterestRepository.save(CategoryOfInterest(user, category))
+        }
+        return UserDto.Response(user)
     }
 
     @Transactional
@@ -167,8 +172,8 @@ class UserService(
         }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 
-    fun findMyCategoriesOfInterests(user: User): List<CategoryOfInterest> {
-        return categoryOfInterestRepository.findAllByUser(user)
+    fun findMyCategoriesOfInterests(user: User): List<Category> {
+        return categoryOfInterestRepository.findAllByUser(user).map { it.category }
     }
 
     fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {

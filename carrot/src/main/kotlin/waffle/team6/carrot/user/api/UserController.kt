@@ -171,6 +171,9 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
 
+//    @PutMapping("/me/categories/")
+//    @Operation(summary = "내 관심 카테고리 설정")
+
     @GetMapping("/me/categories/")
     @Operation(summary = "내 관심 카테고리 조회", description = "내 관심 카테고리 조회", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),

@@ -32,10 +32,10 @@ class PurchaseOrderController(
         @RequestParam(required = true) @Positive productId: Long,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int,
-        @RequestParam(required = false) pendingOnly: Boolean? = false,
+        @RequestParam(required = false) acceptedOnly: Boolean? = false,
         @RequestParam(required = false) withPriceSuggestion: Boolean? = false
     ): ResponseEntity<Page<PurchaseOrderDto.PurchaseOrderResponse>> {
-        return if (pendingOnly == true) ResponseEntity.ok().body(purchaseOrderService
+        return if (acceptedOnly == true) ResponseEntity.ok().body(purchaseOrderService
             .getAcceptedProductPurchaseRequests(user, productId, pageNumber, pageSize))
         else if (withPriceSuggestion == true) ResponseEntity.ok().body(purchaseOrderService
             .getProductPurchaseRequestsWithPriceSuggestion(user, productId, pageNumber, pageSize))
