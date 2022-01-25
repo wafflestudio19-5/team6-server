@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
+import waffle.team6.carrot.product.dto.CategoryDto
 import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
@@ -171,14 +172,23 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
 
-//    @PutMapping("/me/categories/")
-//    @Operation(summary = "내 관심 카테고리 설정")
+    @PutMapping("/me/categories/")
+    @Operation(summary = "내 관심 카테고리 설정", description = "내 관심목록 조회", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+    ])
+    fun setMyCategoryOfInterest(
+        @CurrentUser @ApiIgnore user:User,
+        @RequestBody categories: CategoryDto.CategoryPutRequest
+    ): ResponseEntity<Any> {
+        userService.changeMyCategoriesOfInterest(user, categories)
+        return ResponseEntity.noContent().build()
+    }
 
     @GetMapping("/me/categories/")
     @Operation(summary = "내 관심 카테고리 조회", description = "내 관심 카테고리 조회", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
-    fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<List<Any>> {
+    fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<CategoryDto.CategoryResponse> {
         return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
     }
 

@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.image.service.ImageService
+import waffle.team6.carrot.product.dto.CategoryDto
 import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
@@ -172,8 +173,19 @@ class UserService(
         }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 
-    fun findMyCategoriesOfInterests(user: User): List<Category> {
-        return categoryOfInterestRepository.findAllByUser(user).map { it.category }
+    @Transactional
+    fun changeMyCategoriesOfInterest(user: User, request: CategoryDto.CategoryPutRequest) {
+        val categories = request.categories.map { Category.from(it) }
+        for (category in user.categoriesOfInterest) {
+            categoryOfInterestRepository.delete(category)
+        }
+        for (category in categories) {
+            categoryOfInterestRepository.save(CategoryOfInterest(user, category))
+        }
+    }
+
+    fun findMyCategoriesOfInterests(user: User): CategoryDto.CategoryResponse {
+        return CategoryDto.CategoryResponse(categoryOfInterestRepository.findAllByUser(user).map { it.category })
     }
 
     fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {
