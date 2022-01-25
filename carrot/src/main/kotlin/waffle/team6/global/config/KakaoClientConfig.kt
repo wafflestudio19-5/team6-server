@@ -11,6 +11,11 @@ import org.springframework.context.annotation.Bean
 class KakaoClientConfig {
 
     @Bean
+    fun feignFormEncoder(converters: ObjectFactory<HttpMessageConverters?>?): Encoder {
+        return SpringFormEncoder(SpringEncoder(converters))
+    }
+
+    @Bean
     fun feignLoggerLevel(): Logger.Level {
         return Logger.Level.FULL
     }

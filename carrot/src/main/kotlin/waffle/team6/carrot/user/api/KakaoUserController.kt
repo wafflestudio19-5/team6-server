@@ -5,14 +5,18 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import waffle.team6.carrot.user.service.KakaoUserService
 
 @Controller
 @RequestMapping("/oauth/kakao/")
-class KakaoUserController {
+class KakaoUserController(
+    private val kakaoUserService: KakaoUserService,
+) {
 
     @GetMapping
     fun signIn(@RequestParam(required = true) code: String): ResponseEntity<Any> {
-        TODO("카카오 서버로 요청, redirect uri")
+        kakaoUserService.getTokenWithCode(code)
+        return ResponseEntity.ok().build()
     }
 
     fun signUp() {
