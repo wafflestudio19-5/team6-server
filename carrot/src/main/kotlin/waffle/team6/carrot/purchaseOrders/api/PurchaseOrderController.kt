@@ -46,7 +46,9 @@ class PurchaseOrderController(
     @PostMapping("/")
     @Operation(summary = "구매 요청", description = "해당 판매글에 대해 구매 요청을 보냅니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "0102", description = "판매글을 올린 회원이 탈퇴한 경우"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "3101", description = "사용자 지역 정보가 인증이 안 된 경우"),
         ApiResponse(responseCode = "3208", description = "판매자가 요청을 시도한 경우"),
         ApiResponse(responseCode = "4200", description = "해당 판매글이 없는 경우"),
         ApiResponse(responseCode = "9202", description = "해당 판매글에 이미 구매 요청을 보낸 경우")
@@ -75,8 +77,10 @@ class PurchaseOrderController(
     @PutMapping("/{purchase_order_id}/")
     @Operation(summary = "구매 요청 다시 보내기", description = "해당 구매 요청을 바꿔서 다시 보냅니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "0102", description = "판매글을 올린 회원이 탈퇴한 경우"),
         ApiResponse(responseCode = "0201", description = "해당 판매글이 이미 판매완료인 경우"),
         ApiResponse(responseCode = "0501", description = "해당 판매요청이 이미 수락된 경우"),
+        ApiResponse(responseCode = "3101", description = "사용자 지역 정보가 인증이 안 된 경우"),
         ApiResponse(responseCode = "3404", description = "판매자가 아닌 다른 사용자가 요청을 시도한 경우"),
         ApiResponse(responseCode = "4201", description = "해당 구매 요청이 없는 경우")
     ])

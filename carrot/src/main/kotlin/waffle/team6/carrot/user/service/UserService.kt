@@ -66,6 +66,31 @@ class UserService(
     }
 
     @Transactional
+    fun verifyUserLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.verifyLocation())
+    }
+
+    @Transactional
+    fun addAnotherUserLocation(user: User, updateLocationRequest: UserDto.UpdateLocationRequest): UserDto.Response {
+        return UserDto.Response(user.addLocation(updateLocationRequest))
+    }
+
+    @Transactional
+    fun updateUserCurrentLocation(user: User, updateLocationRequest: UserDto.UpdateLocationRequest): UserDto.Response {
+        return UserDto.Response(user.updateLocation(updateLocationRequest))
+    }
+
+    @Transactional
+    fun deleteUserInactiveLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.deleteLocation())
+    }
+
+    @Transactional
+    fun changeToAnotherUserLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.changeLocation())
+    }
+
+    @Transactional
     fun deleteMyAccount(user: User) {
         user.isActive = false
         for (purchaseOrder in user.purchaseOrders) {
@@ -150,6 +175,35 @@ class UserService(
             PageRequest.of(pageNumber, pageSize, Sort.by("id").descending()), user.id).map {
             LikeDto.LikeResponse(it)
         }
+    }
+
+    fun findUser(pageNumber: Int, pageSize: Int, name: String): Page<UserDto.UserSimpleResponse> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
+        return userRepository.findAllByNameContainingOrNicknameContaining(pageRequest, name, name)
+            .map { UserDto.UserSimpleResponse(it) }
+    }
+
+    fun findUserProducts(userId: Long, pageNumber: Int, pageSize: Int, status: String
+    ): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending())
+        return when (status) {
+            "all" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED, ProductStatus.SOLD_OUT)
+            )
+            "for-sale" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED)
+            )
+            "sold-out" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.SOLD_OUT)
+            )
+            else -> throw InvalidStatusException()
+        }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 }
 

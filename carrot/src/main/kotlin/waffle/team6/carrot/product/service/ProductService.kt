@@ -15,7 +15,8 @@ import waffle.team6.carrot.product.exception.*
 import waffle.team6.carrot.product.model.*
 import waffle.team6.carrot.product.repository.LikeRepository
 import waffle.team6.carrot.product.repository.ProductRepository
-import waffle.team6.carrot.purchaseOrders.repository.PurchaseOrderRepository
+import waffle.team6.carrot.user.exception.UserLocationNotVerifiedException
+import waffle.team6.carrot.user.exception.UserNotActiveException
 import waffle.team6.carrot.user.model.User
 import java.time.LocalDateTime
 
@@ -28,13 +29,13 @@ class ProductService (
     private val locationService: LocationService,
 ){
     fun getProducts(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
-        val locations = locationService.findAdjacentLocationsByName(user.location, user.rangeOfLocation)
+        val locations = locationService.findAdjacentLocationsByName(user.activeLocation, user.activeRangeOfLocation)
         return productRepository
             .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndHiddenIsFalse(
                 PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending()),
                 user.categoriesOfInterest.map { it.category },
                 locations,
-                user.location
+                user.activeLocation
             )
             .map { ProductDto.ProductSimpleResponse(it) }
     }
@@ -47,8 +48,8 @@ class ProductService (
             Sort.by("lastBringUpMyPost").descending()
         )
         val locations = locationService.findAdjacentLocationsByName(
-            user.location,
-            searchRequest.rangeOfLocation ?: user.rangeOfLocation
+            user.activeLocation,
+            searchRequest.rangeOfLocation ?: user.activeRangeOfLocation
         )
         val result: Page<Product>
         if (searchRequest.categories == null) {
@@ -57,7 +58,7 @@ class ProductService (
                     pageRequest,
                     user.categoriesOfInterest.map { it.category },
                     locations,
-                    user.location,
+                    user.activeLocation,
                     searchRequest.title
                 )
         } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
@@ -66,7 +67,7 @@ class ProductService (
                     pageRequest,
                     searchRequest.categories,
                     locations,
-                    user.location,
+                    user.activeLocation,
                     searchRequest.title,
                     searchRequest.minPrice,
                     searchRequest.maxPrice
@@ -77,7 +78,7 @@ class ProductService (
                     pageRequest,
                     searchRequest.categories,
                     locations,
-                    user.location,
+                    user.activeLocation,
                     searchRequest.title,
                     searchRequest.minPrice
                 )
@@ -87,7 +88,7 @@ class ProductService (
                     pageRequest,
                     searchRequest.categories,
                     locations,
-                    user.location,
+                    user.activeLocation,
                     searchRequest.title,
                     searchRequest.maxPrice
                 )
@@ -97,7 +98,7 @@ class ProductService (
                     pageRequest,
                     searchRequest.categories,
                     locations,
-                    user.location,
+                    user.activeLocation,
                     searchRequest.title
                 )
         }
@@ -106,8 +107,10 @@ class ProductService (
 
     @Transactional
     fun addProduct(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
+        if (!user.activeLocationVerified) throw UserLocationNotVerifiedException()
+        val images = productPostRequest.images?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }
         val adjacentLocations = locationService
-            .findAdjacentLocationsByName(user.location, RangeOfLocation.from(productPostRequest.rangeOfLocation))
+            .findAdjacentLocationsByName(user.activeLocation, RangeOfLocation.from(productPostRequest.rangeOfLocation))
         val product = productRepository.save(Product(user, adjacentLocations, productPostRequest))
         user.products.add(product)
         return ProductDto.ProductResponse(product, true)
@@ -136,6 +139,7 @@ class ProductService (
     @Transactional
     fun patchProduct(user: User, productPatchRequest: ProductDto.ProductUpdateRequest, id: Long
     ): ProductDto.ProductResponse {
+        if (!user.activeLocationVerified) throw UserLocationNotVerifiedException()
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
@@ -152,6 +156,7 @@ class ProductService (
     fun likeProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id == user.id) throw ProductLikeBySellerException()
+        if (!product.user.isActive) throw UserNotActiveException()
         if (product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
 
         if (!user.likes.any { it.product.id == product.id}) {
@@ -210,6 +215,7 @@ class ProductService (
 
     @Transactional
     fun bringUpMyPost(user: User, id: Long) {
+        if (!user.activeLocationVerified) throw UserLocationNotVerifiedException()
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductBumpByInvalidUserException()
         if (product.lastBringUpMyPost.isBefore(LocalDateTime.now().minusDays(1))) {
