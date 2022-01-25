@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.api
 
+import io.swagger.annotations.Api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.data.domain.Page
@@ -207,6 +208,13 @@ class UserController(
     fun getMyPhrases(@CurrentUser @ApiIgnore user: User): ResponseEntity<PhraseDto.PhraseResponse> {
         return ResponseEntity.ok().body(userService.getMyPhrases(user))
     }
+
+    @DeleteMapping("/me/image/")
+    @Operation(summary = "프로필 이미지 삭제", description = "프로필 이미지를 삭제합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun deleteMyImage(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.deleteUserImage(user))
 
     @PostMapping("/me/location/")
     @Operation(summary = "지역 정보 추가", description = "지역 정보를 추가하고 추가된 지역정보가 활성화됩니다", responses = [

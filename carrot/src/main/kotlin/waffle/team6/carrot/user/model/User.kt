@@ -91,7 +91,11 @@ class User(
         nickname = updateProfileRequest.nickname ?: nickname
         imageUrl = updateProfileRequest.imageUrl ?: imageUrl
         return this
-        }
+    }
+
+    fun deleteImage(): User {
+        imageUrl = null
+    }
 
     fun verifyLocation(): User {
         activeLocationVerified = true

@@ -21,8 +21,8 @@ class Product (
     @JoinColumn(name = "user", referencedColumnName = "id")
     val user: User,
 
-    @OneToMany(cascade = [CascadeType.ALL])
-    var images: MutableList<Image>? = null,
+    @ElementCollection
+    var imageUrls: List<String> = listOf(),
 
     @field:Length(min = 1, max = 50)
     var title: String,
@@ -77,12 +77,11 @@ class Product (
     ) : BaseTimeEntity() {
     constructor(
         user: User,
-        images: MutableList<Image>?,
         adjacentLocations: List<String>,
         productPostRequest: ProductDto.ProductPostRequest
     ): this(
         user = user,
-        images = images,
+        imageUrls = productPostRequest.imageUrls,
         title = productPostRequest.title,
         content = productPostRequest.content,
         price = productPostRequest.price,
@@ -100,4 +99,17 @@ class Product (
         status = ProductStatus.FOR_SALE,
         hidden = false
     )
+
+    fun modify(productPatchRequest: ProductDto.ProductUpdateRequest, adjacentLocationsToChange: List<String>?) {
+        imageUrls = productPatchRequest.imageUrls ?: imageUrls
+        title = productPatchRequest.title ?: title
+        content = productPatchRequest.content ?: content
+        price = productPatchRequest.price ?: price
+        negotiable = productPatchRequest.negotiable ?: negotiable
+        category = productPatchRequest.category?.let { Category.from(it) } ?: category
+        forAge = (if (productPatchRequest.category == 4) productPatchRequest.forAge
+            ?.map { ForAge.from(it) } else null) as MutableList<ForAge>
+        adjacentLocations = adjacentLocationsToChange ?: adjacentLocations
+        rangeOfLocation = productPatchRequest.rangeOfLocation?.let { RangeOfLocation.from(it) } ?: rangeOfLocation
+    }
 }

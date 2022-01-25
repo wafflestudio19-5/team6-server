@@ -128,7 +128,7 @@ class DataLoader(
                     val rawProduct = line.split("\t")
                     val user = userRepository.findByIdOrNull(rawProduct[8].toLong())
                     val postRequest = ProductDto.ProductPostRequest(
-                        images = rawProduct[0].split(",").map { it.toLong() },
+                        imageUrls = rawProduct[0].split(",").map { it },
                         title = rawProduct[1],
                         content = rawProduct[2],
                         price = rawProduct[3].toLong(),

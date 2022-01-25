@@ -84,10 +84,12 @@ class ImageService(
         imageRepository.delete(imageEntity)
     }
 
-    fun getImageByIdAndCheckAuthorization(imageId: Long, user: User): Image {
-        val image = imageRepository.findByIdOrNull(imageId) ?: throw ImageNotFoundException()
-        if (image.userId != user.id) throw ImageAccessByInvalidUserException()
-        return image
+    @Transactional
+    fun deleteByUrl(url: String, userId: Long) {
+        val image = imageRepository.findByUrlIs(url)
+        if (image.userId != userId) throw ImageDeleteByInvalidUserException()
+        deleteFileInS3(image.fileName)
+        imageRepository.delete(image)
     }
 
     fun putFileToS3(file: File, fileName: String) {

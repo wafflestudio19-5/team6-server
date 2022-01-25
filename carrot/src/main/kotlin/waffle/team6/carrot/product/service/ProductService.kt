@@ -111,8 +111,7 @@ class ProductService (
         val images = productPostRequest.images?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }
         val adjacentLocations = locationService
             .findAdjacentLocationsByName(user.activeLocation, RangeOfLocation.from(productPostRequest.rangeOfLocation))
-        val product = productRepository.save(Product(user,
-            images as MutableList<Image>?, adjacentLocations, productPostRequest))
+        val product = productRepository.save(Product(user, adjacentLocations, productPostRequest))
         user.products.add(product)
         return ProductDto.ProductResponse(product, true)
     }
@@ -132,7 +131,7 @@ class ProductService (
     fun deleteProduct(user: User, id: Long) {
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductDeleteByInvalidUserException()
-        product.images?.forEach { imageService.delete(it.id, user) }
+        product.imageUrls.forEach { imageService.deleteByUrl(it, user.id) }
         user.products.remove(product)
         productRepository.delete(product)
     }
@@ -144,25 +143,12 @@ class ProductService (
         val product = productRepository.findByIdOrNull(id) ?: throw ProductNotFoundException()
         if (product.user.id != user.id) throw ProductModifyByInvalidUserException()
         if (product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
-        val imagesToRemove = product.images?.filterNot { productPatchRequest.images?.contains(it.id) ?: true }
+        val imagesToRemove = product.imageUrls.filterNot { productPatchRequest.imageUrls?.contains(it) ?: true }
         val adjacentLocations = productPatchRequest.rangeOfLocation?.let { locationService
             .findAdjacentLocationsByName(product.location, RangeOfLocation.from(productPatchRequest.rangeOfLocation))}
-
-        product.images = productPatchRequest.images
-            ?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }?.toMutableList() ?: product.images
-        product.title = productPatchRequest.title ?: product.title
-        product.content = productPatchRequest.content ?: product.content
-        product.price = productPatchRequest.price ?: product.price
-        product.negotiable = productPatchRequest.negotiable ?: product.negotiable
-        product.category = productPatchRequest.category?.let { Category.from(it) } ?: product.category
-        product.forAge = (if (productPatchRequest.category == 4) productPatchRequest.forAge
-            ?.map { ForAge.from(it) } else null) as MutableList<ForAge>
-        product.adjacentLocations = adjacentLocations ?: product.adjacentLocations
-        product.rangeOfLocation = productPatchRequest.rangeOfLocation
-            ?.let { RangeOfLocation.from(it) } ?: product.rangeOfLocation
-
-        if (product.images?.isEmpty() == true) product.images= null
-        imagesToRemove?.forEach { imageService.delete(it.id, user) }
+        product.modify(productPatchRequest, adjacentLocations)
+        if (product.imageUrls.isEmpty()) product.imageUrls= listOf()
+        imagesToRemove.forEach { imageService.deleteByUrl(it, user.id) }
         return ProductDto.ProductResponse(product, true)
     }
 
