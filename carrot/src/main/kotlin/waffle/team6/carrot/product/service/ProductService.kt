@@ -108,7 +108,6 @@ class ProductService (
     @Transactional
     fun addProduct(user: User, productPostRequest: ProductDto.ProductPostRequest): ProductDto.ProductResponse {
         if (!user.activeLocationVerified) throw UserLocationNotVerifiedException()
-        val images = productPostRequest.images?.map { imageService.getImageByIdAndCheckAuthorization(it, user) }
         val adjacentLocations = locationService
             .findAdjacentLocationsByName(user.activeLocation, RangeOfLocation.from(productPostRequest.rangeOfLocation))
         val product = productRepository.save(Product(user, adjacentLocations, productPostRequest))

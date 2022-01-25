@@ -84,10 +84,6 @@ class UserDto {
 
         val nickname: String?,
 
-        val location: String?,
-
-        val rangeOfLocation: RangeOfLocation?,
-
         val imageUrl: String?,
     )
 

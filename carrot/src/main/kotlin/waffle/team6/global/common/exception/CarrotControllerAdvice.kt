@@ -44,8 +44,4 @@ class CarrotControllerAdvice() {
     @ExceptionHandler(value = [MultipartException::class])
     fun invalidMultipartRequest(e: MultipartException) =
         ResponseEntity(ErrorResponse(0, "MISSING_IMAGE_FILE", e.message ?: ""), HttpStatus.BAD_REQUEST)
-
-    @ExceptionHandler(value = [SQLIntegrityConstraintViolationException::class])
-    fun duplicateImage(e: SQLIntegrityConstraintViolationException) =
-        ResponseEntity(ErrorResponse(ErrorType.PRODUCT_IMAGE_CONFLICT.code, ErrorType.PRODUCT_IMAGE_CONFLICT.name, ""), HttpStatus.CONFLICT)
 }

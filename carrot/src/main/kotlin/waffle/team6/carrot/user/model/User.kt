@@ -52,10 +52,8 @@ class User(
     @field: BooleanFlag
     var activeLocationVerified: Boolean,
 
-    @field: NotBlank
     var inactiveLocation: String?,
 
-    @field: NotNull
     var inactiveRangeOfLocation: RangeOfLocation?,
 
     @field: BooleanFlag
@@ -95,6 +93,7 @@ class User(
 
     fun deleteImage(): User {
         imageUrl = null
+        return this
     }
 
     fun verifyLocation(): User {

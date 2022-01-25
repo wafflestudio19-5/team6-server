@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.LikeDto
-import waffle.team6.carrot.product.dto.PhraseDto
+import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
@@ -120,8 +120,9 @@ class UserService(
     }
 
     @Transactional
-    fun deleteMyPhrase(user: User, index: Int) {
+    fun deleteMyPhrase(user: User, index: Int): PhraseDto.PhraseResponse {
         user.myPhrases.removeAt(index)
+        return PhraseDto.PhraseResponse(user.myPhrases)
     }
 
     fun getMyPhrases(user: User): PhraseDto.PhraseResponse {

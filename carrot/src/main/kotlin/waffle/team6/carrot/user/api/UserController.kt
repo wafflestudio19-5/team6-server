@@ -1,6 +1,5 @@
 package waffle.team6.carrot.user.api
 
-import io.swagger.annotations.Api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.data.domain.Page
@@ -8,7 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.LikeDto
-import waffle.team6.carrot.product.dto.PhraseDto
+import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
@@ -29,7 +28,7 @@ class UserController(
     @PostMapping("/")
     @Operation(summary = "회원가입", description = "회원가입", responses = [
         ApiResponse(responseCode = "204", description = "Success Response"),
-        ApiResponse(responseCode = "9100", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "9100", description = "Name 중복"),
     ])
     fun signUp(@RequestBody @Valid signUpRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.Response> {
         return ResponseEntity.noContent().header(
@@ -37,8 +36,7 @@ class UserController(
             jwtTokenProvider.generateToken(
                 userService.createUser(signUpRequest).name
             )
-        )
-            .build()
+        ).build()
     }
 
     @GetMapping("/")
@@ -66,10 +64,11 @@ class UserController(
 
     @DeleteMapping("/me/")
     @Operation(summary = "계정 삭제", description = "판매글 및 거래가 성사된 구매 요청 외 나머지 정보는 삭제됩니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "204", description = "Success Response"),
     ])
     fun deleteMyAccount(@CurrentUser @ApiIgnore user: User): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(userService.deleteMyAccount(user))
+        userService.deleteMyAccount(user)
+        return ResponseEntity.noContent().build()
     }
 
     @PatchMapping("/me/password/")
@@ -86,12 +85,8 @@ class UserController(
             jwtTokenProvider.generateToken(
                 userService.updateUserPassword(user, updatePasswordRequest).name
             )
-        )
-            .build()
+        ).build()
     }
-
-    // TODO: 내 동네 인증
-
 
     @GetMapping("/me/")
     @Operation(summary = "내 프로필 조회", description = "내 프로필 조회", responses = [
@@ -176,7 +171,7 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
 
-    @GetMapping("/me/categoryOfInterest/")
+    @GetMapping("/me/categories/")
     @Operation(summary = "내 관심 카테고리 조회", description = "내 관심 카테고리 조회", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
@@ -197,7 +192,8 @@ class UserController(
     @Operation(summary = "자주 쓰는 문구 삭제", description = "인덱스는 0부터 시작합니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
-    fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int): ResponseEntity<Any> {
+    fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int
+    ): ResponseEntity<PhraseDto.PhraseResponse> {
         return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
     }
 
@@ -215,6 +211,7 @@ class UserController(
     ])
     fun deleteMyImage(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.deleteUserImage(user))
+    }
 
     @PostMapping("/me/location/")
     @Operation(summary = "지역 정보 추가", description = "지역 정보를 추가하고 추가된 지역정보가 활성화됩니다", responses = [
