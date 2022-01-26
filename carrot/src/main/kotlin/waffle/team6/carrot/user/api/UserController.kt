@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
 import waffle.team6.carrot.product.dto.CategoryDto
-import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
@@ -168,7 +167,7 @@ class UserController(
         @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int
-    ): ResponseEntity<Page<LikeDto.LikeResponse>> {
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponse>> {
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
 

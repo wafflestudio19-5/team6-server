@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.CategoryDto
-import waffle.team6.carrot.product.dto.LikeDto
 import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.product.model.Category
@@ -188,10 +187,10 @@ class UserService(
         return CategoryDto.CategoryResponse(categoryOfInterestRepository.findAllByUser(user).map { it.category })
     }
 
-    fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {
+    fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
         return likeRepository.findAllByUserId(
             PageRequest.of(pageNumber, pageSize, Sort.by("id").descending()), user.id).map {
-            LikeDto.LikeResponse(it)
+            ProductDto.ProductSimpleResponse(it.product)
         }
     }
 
