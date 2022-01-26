@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import springfox.documentation.annotations.ApiIgnore
-import waffle.team6.carrot.product.dto.LikeDto
-import waffle.team6.carrot.product.dto.PhraseDto
+import waffle.team6.carrot.product.dto.CategoryDto
+import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
@@ -28,7 +28,7 @@ class UserController(
     @PostMapping("/")
     @Operation(summary = "회원가입", description = "회원가입", responses = [
         ApiResponse(responseCode = "204", description = "Success Response"),
-        ApiResponse(responseCode = "9100", description = "해당 판매글이 이미 판매완료인 경우"),
+        ApiResponse(responseCode = "9100", description = "Name 중복"),
     ])
     fun signUp(@RequestBody @Valid signUpRequest: UserDto.SignUpRequest): ResponseEntity<UserDto.Response> {
         return ResponseEntity.noContent().header(
@@ -36,8 +36,19 @@ class UserController(
             jwtTokenProvider.generateToken(
                 userService.createUser(signUpRequest).name
             )
-        )
-            .build()
+        ).build()
+    }
+
+    @GetMapping("/")
+    @Operation(summary = "회원검색", description = "회원검색", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun searchUser(
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) name: String
+    ): ResponseEntity<Page<UserDto.UserSimpleResponse>> {
+        return ResponseEntity.ok().body(userService.findUser(pageNumber, pageSize, name))
     }
 
     @PatchMapping("/me/")
@@ -53,10 +64,11 @@ class UserController(
 
     @DeleteMapping("/me/")
     @Operation(summary = "계정 삭제", description = "판매글 및 거래가 성사된 구매 요청 외 나머지 정보는 삭제됩니다", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "204", description = "Success Response"),
     ])
     fun deleteMyAccount(@CurrentUser @ApiIgnore user: User): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(userService.deleteMyAccount(user))
+        userService.deleteMyAccount(user)
+        return ResponseEntity.noContent().build()
     }
 
     @PatchMapping("/me/password/")
@@ -73,12 +85,8 @@ class UserController(
             jwtTokenProvider.generateToken(
                 userService.updateUserPassword(user, updatePasswordRequest).name
             )
-        )
-            .build()
+        ).build()
     }
-
-    // TODO: 내 동네 인증
-
 
     @GetMapping("/me/")
     @Operation(summary = "내 프로필 조회", description = "내 프로필 조회", responses = [
@@ -95,6 +103,21 @@ class UserController(
     ])
     fun getUser(@PathVariable userId: Long): ResponseEntity<UserDto.Response> {
         return ResponseEntity.ok().body(userService.findWithId(userId))
+    }
+
+    @GetMapping("/{user_id}/products/")
+    @Operation(summary = "유저 판매글 조회", description = "status로 가능한 값: for-sale,sold-out,all", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "400", description = "pageNumber, pageSize, status가 올바르지 않은 경우"),
+        ApiResponse(responseCode = "0004", description = "status가 올바르지 않은 경우"),
+    ])
+    fun getUserProducts(
+        @PathVariable("user_id") userId: Long,
+        @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
+        @RequestParam(required = true) @Positive pageSize: Int,
+        @RequestParam(required = true) status: String
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
+        return ResponseEntity.ok().body(userService.findUserProducts(userId, pageNumber, pageSize, status))
     }
 
     @GetMapping("/duplicate/")
@@ -144,15 +167,27 @@ class UserController(
         @CurrentUser @ApiIgnore user: User,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int
-    ): ResponseEntity<Page<LikeDto.LikeResponse>> {
+    ): ResponseEntity<Page<ProductDto.ProductSimpleResponse>> {
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
 
-    @GetMapping("/me/categoryOfInterest/")
+    @PutMapping("/me/categories/")
+    @Operation(summary = "내 관심 카테고리 설정", description = "내 관심목록 조회", responses = [
+        ApiResponse(responseCode = "204", description = "Success Response"),
+    ])
+    fun setMyCategoryOfInterest(
+        @CurrentUser @ApiIgnore user:User,
+        @RequestBody categories: CategoryDto.CategoryPutRequest
+    ): ResponseEntity<Any> {
+        userService.changeMyCategoriesOfInterest(user, categories)
+        return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/me/categories/")
     @Operation(summary = "내 관심 카테고리 조회", description = "내 관심 카테고리 조회", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
-    fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<List<Any>> {
+    fun getMyCategoryOfInterest(@CurrentUser @ApiIgnore user: User): ResponseEntity<CategoryDto.CategoryResponse> {
         return ResponseEntity.ok().body(userService.findMyCategoriesOfInterests(user))
     }
 
@@ -169,7 +204,8 @@ class UserController(
     @Operation(summary = "자주 쓰는 문구 삭제", description = "인덱스는 0부터 시작합니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
-    fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int): ResponseEntity<Any> {
+    fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int
+    ): ResponseEntity<PhraseDto.PhraseResponse> {
         return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
     }
 
@@ -179,5 +215,58 @@ class UserController(
     ])
     fun getMyPhrases(@CurrentUser @ApiIgnore user: User): ResponseEntity<PhraseDto.PhraseResponse> {
         return ResponseEntity.ok().body(userService.getMyPhrases(user))
+    }
+
+    @DeleteMapping("/me/image/")
+    @Operation(summary = "프로필 이미지 삭제", description = "프로필 이미지를 삭제합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun deleteMyImage(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.deleteUserImage(user))
+    }
+
+    @PostMapping("/me/location/")
+    @Operation(summary = "지역 정보 추가", description = "지역 정보를 추가하고 추가된 지역정보가 활성화됩니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun addLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestBody updateLocationRequest: UserDto.UpdateLocationRequest
+    ): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.addAnotherUserLocation(user, updateLocationRequest))
+    }
+
+    @PutMapping("/me/location/")
+    @Operation(summary = "지역 정보 수정", description = "현재 활성화된 지역정보를 수정합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun updateLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestBody updateLocationRequest: UserDto.UpdateLocationRequest
+    ): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.updateUserCurrentLocation(user, updateLocationRequest))
+    }
+
+    @PatchMapping("/me/location/")
+    @Operation(summary = "지역 정보 인증/변경", description = "지역 정보 인증하거나 저장된 다른 지역 정보를 활성화합니다. action으로 가능한 값은 verify, alter이며, 그 외에는 아무런 변화가 없습니다.", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun patchLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestBody action: String
+    ): ResponseEntity<UserDto.Response> {
+        return when (action) {
+            "verify" -> ResponseEntity.ok().body(userService.verifyUserLocation(user))
+            "alter" -> ResponseEntity.ok().body(userService.changeToAnotherUserLocation(user))
+            else -> ResponseEntity.ok().body(UserDto.Response(user))
+        }
+    }
+
+    @DeleteMapping("/me/location/")
+    @Operation(summary = "지역 정보 삭제", description = "현재 비활성화된 지역정보를 삭제합니다", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+    ])
+    fun deleteLocation(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.deleteUserInactiveLocation(user))
     }
 }

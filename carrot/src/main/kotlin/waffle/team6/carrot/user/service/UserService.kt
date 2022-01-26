@@ -7,9 +7,11 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import waffle.team6.carrot.product.dto.LikeDto
-import waffle.team6.carrot.product.dto.PhraseDto
+import waffle.team6.carrot.image.service.ImageService
+import waffle.team6.carrot.product.dto.CategoryDto
+import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
 import waffle.team6.carrot.product.model.ProductStatus
@@ -35,16 +37,28 @@ class UserService(
     private val productRepository: ProductRepository,
     private val likeRepository: LikeRepository,
     private val categoryOfInterestRepository: CategoryOfInterestRepository,
+    private val imageService: ImageService
 ) {
     @Transactional
     fun createUser(signUpRequest: UserDto.SignUpRequest): UserDto.Response {
         if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
-        return UserDto.Response(userRepository.save(User(signUpRequest, passwordEncoder.encode(signUpRequest.password))))
+        val user = userRepository.save(User(signUpRequest, passwordEncoder.encode(signUpRequest.password)))
+        for (category in Category.values()) {
+            categoryOfInterestRepository.save(CategoryOfInterest(user, category))
+        }
+        return UserDto.Response(user)
     }
 
     @Transactional
     fun updateUserProfile(user: User, updateProfileRequest: UserDto.UpdateProfileRequest): UserDto.Response {
+        if (updateProfileRequest.imageUrl != null) user.imageUrl?.let { imageService.deleteByUrl(it, user.id) }
         return UserDto.Response(user.modifyProfile(updateProfileRequest))
+    }
+
+    @Transactional
+    fun deleteUserImage(user: User): UserDto.Response {
+        user.imageUrl?.let { imageService.deleteByUrl(it, user.id) }
+        return UserDto.Response(user.deleteImage())
     }
 
     @Transactional
@@ -54,6 +68,31 @@ class UserService(
         }
         user.password = passwordEncoder.encode(updatePasswordRequest.newPassword)
         return UserDto.Response(userRepository.save(user))
+    }
+
+    @Transactional
+    fun verifyUserLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.verifyLocation())
+    }
+
+    @Transactional
+    fun addAnotherUserLocation(user: User, updateLocationRequest: UserDto.UpdateLocationRequest): UserDto.Response {
+        return UserDto.Response(user.addLocation(updateLocationRequest))
+    }
+
+    @Transactional
+    fun updateUserCurrentLocation(user: User, updateLocationRequest: UserDto.UpdateLocationRequest): UserDto.Response {
+        return UserDto.Response(user.updateLocation(updateLocationRequest))
+    }
+
+    @Transactional
+    fun deleteUserInactiveLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.deleteLocation())
+    }
+
+    @Transactional
+    fun changeToAnotherUserLocation(user: User): UserDto.Response {
+        return UserDto.Response(user.changeLocation())
     }
 
     @Transactional
@@ -86,8 +125,9 @@ class UserService(
     }
 
     @Transactional
-    fun deleteMyPhrase(user: User, index: Int) {
+    fun deleteMyPhrase(user: User, index: Int): PhraseDto.PhraseResponse {
         user.myPhrases.removeAt(index)
+        return PhraseDto.PhraseResponse(user.myPhrases)
     }
 
     fun getMyPhrases(user: User): PhraseDto.PhraseResponse {
@@ -132,15 +172,55 @@ class UserService(
         }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 
-    fun findMyCategoriesOfInterests(user: User): List<CategoryOfInterest> {
-        return categoryOfInterestRepository.findAllByUser(user)
+    @Transactional
+    fun changeMyCategoriesOfInterest(user: User, request: CategoryDto.CategoryPutRequest) {
+        val categories = request.categories.map { Category.from(it) }
+        for (category in user.categoriesOfInterest) {
+            categoryOfInterestRepository.delete(category)
+        }
+        for (category in categories) {
+            categoryOfInterestRepository.save(CategoryOfInterest(user, category))
+        }
     }
 
-    fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<LikeDto.LikeResponse> {
+    fun findMyCategoriesOfInterests(user: User): CategoryDto.CategoryResponse {
+        return CategoryDto.CategoryResponse(categoryOfInterestRepository.findAllByUser(user).map { it.category })
+    }
+
+    fun findMyLikes(user: User, pageNumber: Int, pageSize: Int): Page<ProductDto.ProductSimpleResponse> {
         return likeRepository.findAllByUserId(
             PageRequest.of(pageNumber, pageSize, Sort.by("id").descending()), user.id).map {
-            LikeDto.LikeResponse(it)
+            ProductDto.ProductSimpleResponse(it.product)
         }
+    }
+
+    fun findUser(pageNumber: Int, pageSize: Int, name: String): Page<UserDto.UserSimpleResponse> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
+        return userRepository.findAllByNameContainingOrNicknameContaining(pageRequest, name, name)
+            .map { UserDto.UserSimpleResponse(it) }
+    }
+
+    fun findUserProducts(userId: Long, pageNumber: Int, pageSize: Int, status: String
+    ): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending())
+        return when (status) {
+            "all" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED, ProductStatus.SOLD_OUT)
+            )
+            "for-sale" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.FOR_SALE, ProductStatus.RESERVED)
+            )
+            "sold-out" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(
+                pageRequest,
+                userId,
+                listOf(ProductStatus.SOLD_OUT)
+            )
+            else -> throw InvalidStatusException()
+        }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
     }
 }
 

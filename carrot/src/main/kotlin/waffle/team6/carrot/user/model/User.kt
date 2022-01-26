@@ -44,10 +44,20 @@ class User(
     var password: String,
 
     @field: NotBlank
-    var location: String,
+    var activeLocation: String,
 
     @field: NotNull
-    var rangeOfLocation: RangeOfLocation,
+    var activeRangeOfLocation: RangeOfLocation,
+
+    @field: BooleanFlag
+    var activeLocationVerified: Boolean,
+
+    var inactiveLocation: String?,
+
+    var inactiveRangeOfLocation: RangeOfLocation?,
+
+    @field: BooleanFlag
+    var inactiveLocationVerified: Boolean,
 
     var imageUrl: String?,
 
@@ -63,8 +73,12 @@ class User(
         password = encodedPassword,
         email = signUpRequest.email,
         phone = signUpRequest.phone,
-        location = signUpRequest.location,
-        rangeOfLocation = signUpRequest.rangeOfLocation,
+        activeLocation = signUpRequest.location,
+        activeRangeOfLocation = signUpRequest.rangeOfLocation,
+        activeLocationVerified = false,
+        inactiveLocation = null,
+        inactiveRangeOfLocation = null,
+        inactiveLocationVerified = false,
         imageUrl = null,
         isActive = true
     )
@@ -73,9 +87,55 @@ class User(
         email = updateProfileRequest.email ?: email
         phone = updateProfileRequest.phone ?: phone
         nickname = updateProfileRequest.nickname ?: nickname
-        location = updateProfileRequest.location ?: location
-        rangeOfLocation = updateProfileRequest.rangeOfLocation ?: rangeOfLocation
         imageUrl = updateProfileRequest.imageUrl ?: imageUrl
         return this
-        }
+    }
+
+    fun deleteImage(): User {
+        imageUrl = null
+        return this
+    }
+
+    fun verifyLocation(): User {
+        activeLocationVerified = true
+        return this
+    }
+
+    fun addLocation(updateLocationRequest: UserDto.UpdateLocationRequest): User {
+        inactiveLocation = activeLocation
+        inactiveRangeOfLocation = activeRangeOfLocation
+        inactiveLocationVerified = activeLocationVerified
+        activeLocation = updateLocationRequest.location
+        activeRangeOfLocation = updateLocationRequest.rangeOfLocation
+        activeLocationVerified = false
+        return this
+    }
+
+    fun deleteLocation(): User {
+        inactiveLocation = null
+        inactiveRangeOfLocation = null
+        inactiveLocationVerified = false
+        return this
+    }
+
+    fun updateLocation(updateLocationRequest: UserDto.UpdateLocationRequest): User {
+        activeLocation = updateLocationRequest.location
+        activeRangeOfLocation = updateLocationRequest.rangeOfLocation
+        activeLocationVerified = false
+        return this
+    }
+
+    fun changeLocation(): User {
+        if (inactiveLocation == null) return this
+        val temporaryLocation = activeLocation
+        val temporaryRangeOfLocation = activeRangeOfLocation
+        val temporaryLocationVerified = activeLocationVerified
+        activeLocation = inactiveLocation!!
+        activeRangeOfLocation = inactiveRangeOfLocation!!
+        activeLocationVerified = inactiveLocationVerified
+        inactiveLocation = temporaryLocation
+        inactiveRangeOfLocation = temporaryRangeOfLocation
+        inactiveLocationVerified = temporaryLocationVerified
+        return this
+    }
 }

@@ -15,8 +15,12 @@ class UserDto {
         val email: String,
         val phone: String,
         val imageUrl: String?,
-        val location: String,
-        val rangeOfLocation: RangeOfLocation,
+        val activeLocation: String,
+        val activeRangeOfLocation: RangeOfLocation,
+        val activeLocationVerified: Boolean,
+        val inactiveLocation: String?,
+        val inactiveRangeOfLocation: RangeOfLocation?,
+        val inactiveLocationVerified: Boolean,
         val isActive: Boolean,
     ) {
         constructor(user: User): this(
@@ -25,9 +29,25 @@ class UserDto {
             email = user.email,
             phone = user.phone,
             imageUrl = user.imageUrl,
-            location = user.location,
-            rangeOfLocation = user.rangeOfLocation,
+            activeLocation = user.activeLocation,
+            activeRangeOfLocation = user.activeRangeOfLocation,
+            activeLocationVerified = user.activeLocationVerified,
+            inactiveLocation = user.inactiveLocation,
+            inactiveRangeOfLocation = user.inactiveRangeOfLocation,
+            inactiveLocationVerified = user.inactiveLocationVerified,
             isActive = user.isActive
+        )
+    }
+
+    data class UserSimpleResponse(
+        val name: String,
+        val nickname: String,
+        val isActive: Boolean
+    ) {
+        constructor(user: User): this(
+            name = user.name,
+            nickname = user.nickname,
+            isActive = user.isActive,
         )
     }
 
@@ -64,10 +84,6 @@ class UserDto {
 
         val nickname: String?,
 
-        val location: String?,
-
-        val rangeOfLocation: RangeOfLocation?,
-
         val imageUrl: String?,
     )
 
@@ -79,5 +95,10 @@ class UserDto {
         @field: NotBlank
         @field: Size(min=8, max=16)
         val newPassword: String,
+    )
+
+    data class UpdateLocationRequest(
+        val location: String,
+        val rangeOfLocation: RangeOfLocation
     )
 }

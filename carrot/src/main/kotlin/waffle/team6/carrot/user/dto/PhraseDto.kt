@@ -1,4 +1,4 @@
-package waffle.team6.carrot.product.dto
+package waffle.team6.carrot.user.dto
 
 import org.hibernate.validator.constraints.Length
 import javax.validation.constraints.NotBlank

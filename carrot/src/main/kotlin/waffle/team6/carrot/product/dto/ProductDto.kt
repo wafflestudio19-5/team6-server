@@ -16,7 +16,7 @@ class ProductDto {
     data class ProductResponse(
         val id: Long,
         val user: UserDto.Response,
-        val images: List<String>? = null,
+        val imageUrls: List<String>? = null,
         val title: String,
         val content: String,
         val price: Long,
@@ -37,7 +37,7 @@ class ProductDto {
         constructor(product: Product, isSeller: Boolean): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            images = product.images?.map { it.url },
+            imageUrls = product.imageUrls,
             title = product.title,
             content = product.content,
             price = product.price,
@@ -60,7 +60,7 @@ class ProductDto {
     data class ProductSimpleResponse(
         val id: Long,
         val user: UserDto.Response,
-        val image: String?,
+        val imageUrl: String?,
         val title: String,
         val price: Long,
         val location: String,
@@ -74,7 +74,7 @@ class ProductDto {
         constructor(product: Product): this(
             id = product.id,
             user = UserDto.Response(product.user),
-            image = if (product.images?.isNotEmpty() == true) product.images!![0].url else null,
+            imageUrl = if (product.imageUrls.isNotEmpty()) product.imageUrls[0] else null,
             title = product.title,
             price = product.price,
             location = product.location,
@@ -89,7 +89,7 @@ class ProductDto {
 
     data class ProductSimpleResponseWithoutUser(
         val id: Long,
-        val image: String?,
+        val imageUrl: String?,
         val title: String,
         val price: Long,
         val location: String,
@@ -101,7 +101,7 @@ class ProductDto {
     ) {
         constructor(product: Product): this(
             id = product.id,
-            image = product.images?.get(0)?.url,
+            imageUrl = if (product.imageUrls.isNotEmpty()) product.imageUrls[0] else null,
             title = product.title,
             price = product.price,
             location = product.location,
@@ -114,7 +114,7 @@ class ProductDto {
     }
 
     data class ProductPostRequest(
-        val images: List<Long>? = null,
+        val imageUrls: List<String> = listOf(),
         @field:Length(min = 1, max = 50)
         val title: String,
         @field:Length(min = 1, max = 300)
@@ -131,7 +131,7 @@ class ProductDto {
     )
 
     data class ProductUpdateRequest(
-        val images: List<Long>? = null,
+        val imageUrls: List<String>? = null,
         @field:Length(min = 1, max = 50)
         val title: String? = null,
         @field:Length(min = 1, max = 300)
