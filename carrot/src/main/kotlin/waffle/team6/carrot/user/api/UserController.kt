@@ -11,10 +11,12 @@ import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
+import waffle.team6.carrot.user.exception.UserMyPhraseInvalidIndexException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.global.auth.jwt.JwtTokenProvider
+import java.lang.IndexOutOfBoundsException
 import javax.validation.Valid
 import javax.validation.constraints.Positive
 import javax.validation.constraints.PositiveOrZero
@@ -206,7 +208,11 @@ class UserController(
     ])
     fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int
     ): ResponseEntity<PhraseDto.PhraseResponse> {
-        return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
+        try {
+            return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
+        } catch (e: IndexOutOfBoundsException) {
+            throw UserMyPhraseInvalidIndexException()
+        }
     }
 
     @GetMapping("/me/phrases/")
