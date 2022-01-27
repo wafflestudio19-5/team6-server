@@ -85,8 +85,8 @@ class UserService(
     }
 
     @Transactional
-    fun deleteUserInactiveLocation(user: User): UserDto.Response {
-        return UserDto.Response(user.deleteLocation())
+    fun deleteUserInactiveLocation(user: User, isFirstSelected: Boolean): UserDto.Response {
+        return UserDto.Response(user.deleteLocation(isFirstSelected))
     }
 
     @Transactional

@@ -232,7 +232,7 @@ class UserController(
     }
 
     @PostMapping("/me/location/")
-    @Operation(summary = "지역 정보 추가", description = "지역 정보를 추가하고 추가된 지역정보가 활성화됩니다", responses = [
+    @Operation(summary = "지역 정보 추가", description = "두번째 지역정보에 추가(기존에 두번째 지역정보가 있으면 덮어씀)되고 활성화됩니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
     fun addLocation(
@@ -269,10 +269,13 @@ class UserController(
     }
 
     @DeleteMapping("/me/location/")
-    @Operation(summary = "지역 정보 삭제", description = "현재 비활성화된 지역정보를 삭제합니다", responses = [
+    @Operation(summary = "지역 정보 삭제", description = "기본값으로 두번째 지역정보를 삭제합니다. 추가 파라미터로 첫번째 지역정보를 삭제할 수 있습니다.", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
-    fun deleteLocation(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
-        return ResponseEntity.ok().body(userService.deleteUserInactiveLocation(user))
+    fun deleteLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestParam(required = false) isFirstSelected: Boolean = false
+    ): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.deleteUserInactiveLocation(user, isFirstSelected))
     }
 }
