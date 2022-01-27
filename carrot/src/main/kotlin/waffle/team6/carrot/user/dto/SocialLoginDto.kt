@@ -1,5 +1,6 @@
 package waffle.team6.carrot.user.dto
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties
 import waffle.team6.carrot.user.model.KakaoStatus
 
 class SocialLoginDto {
@@ -35,11 +36,12 @@ class SocialLoginDto {
 
     data class KakaoSignInResult(
         val name: String,
-        val is_valid: KakaoStatus,
+        val kakaoStatus: KakaoStatus,
     )
 
     data class KakaoSignInResponse(
         val access_token: String? = null,
-        val is_valid: KakaoStatus,
+
+        val kakaoStatus: String? = null,
     )
 }

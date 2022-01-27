@@ -30,7 +30,6 @@ class User(
 
     @Column(unique = true)
     @field: NotBlank
-    @field: NoAtInUserName
     val name: String,
 
     @field: NotBlank
@@ -75,6 +74,24 @@ class User(
 
 ): BaseTimeEntity() {
     constructor(signUpRequest: UserDto.SignUpRequest, encodedPassword: String): this(
+        name = signUpRequest.name,
+        nickname = signUpRequest.nickname,
+        password = encodedPassword,
+        email = signUpRequest.email,
+        phone = signUpRequest.phone,
+        firstLocation = signUpRequest.location,
+        firstRangeOfLocation = signUpRequest.rangeOfLocation,
+        firstLocationVerified = false,
+        secondLocation = null,
+        secondRangeOfLocation = null,
+        secondLocationVerified = false,
+        isFirstLocationActive = true,
+        imageUrl = null,
+        isActive = true,
+        kakaoStatus = signUpRequest.kakaoStatus
+    )
+
+    constructor(signUpRequest: UserDto.KakaoSignUpRequest, encodedPassword: String): this(
         name = signUpRequest.name,
         nickname = signUpRequest.nickname,
         password = encodedPassword,

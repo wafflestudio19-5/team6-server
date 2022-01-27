@@ -30,12 +30,12 @@ class KakaoUserService(
         val user: User = userRepository.findByName(kakaoUserName) ?: createKakaoUser(kakaoUserName)
         return SocialLoginDto.KakaoSignInResult(
                 name = user.name,
-                is_valid = user.kakaoStatus!!,
+                kakaoStatus = user.kakaoStatus!!,
             )
     }
 
     fun createKakaoUser(name: String): User {
-        val signUpRequest = UserDto.SignUpRequest(
+        val signUpRequest = UserDto.KakaoSignUpRequest(
             name = name,
             nickname = name,
             email = "dummy@dummy.com",

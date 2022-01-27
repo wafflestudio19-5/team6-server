@@ -20,12 +20,12 @@ class KakaoUserController(
     fun signIn(@RequestParam(required = true) code: String): ResponseEntity<SocialLoginDto.KakaoSignInResponse> {
         val signInResult = kakaoUserService.signIn(code)
         val token = jwtTokenProvider.generateToken(signInResult.name)
-        return ResponseEntity.ok()
-            .header("Authentication", token)
-            .body(SocialLoginDto.KakaoSignInResponse(
-                access_token = token,
-                is_valid = signInResult.is_valid
-            ))
+        val responseBody = SocialLoginDto.KakaoSignInResponse(
+            access_token = token,
+            kakaoStatus = signInResult.kakaoStatus.status,
+        )
+
+        return ResponseEntity.ok().body(responseBody)
     }
 
     fun signOut() {
