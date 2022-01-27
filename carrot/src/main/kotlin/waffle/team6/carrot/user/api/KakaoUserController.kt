@@ -1,5 +1,7 @@
 package waffle.team6.carrot.user.api
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +19,10 @@ class KakaoUserController(
 ) {
 
     @GetMapping
+    @Operation(summary = "카카오 소셜 로그인", description = "카카오 소셜 로그인", responses = [
+        ApiResponse(responseCode = "200", description = "Success Response"),
+        ApiResponse(responseCode = "400", description = "Failure Response")
+    ])
     fun signIn(@RequestParam(required = true) code: String): ResponseEntity<SocialLoginDto.KakaoSignInResponse> {
         val signInResult = kakaoUserService.signIn(code)
         val token = jwtTokenProvider.generateToken(signInResult.name)
