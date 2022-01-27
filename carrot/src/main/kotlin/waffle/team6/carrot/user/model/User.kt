@@ -30,6 +30,7 @@ class User(
 
     @Column(unique = true)
     @field: NotBlank
+    @field: NoAtInUserName
     val name: String,
 
     @field: NotBlank
