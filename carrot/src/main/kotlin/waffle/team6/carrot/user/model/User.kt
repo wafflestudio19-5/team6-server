@@ -72,6 +72,8 @@ class User(
 
     var kakaoStatus: KakaoStatus? = null,
 
+    var role: String? = "normal",
+
 ): BaseTimeEntity() {
     constructor(signUpRequest: UserDto.SignUpRequest, encodedPassword: String): this(
         name = signUpRequest.name,
@@ -116,6 +118,9 @@ class User(
         imageUrl = updateProfileRequest.imageUrl ?: imageUrl
         if (kakaoStatus == KakaoStatus.INVALID) {
             kakaoStatus = KakaoStatus.VALID
+        }
+        if (role != "normal") {
+            role = "normal"
         }
         return this
     }

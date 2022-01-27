@@ -8,7 +8,8 @@ import java.util.*
 
 class UserPrincipal(val user: User): UserDetails {
     override fun getAuthorities(): List<GrantedAuthority> {
-        return listOf(SimpleGrantedAuthority("normal"))
+        val role: String = user.role ?: "normal"
+        return listOf(SimpleGrantedAuthority(role))
     }
 
     override fun getUsername(): String {

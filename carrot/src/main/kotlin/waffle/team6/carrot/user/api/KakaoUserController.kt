@@ -27,7 +27,7 @@ class KakaoUserController(
         val signInResult = kakaoUserService.signIn(code)
         val token = jwtTokenProvider.generateToken(signInResult.name)
         val responseBody = SocialLoginDto.KakaoSignInResponse(
-            access_token = token,
+            accessToken = token,
             kakaoStatus = signInResult.kakaoStatus.status,
         )
 

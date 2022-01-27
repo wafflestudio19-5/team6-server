@@ -40,7 +40,7 @@ class SocialLoginDto {
     )
 
     data class KakaoSignInResponse(
-        val access_token: String? = null,
+        val accessToken: String? = null,
 
         val kakaoStatus: String? = null,
     )
