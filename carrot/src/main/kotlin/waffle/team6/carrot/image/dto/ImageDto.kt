@@ -6,11 +6,13 @@ import java.time.LocalDateTime
 class ImageDto {
     data class ImageResponse(
         val id: Long,
+        val url: String,
         val updatedAt: LocalDateTime,
         val createdAt: LocalDateTime
     ) {
         constructor(image: Image): this(
             id = image.id,
+            url = image.url,
             updatedAt = image.updatedAt,
             createdAt = image.createdAt
         )
