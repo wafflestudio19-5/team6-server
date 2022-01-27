@@ -114,6 +114,9 @@ class User(
         phone = updateProfileRequest.phone ?: phone
         nickname = updateProfileRequest.nickname ?: nickname
         imageUrl = updateProfileRequest.imageUrl ?: imageUrl
+        if (kakaoStatus == KakaoStatus.INVALID) {
+            kakaoStatus = KakaoStatus.VALID
+        }
         return this
     }
 
