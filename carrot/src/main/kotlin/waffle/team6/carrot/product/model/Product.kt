@@ -4,7 +4,6 @@ import jdk.jfr.BooleanFlag
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
 import waffle.team6.carrot.BaseTimeEntity
-import waffle.team6.carrot.image.model.Image
 import waffle.team6.carrot.location.model.RangeOfLocation
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.model.PurchaseOrder
@@ -89,7 +88,7 @@ class Product (
         category = Category.from(productPostRequest.category),
         forAge = (if (productPostRequest.category == 4) productPostRequest.forAge
             ?.map { ForAge.from(it) } else null) as MutableList<ForAge>?,
-        location = user.activeLocation,
+        location = if (user.isFirstLocationActive) user.firstLocation else user.secondLocation!!,
         rangeOfLocation = RangeOfLocation.from(productPostRequest.rangeOfLocation),
         adjacentLocations = adjacentLocations,
         hit = 1,

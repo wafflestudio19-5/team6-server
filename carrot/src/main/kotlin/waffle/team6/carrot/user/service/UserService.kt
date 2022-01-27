@@ -3,7 +3,6 @@ package waffle.team6.carrot.user.service
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -86,8 +85,8 @@ class UserService(
     }
 
     @Transactional
-    fun deleteUserInactiveLocation(user: User): UserDto.Response {
-        return UserDto.Response(user.deleteLocation())
+    fun deleteUserInactiveLocation(user: User, isFirstSelected: Boolean): UserDto.Response {
+        return UserDto.Response(user.deleteLocation(isFirstSelected))
     }
 
     @Transactional
@@ -114,8 +113,8 @@ class UserService(
         return UserDto.Response(user)
     }
 
-    fun findWithId(id: Long): UserDto.Response {
-        return UserDto.Response(userRepository.findByIdOrNull(id) ?: throw UserNotFoundException())
+    fun findWithName(name: String): UserDto.Response {
+        return UserDto.Response(userRepository.findByName(name) ?: throw UserNotFoundException())
     }
 
     @Transactional
@@ -200,8 +199,9 @@ class UserService(
             .map { UserDto.UserSimpleResponse(it) }
     }
 
-    fun findUserProducts(userId: Long, pageNumber: Int, pageSize: Int, status: String
+    fun findUserProducts(userName: String, pageNumber: Int, pageSize: Int, status: String
     ): Page<ProductDto.ProductSimpleResponseWithoutUser> {
+        val userId = userRepository.findByName(userName)?.id ?: throw UserNotFoundException()
         val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("lastBringUpMyPost").descending())
         return when (status) {
             "all" -> productRepository.findAllByUserIdAndStatusIsInAndHiddenIsFalse(

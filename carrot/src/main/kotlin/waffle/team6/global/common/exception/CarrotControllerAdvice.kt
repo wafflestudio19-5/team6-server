@@ -37,8 +37,8 @@ class CarrotControllerAdvice() {
     fun s3Error(e: AmazonServiceException) =
         ResponseEntity(ErrorResponse(e.errorCode.toInt(), e.errorType.toString(), e.errorMessage), HttpStatus.INTERNAL_SERVER_ERROR)
 
-    @ExceptionHandler(value = [ConstraintViolationException::class])
-    fun invalidRequestParameter(e: ConstraintViolationException) =
+    @ExceptionHandler(value = [IllegalArgumentException::class])
+    fun invalidRequestParameter(e: IllegalArgumentException) =
         ResponseEntity(ErrorResponse(0, "INVALID_REQUEST_PARAMETER", e.message ?: ""), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(value = [MultipartException::class])

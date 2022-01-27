@@ -30,6 +30,7 @@ class User(
 
     @Column(unique = true)
     @field: NotBlank
+    @field: NoAtInUserName
     val name: String,
 
     @field: NotBlank
@@ -44,20 +45,23 @@ class User(
     var password: String,
 
     @field: NotBlank
-    var activeLocation: String,
+    var firstLocation: String,
 
     @field: NotNull
-    var activeRangeOfLocation: RangeOfLocation,
+    var firstRangeOfLocation: RangeOfLocation,
 
     @field: BooleanFlag
-    var activeLocationVerified: Boolean,
+    var firstLocationVerified: Boolean,
 
-    var inactiveLocation: String?,
+    var secondLocation: String?,
 
-    var inactiveRangeOfLocation: RangeOfLocation?,
+    var secondRangeOfLocation: RangeOfLocation?,
 
     @field: BooleanFlag
-    var inactiveLocationVerified: Boolean,
+    var secondLocationVerified: Boolean,
+
+    @field: BooleanFlag
+    var isFirstLocationActive: Boolean,
 
     var imageUrl: String?,
 
@@ -73,12 +77,13 @@ class User(
         password = encodedPassword,
         email = signUpRequest.email,
         phone = signUpRequest.phone,
-        activeLocation = signUpRequest.location,
-        activeRangeOfLocation = signUpRequest.rangeOfLocation,
-        activeLocationVerified = false,
-        inactiveLocation = null,
-        inactiveRangeOfLocation = null,
-        inactiveLocationVerified = false,
+        firstLocation = signUpRequest.location,
+        firstRangeOfLocation = signUpRequest.rangeOfLocation,
+        firstLocationVerified = false,
+        secondLocation = null,
+        secondRangeOfLocation = null,
+        secondLocationVerified = false,
+        isFirstLocationActive = true,
         imageUrl = null,
         isActive = true
     )
@@ -97,45 +102,49 @@ class User(
     }
 
     fun verifyLocation(): User {
-        activeLocationVerified = true
+        if (isFirstLocationActive) {
+            firstLocationVerified = true
+        } else {
+            secondLocationVerified = true
+        }
         return this
     }
 
     fun addLocation(updateLocationRequest: UserDto.UpdateLocationRequest): User {
-        inactiveLocation = activeLocation
-        inactiveRangeOfLocation = activeRangeOfLocation
-        inactiveLocationVerified = activeLocationVerified
-        activeLocation = updateLocationRequest.location
-        activeRangeOfLocation = updateLocationRequest.rangeOfLocation
-        activeLocationVerified = false
+        secondLocation = updateLocationRequest.location
+        secondRangeOfLocation = updateLocationRequest.rangeOfLocation
+        secondLocationVerified = false
+        isFirstLocationActive = false
         return this
     }
 
-    fun deleteLocation(): User {
-        inactiveLocation = null
-        inactiveRangeOfLocation = null
-        inactiveLocationVerified = false
+    fun deleteLocation(isFirstSelected: Boolean): User {
+        if (isFirstSelected && secondLocation != null) {
+            firstLocation = secondLocation!!
+            firstRangeOfLocation = secondRangeOfLocation!!
+            firstLocationVerified = secondLocationVerified
+        }
+        secondLocation = null
+        secondRangeOfLocation = null
+        secondLocationVerified = false
         return this
     }
 
     fun updateLocation(updateLocationRequest: UserDto.UpdateLocationRequest): User {
-        activeLocation = updateLocationRequest.location
-        activeRangeOfLocation = updateLocationRequest.rangeOfLocation
-        activeLocationVerified = false
+        if (isFirstLocationActive) {
+            firstLocation = updateLocationRequest.location
+            firstRangeOfLocation = updateLocationRequest.rangeOfLocation
+            firstLocationVerified = false
+        } else {
+            secondLocation = updateLocationRequest.location
+            secondRangeOfLocation = updateLocationRequest.rangeOfLocation
+            secondLocationVerified = false
+        }
         return this
     }
 
     fun changeLocation(): User {
-        if (inactiveLocation == null) return this
-        val temporaryLocation = activeLocation
-        val temporaryRangeOfLocation = activeRangeOfLocation
-        val temporaryLocationVerified = activeLocationVerified
-        activeLocation = inactiveLocation!!
-        activeRangeOfLocation = inactiveRangeOfLocation!!
-        activeLocationVerified = inactiveLocationVerified
-        inactiveLocation = temporaryLocation
-        inactiveRangeOfLocation = temporaryRangeOfLocation
-        inactiveLocationVerified = temporaryLocationVerified
+        isFirstLocationActive = !(isFirstLocationActive && secondLocation != null)
         return this
     }
 }

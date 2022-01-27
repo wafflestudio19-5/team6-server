@@ -11,10 +11,12 @@ import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.user.dto.UserDto
+import waffle.team6.carrot.user.exception.UserMyPhraseInvalidIndexException
 import waffle.team6.carrot.user.model.User
 import waffle.team6.carrot.user.service.UserService
 import waffle.team6.global.auth.CurrentUser
 import waffle.team6.global.auth.jwt.JwtTokenProvider
+import java.lang.IndexOutOfBoundsException
 import javax.validation.Valid
 import javax.validation.constraints.Positive
 import javax.validation.constraints.PositiveOrZero
@@ -96,28 +98,28 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMe(user))
     }
 
-    @GetMapping("/{userId}/")
+    @GetMapping("/{user_name}/")
     @Operation(summary = "다른 유저 프로필 조회", description = "다른 유저 프로필 조회", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
         ApiResponse(responseCode = "4100", description = "해당 id를 가진 회원이 없는 경우"),
     ])
-    fun getUser(@PathVariable userId: Long): ResponseEntity<UserDto.Response> {
-        return ResponseEntity.ok().body(userService.findWithId(userId))
+    fun getUser(@PathVariable("user_name") userName: String): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.findWithName(userName))
     }
 
-    @GetMapping("/{user_id}/products/")
+    @GetMapping("/{user_name}/products/")
     @Operation(summary = "유저 판매글 조회", description = "status로 가능한 값: for-sale,sold-out,all", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
         ApiResponse(responseCode = "400", description = "pageNumber, pageSize, status가 올바르지 않은 경우"),
         ApiResponse(responseCode = "0004", description = "status가 올바르지 않은 경우"),
     ])
     fun getUserProducts(
-        @PathVariable("user_id") userId: Long,
+        @PathVariable("user_name") userName: String,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int,
         @RequestParam(required = true) status: String
     ): ResponseEntity<Page<ProductDto.ProductSimpleResponseWithoutUser>> {
-        return ResponseEntity.ok().body(userService.findUserProducts(userId, pageNumber, pageSize, status))
+        return ResponseEntity.ok().body(userService.findUserProducts(userName, pageNumber, pageSize, status))
     }
 
     @GetMapping("/duplicate/")
@@ -206,7 +208,11 @@ class UserController(
     ])
     fun deleteMyPhrase(@CurrentUser @ApiIgnore user: User, @PathVariable index: Int
     ): ResponseEntity<PhraseDto.PhraseResponse> {
-        return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
+        try {
+            return ResponseEntity.ok().body(userService.deleteMyPhrase(user, index))
+        } catch (e: IndexOutOfBoundsException) {
+            throw UserMyPhraseInvalidIndexException()
+        }
     }
 
     @GetMapping("/me/phrases/")
@@ -226,7 +232,7 @@ class UserController(
     }
 
     @PostMapping("/me/location/")
-    @Operation(summary = "지역 정보 추가", description = "지역 정보를 추가하고 추가된 지역정보가 활성화됩니다", responses = [
+    @Operation(summary = "지역 정보 추가", description = "두번째 지역정보에 추가(기존에 두번째 지역정보가 있으면 덮어씀)되고 활성화됩니다", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
     fun addLocation(
@@ -263,10 +269,13 @@ class UserController(
     }
 
     @DeleteMapping("/me/location/")
-    @Operation(summary = "지역 정보 삭제", description = "현재 비활성화된 지역정보를 삭제합니다", responses = [
+    @Operation(summary = "지역 정보 삭제", description = "기본값으로 두번째 지역정보를 삭제합니다. 추가 파라미터로 첫번째 지역정보를 삭제할 수 있습니다.", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
     ])
-    fun deleteLocation(@CurrentUser @ApiIgnore user: User): ResponseEntity<UserDto.Response> {
-        return ResponseEntity.ok().body(userService.deleteUserInactiveLocation(user))
+    fun deleteLocation(
+        @CurrentUser @ApiIgnore user: User,
+        @RequestParam(required = false) isFirstSelected: Boolean = false
+    ): ResponseEntity<UserDto.Response> {
+        return ResponseEntity.ok().body(userService.deleteUserInactiveLocation(user, isFirstSelected))
     }
 }

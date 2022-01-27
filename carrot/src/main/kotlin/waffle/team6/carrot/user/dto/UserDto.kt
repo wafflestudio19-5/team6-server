@@ -2,6 +2,7 @@ package waffle.team6.carrot.user.dto
 
 
 import waffle.team6.carrot.location.model.RangeOfLocation
+import waffle.team6.carrot.user.model.NoAtInUserName
 import waffle.team6.carrot.user.model.User
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -15,12 +16,13 @@ class UserDto {
         val email: String,
         val phone: String,
         val imageUrl: String?,
-        val activeLocation: String,
-        val activeRangeOfLocation: RangeOfLocation,
-        val activeLocationVerified: Boolean,
-        val inactiveLocation: String?,
-        val inactiveRangeOfLocation: RangeOfLocation?,
-        val inactiveLocationVerified: Boolean,
+        val firstLocation: String,
+        val firstRangeOfLocation: RangeOfLocation,
+        val firstLocationVerified: Boolean,
+        val secondLocation: String?,
+        val secondRangeOfLocation: RangeOfLocation?,
+        val secondLocationVerified: Boolean,
+        val isFirstLocationActive: Boolean,
         val isActive: Boolean,
     ) {
         constructor(user: User): this(
@@ -29,22 +31,25 @@ class UserDto {
             email = user.email,
             phone = user.phone,
             imageUrl = user.imageUrl,
-            activeLocation = user.activeLocation,
-            activeRangeOfLocation = user.activeRangeOfLocation,
-            activeLocationVerified = user.activeLocationVerified,
-            inactiveLocation = user.inactiveLocation,
-            inactiveRangeOfLocation = user.inactiveRangeOfLocation,
-            inactiveLocationVerified = user.inactiveLocationVerified,
+            firstLocation = user.firstLocation,
+            firstRangeOfLocation = user.firstRangeOfLocation,
+            firstLocationVerified = user.firstLocationVerified,
+            secondLocation = user.secondLocation,
+            secondRangeOfLocation = user.secondRangeOfLocation,
+            secondLocationVerified = user.secondLocationVerified,
+            isFirstLocationActive = user.isFirstLocationActive,
             isActive = user.isActive
         )
     }
 
     data class UserSimpleResponse(
+        val id: Long,
         val name: String,
         val nickname: String,
         val isActive: Boolean
     ) {
         constructor(user: User): this(
+            id = user.id,
             name = user.name,
             nickname = user.nickname,
             isActive = user.isActive,
@@ -53,6 +58,7 @@ class UserDto {
 
     data class SignUpRequest(
         @field: NotBlank
+        @field: NoAtInUserName
         val name: String,
 
         @field: NotBlank

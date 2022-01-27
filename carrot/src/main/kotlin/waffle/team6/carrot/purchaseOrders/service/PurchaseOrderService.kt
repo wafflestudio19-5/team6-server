@@ -64,7 +64,7 @@ class PurchaseOrderService(
     @Transactional
     fun chat(user: User, request: PurchaseOrderDto.PurchaseOrderPostRequest
     ): PurchaseOrderDto.PurchaseOrderResponse {
-        if (!user.activeLocationVerified) throw UserLocationNotVerifiedException()
+        if (!user.firstLocationVerified) throw UserLocationNotVerifiedException()
         val product = productRepository.findByIdOrNull(request.productId) ?: throw ProductNotFoundException()
         if (product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (product.purchaseOrders.any { it.user.id == user.id }) throw ProductAlreadyRequestedPurchaseException()
@@ -81,7 +81,7 @@ class PurchaseOrderService(
     @Transactional
     fun chatAgain(user: User, id: Long, request: PurchaseOrderDto.PurchaseOrderUpdateRequest
     ): PurchaseOrderDto.PurchaseOrderResponse {
-        if (!user.activeLocationVerified) throw UserLocationNotVerifiedException()
+        if (!user.firstLocationVerified) throw UserLocationNotVerifiedException()
         val purchaseOrder = purchaseOrderRepository.findByIdOrNull(id) ?: throw PurchaseOrderNotFoundException()
         if (purchaseOrder.product.status == ProductStatus.SOLD_OUT) throw ProductAlreadySoldOutException()
         if (purchaseOrder.status == PurchaseOrderStatus.ACCEPTED ||
