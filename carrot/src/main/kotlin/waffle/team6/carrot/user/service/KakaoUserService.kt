@@ -28,6 +28,7 @@ class KakaoUserService(
         val userId = userInfo.body?.id ?: throw UserKakaoLoginException("토큰을 통해 유저 정보를 받아올 수 없습니다")
         val kakaoUserName = getKakaoUserName(userId)
         val user: User = userRepository.findByName(kakaoUserName) ?: createKakaoUser(kakaoUserName)
+        if (user.role == null) user.role = "temporary"
         return SocialLoginDto.KakaoSignInResult(
                 name = user.name,
                 kakaoStatus = user.kakaoStatus!!,
@@ -46,7 +47,9 @@ class KakaoUserService(
             kakaoStatus = KakaoStatus.INVALID,
         )
         if (userRepository.findByName(signUpRequest.name) != null) throw UserAlreadyExistException()
-        return userRepository.save(User(signUpRequest, "dummyPassword"))
+        val user = User(signUpRequest, "dummyPassword")
+        user.role = "temporary"
+        return userRepository.save(user)
     }
 
     fun getAccessToken(codeInput: String): SocialLoginDto.KakaoTokenResponse {

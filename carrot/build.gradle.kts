@@ -47,6 +47,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("io.github.openfeign.form:feign-form:3.8.0")
+    implementation("com.google.code.gson:gson:2.8.5")
 
     runtimeOnly("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
