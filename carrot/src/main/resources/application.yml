@@ -27,7 +27,7 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:mysql://localhost:3306/carrot?serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/carrot?serverTimezone=Asia/Seoul
     username: waffle-team6-server
     password: wafflestudio
     sql:

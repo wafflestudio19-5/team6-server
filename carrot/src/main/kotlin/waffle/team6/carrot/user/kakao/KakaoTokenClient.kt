@@ -9,13 +9,13 @@ import waffle.team6.carrot.user.dto.SocialLoginDto
 import waffle.team6.global.config.KakaoClientConfig
 
 
-@FeignClient(name = "KakaoClient", url = "https://kauth.kakao.com", configuration = [KakaoClientConfig::class])
-interface KakaoClient {
+@FeignClient(name = "KakaoTokenClient", url = "https://kauth.kakao.com", configuration = [KakaoClientConfig::class])
+interface KakaoTokenClient {
 
     @PostMapping(
         value = ["/oauth/token"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
+        produces = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun getToken(
         @RequestBody body: KakaoTokenRequestTO

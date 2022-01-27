@@ -2,6 +2,7 @@ package waffle.team6.carrot.user.dto
 
 
 import waffle.team6.carrot.location.model.RangeOfLocation
+import waffle.team6.carrot.user.model.KakaoStatus
 import waffle.team6.carrot.user.model.NoAtInUserName
 import waffle.team6.carrot.user.model.User
 import javax.validation.constraints.Email
@@ -80,6 +81,8 @@ class UserDto {
 
         @field: NotNull
         val rangeOfLocation: RangeOfLocation,
+
+        val kakaoStatus: KakaoStatus? = null,
     )
 
     data class UpdateProfileRequest(

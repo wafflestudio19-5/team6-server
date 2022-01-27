@@ -70,6 +70,9 @@ class User(
 
     @ElementCollection
     var myPhrases: MutableList<String> = mutableListOf(),
+
+    var kakaoStatus: KakaoStatus? = null,
+
 ): BaseTimeEntity() {
     constructor(signUpRequest: UserDto.SignUpRequest, encodedPassword: String): this(
         name = signUpRequest.name,
@@ -85,7 +88,8 @@ class User(
         secondLocationVerified = false,
         isFirstLocationActive = true,
         imageUrl = null,
-        isActive = true
+        isActive = true,
+        kakaoStatus = signUpRequest.kakaoStatus
     )
 
     fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest): User {

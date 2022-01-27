@@ -80,4 +80,6 @@ enum class ErrorType (
 
     SERVER_ERROR(10000),
     IMAGE_LOCAL_SAVE_FAIL(10001),
+
+    KAKAO_CLIENT_ERROR(10100),
 }
