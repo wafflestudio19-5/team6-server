@@ -44,6 +44,16 @@ class PurchaseOrderService(
         ).map { PurchaseOrderDto.PurchaseOrderResponse(it, true) }
     }
 
+    fun getProductPurchaseRequestsWithNoPriceSuggestion(user: User, productId: Long, pageNumber: Int, pageSize: Int
+    ): Page<PurchaseOrderDto.PurchaseOrderResponse> {
+        val product = productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
+        if (product.user.id != user.id) throw PurchaseOrderLookupByInvalidUserException()
+        return purchaseOrderRepository.findAllByProductIdAndSuggestedPriceIsNotNull(
+            PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending()),
+            productId
+        ).map { PurchaseOrderDto.PurchaseOrderResponse(it, true) }
+    }
+
     fun getAcceptedProductPurchaseRequests(user: User, productId: Long, pageNumber: Int, pageSize: Int
     ): Page<PurchaseOrderDto.PurchaseOrderResponse> {
         val product = productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()

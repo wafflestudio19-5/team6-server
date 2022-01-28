@@ -32,13 +32,16 @@ class PurchaseOrderController(
         @RequestParam(required = true) @Positive productId: Long,
         @RequestParam(required = true) @PositiveOrZero pageNumber: Int,
         @RequestParam(required = true) @Positive pageSize: Int,
-        @RequestParam(required = false) acceptedOnly: Boolean? = false,
-        @RequestParam(required = false) withPriceSuggestion: Boolean? = false
+        @RequestParam(required = false) acceptedOnly: Boolean = false,
+        @RequestParam(required = false) withPriceSuggestion: Boolean = false,
+        @RequestParam(required = false) withNoPriceSuggestion: Boolean = false
     ): ResponseEntity<Page<PurchaseOrderDto.PurchaseOrderResponse>> {
-        return if (acceptedOnly == true) ResponseEntity.ok().body(purchaseOrderService
+        return if (acceptedOnly) ResponseEntity.ok().body(purchaseOrderService
             .getAcceptedProductPurchaseRequests(user, productId, pageNumber, pageSize))
-        else if (withPriceSuggestion == true) ResponseEntity.ok().body(purchaseOrderService
+        else if (withPriceSuggestion) ResponseEntity.ok().body(purchaseOrderService
             .getProductPurchaseRequestsWithPriceSuggestion(user, productId, pageNumber, pageSize))
+        else if (withNoPriceSuggestion) ResponseEntity.ok().body(purchaseOrderService
+            .getProductPurchaseRequestsWithNoPriceSuggestion(user, productId, pageNumber, pageSize))
         else ResponseEntity.ok().body(purchaseOrderService
             .getProductPurchaseRequests(user, productId, pageNumber, pageSize))
     }
