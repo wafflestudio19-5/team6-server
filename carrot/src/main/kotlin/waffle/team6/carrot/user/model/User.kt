@@ -156,6 +156,7 @@ class User(
         secondLocation = null
         secondRangeOfLocation = null
         secondLocationVerified = false
+        isFirstLocationActive = true
         return this
     }
 
