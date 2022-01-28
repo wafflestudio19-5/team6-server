@@ -174,6 +174,18 @@ class UserController(
         return ResponseEntity.ok().body(userService.findMyLikes(user, pageNumber, pageSize))
     }
 
+    @GetMapping("/me/likes/products/{product_id}")
+    @Operation(summary = "물품에 대한 내 관심여부 조회", description = "물품에 대한 내 관심여부 조회", responses = [
+        ApiResponse(responseCode = "200", description = "true/false"),
+        ApiResponse(responseCode = "404", description = "product_id 대응하는 물품 없음"),
+    ])
+    fun getIsMyLikeOnProduct(
+        @CurrentUser @ApiIgnore user:User,
+        @PathVariable("product_id") productId: Long,
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok().body(userService.isMyLikeOnProduct(user, productId))
+    }
+
     @PutMapping("/me/categories/")
     @Operation(summary = "내 관심 카테고리 설정", description = "내 관심목록 조회", responses = [
         ApiResponse(responseCode = "204", description = "Success Response"),
