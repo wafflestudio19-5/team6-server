@@ -132,7 +132,7 @@ class UserController(
     }
 
     @GetMapping("/me/purchase-orders/")
-    @Operation(summary = "내 구매 요청 조회", description = "status로 가능한 값: pending,accepted,rejected", responses = [
+    @Operation(summary = "내 구매 요청 조회", description = "status로 가능한 값: pending,confirmed,accepted,rejected", responses = [
         ApiResponse(responseCode = "200", description = "Success Response"),
         ApiResponse(responseCode = "400", description = "pageNumber, pageSize, status가 올바르지 않은 경우"),
         ApiResponse(responseCode = "0004", description = "status가 올바르지 않은 경우"),

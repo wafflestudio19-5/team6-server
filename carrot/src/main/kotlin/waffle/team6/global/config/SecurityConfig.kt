@@ -69,6 +69,7 @@ class SecurityConfig(
             .antMatchers(HttpMethod.GET, "/oauth/kakao/").permitAll()  // Auth entrypoint
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
             .antMatchers(HttpMethod.PATCH, "/api/v1/users/me/").authenticated()
+            .antMatchers(HttpMethod.GET, "/api/v1/users/me/").authenticated()
             .anyRequest().hasAuthority("normal")
 
         http.exceptionHandling().accessDeniedHandler(CustomAccessDeniedHandler())
