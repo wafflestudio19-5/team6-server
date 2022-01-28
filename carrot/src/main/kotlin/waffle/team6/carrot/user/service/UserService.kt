@@ -3,6 +3,7 @@ package waffle.team6.carrot.user.service
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -10,9 +11,11 @@ import waffle.team6.carrot.image.service.ImageService
 import waffle.team6.carrot.product.dto.CategoryDto
 import waffle.team6.carrot.user.dto.PhraseDto
 import waffle.team6.carrot.product.dto.ProductDto
+import waffle.team6.carrot.product.exception.ProductNotFoundException
 import waffle.team6.carrot.product.model.Category
 import waffle.team6.carrot.purchaseOrders.dto.PurchaseOrderDto
 import waffle.team6.carrot.product.model.CategoryOfInterest
+import waffle.team6.carrot.product.model.Product
 import waffle.team6.carrot.product.model.ProductStatus
 import waffle.team6.carrot.product.repository.CategoryOfInterestRepository
 import waffle.team6.carrot.product.repository.LikeRepository
@@ -232,6 +235,11 @@ class UserService(
             )
             else -> throw InvalidStatusException()
         }.map { ProductDto.ProductSimpleResponseWithoutUser(it) }
+    }
+
+    fun isMyLikeOnProduct(user: User, productId: Long): Boolean {
+        val product = productRepository.findByIdOrNull(productId) ?: throw ProductNotFoundException()
+        return likeRepository.existsByUserAndProduct(user, product)
     }
 }
 
