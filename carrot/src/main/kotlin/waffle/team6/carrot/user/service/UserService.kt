@@ -137,11 +137,22 @@ class UserService(
     ): Page<PurchaseOrderDto.PurchaseOrderResponseWithoutUser> {
         val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("updatedAt").descending())
         return when (status) {
-            "pending" -> purchaseOrderRepository.findAllByUserAndStatusIsNull(pageRequest, user)
-            "accepted" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
+            "pending" -> purchaseOrderRepository.findAllByUserAndStatusIsNullOrUserAndStatusIsIn(
                 pageRequest,
                 user,
-                listOf(PurchaseOrderStatus.ACCEPTED, PurchaseOrderStatus.CONFIRMED)
+                user,
+                listOf(PurchaseOrderStatus.ACCEPTED)
+            )
+            "accepted" -> purchaseOrderRepository.findAllByUserAndStatusIsNullOrUserAndStatusIsIn(
+                pageRequest,
+                user,
+                user,
+                listOf(PurchaseOrderStatus.ACCEPTED)
+            )
+            "confirmed" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
+                pageRequest,
+                user,
+                listOf(PurchaseOrderStatus.CONFIRMED)
             )
             "rejected" -> purchaseOrderRepository.findAllByUserAndStatusIsIn(
                 pageRequest,
