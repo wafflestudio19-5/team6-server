@@ -51,21 +51,13 @@ class ProductService (
             Sort.by("lastBringUpMyPost").descending()
         )
         val locations = locationService.findAdjacentLocationsByName(location, searchRequest.rangeOfLocation ?: rangeOfLocation)
+        val categories = searchRequest.categories ?: user.categoriesOfInterest.map { it.category }
         val result: Page<Product>
-        if (searchRequest.categories == null) {
-            result = productRepository
-                .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
-                    pageRequest,
-                    user.categoriesOfInterest.map { it.category },
-                    locations,
-                    location,
-                    searchRequest.title
-                )
-        } else if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
+        if (searchRequest.maxPrice != null && searchRequest.minPrice != null) {
             result = productRepository
                 .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsBetweenAndHiddenIsFalse(
                     pageRequest,
-                    searchRequest.categories,
+                    categories,
                     locations,
                     location,
                     searchRequest.title,
@@ -76,7 +68,7 @@ class ProductService (
             result = productRepository
                 .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsGreaterThanEqualAndHiddenIsFalse(
                     pageRequest,
-                    searchRequest.categories,
+                    categories,
                     locations,
                     location,
                     searchRequest.title,
@@ -86,7 +78,7 @@ class ProductService (
             result = productRepository
                 .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndPriceIsLessThanEqualAndHiddenIsFalse(
                     pageRequest,
-                    searchRequest.categories,
+                    categories,
                     locations,
                     location,
                     searchRequest.title,
@@ -96,7 +88,7 @@ class ProductService (
             result = productRepository
                 .findAllByCategoryInAndLocationInAndAdjacentLocationsEqualsAndTitleContainingAndHiddenIsFalse(
                     pageRequest,
-                    searchRequest.categories,
+                    categories,
                     locations,
                     location,
                     searchRequest.title
