@@ -11,8 +11,7 @@ data class KakaoTokenRequestTO(
     var client_id: String? = KakaoConf.CLIENT_ID,
 
     var code: String? = null,
-) {
+
     @JsonProperty("redirect_uri")
-    @Value("\${front.redirect-uri}")
-    lateinit var redirect_uri: String
-}
+    var redirect_uri: String
+)

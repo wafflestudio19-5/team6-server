@@ -55,10 +55,6 @@ spring:
 
 logging.level.waffle.team6.carrot: DEBUG
 
-
-frontend:
-  redirect-uri: http://localhost:3000/oauth/callback/kakao
-
 ---
 
 spring:
@@ -88,6 +84,3 @@ spring:
 
   jackson:
     property-naming-strategy: SNAKE_CASE
-
-frontend:
-  redirect-uri: https://carrotshop.shop/oauth/callback/kakao
