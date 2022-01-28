@@ -28,8 +28,8 @@ class ImageService(
     lateinit var bucket: String
 
     companion object {
-        private const val S3_BASIC_PATH = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/",
-        private const val FILE_NAME_PREFIX = "/images/server/",
+        private const val S3_BASIC_PATH = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/"
+        private const val FILE_NAME_PREFIX = "/images/server/"
     }
 
     private val validContentTypes: List<String> = listOf(
