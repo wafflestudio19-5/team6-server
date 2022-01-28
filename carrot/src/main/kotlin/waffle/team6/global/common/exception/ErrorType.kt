@@ -32,7 +32,7 @@ enum class ErrorType (
 
     NOT_ALLOWED(3000),
     // error codes for FORBIDDEN
-    USER_NOT_ALLOWED(3100),
+    USER_KAKAO_NOT_ALLOWED(3100),
     USER_LOCATION_NOT_VERIFIED(3101),
 
     PRODUCT_NOT_ALLOWED(3200),
@@ -80,4 +80,6 @@ enum class ErrorType (
 
     SERVER_ERROR(10000),
     IMAGE_LOCAL_SAVE_FAIL(10001),
+
+    KAKAO_CLIENT_ERROR(10100),
 }

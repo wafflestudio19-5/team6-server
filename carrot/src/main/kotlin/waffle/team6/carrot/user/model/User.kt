@@ -30,7 +30,6 @@ class User(
 
     @Column(unique = true)
     @field: NotBlank
-    @field: NoAtInUserName
     val name: String,
 
     @field: NotBlank
@@ -70,6 +69,11 @@ class User(
 
     @ElementCollection
     var myPhrases: MutableList<String> = mutableListOf(),
+
+    var kakaoStatus: KakaoStatus? = null,
+
+    var role: String? = "normal",
+
 ): BaseTimeEntity() {
     constructor(signUpRequest: UserDto.SignUpRequest, encodedPassword: String): this(
         name = signUpRequest.name,
@@ -85,7 +89,26 @@ class User(
         secondLocationVerified = false,
         isFirstLocationActive = true,
         imageUrl = null,
-        isActive = true
+        isActive = true,
+        kakaoStatus = signUpRequest.kakaoStatus
+    )
+
+    constructor(signUpRequest: UserDto.KakaoSignUpRequest, encodedPassword: String): this(
+        name = signUpRequest.name,
+        nickname = signUpRequest.nickname,
+        password = encodedPassword,
+        email = signUpRequest.email,
+        phone = signUpRequest.phone,
+        firstLocation = signUpRequest.location,
+        firstRangeOfLocation = signUpRequest.rangeOfLocation,
+        firstLocationVerified = false,
+        secondLocation = null,
+        secondRangeOfLocation = null,
+        secondLocationVerified = false,
+        isFirstLocationActive = true,
+        imageUrl = null,
+        isActive = true,
+        kakaoStatus = signUpRequest.kakaoStatus
     )
 
     fun modifyProfile(updateProfileRequest: UserDto.UpdateProfileRequest): User {
@@ -93,6 +116,12 @@ class User(
         phone = updateProfileRequest.phone ?: phone
         nickname = updateProfileRequest.nickname ?: nickname
         imageUrl = updateProfileRequest.imageUrl ?: imageUrl
+        if (kakaoStatus == KakaoStatus.INVALID) {
+            kakaoStatus = KakaoStatus.VALID
+        }
+        if (role != "normal") {
+            role = "normal"
+        }
         return this
     }
 

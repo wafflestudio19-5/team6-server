@@ -21,6 +21,7 @@ import waffle.team6.global.auth.filter.SigninAuthenticationFilter
 import waffle.team6.global.auth.jwt.JwtAuthenticationEntryPoint
 import waffle.team6.global.auth.jwt.JwtTokenProvider
 import waffle.team6.global.auth.service.UserPrincipalDetailService
+import waffle.team6.global.common.exception.CustomAccessDeniedHandler
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -28,7 +29,7 @@ import waffle.team6.global.auth.service.UserPrincipalDetailService
 class SecurityConfig(
     private val jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val userPrincipalDetailService: UserPrincipalDetailService
+    private val userPrincipalDetailService: UserPrincipalDetailService,
 ) : WebSecurityConfigurerAdapter() {
     override fun configure(auth: AuthenticationManagerBuilder) {
         auth.authenticationProvider(daoAuthenticationProvider())
@@ -65,8 +66,12 @@ class SecurityConfig(
             .antMatchers("/ping-test/").permitAll()  // ping test
             .antMatchers("/api/v1/users/signin/").permitAll()  // Auth entrypoint
             .antMatchers(HttpMethod.GET, "/api/v1/users/duplicate/").permitAll()  // Auth entrypoint
+            .antMatchers(HttpMethod.GET, "/oauth/kakao/").permitAll()  // Auth entrypoint
             .antMatchers(HttpMethod.POST, "/api/v1/users/").anonymous()  // SignUp user
-            .anyRequest().authenticated()
+            .antMatchers(HttpMethod.PATCH, "/api/v1/users/me/").authenticated()
+            .anyRequest().hasAuthority("normal")
+
+        http.exceptionHandling().accessDeniedHandler(CustomAccessDeniedHandler())
     }
 
     @Bean
