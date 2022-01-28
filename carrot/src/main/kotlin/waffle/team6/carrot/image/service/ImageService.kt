@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.*
 import com.amazonaws.util.IOUtils
 import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -86,10 +87,14 @@ class ImageService(
 
     @Transactional
     fun deleteByUrl(url: String, userId: Long) {
-        val image = imageRepository.findByUrlIs(url)
-        if (image.userId != userId) throw ImageDeleteByInvalidUserException()
-        deleteFileInS3(image.fileName)
-        imageRepository.delete(image)
+        try {
+            val image = imageRepository.findByUrlIs(url)
+            if (image.userId != userId) throw ImageDeleteByInvalidUserException()
+            deleteFileInS3(image.fileName)
+            imageRepository.delete(image)
+        } catch (e: EmptyResultDataAccessException) {
+
+        }
     }
 
     fun putFileToS3(file: File, fileName: String) {
