@@ -2,9 +2,9 @@ package waffle.team6.carrot.image.service
 
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.*
-import com.amazonaws.util.IOUtils
 import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,6 +27,11 @@ class ImageService(
     @Value("\${cloud.aws.s3.bucket}")
     lateinit var bucket: String
 
+    companion object {
+        private const val S3_BASIC_PATH = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/",
+        private const val FILE_NAME_PREFIX = "/images/server/",
+    }
+
     private val validContentTypes: List<String> = listOf(
         ContentType.IMAGE_BMP.toString(),
         ContentType.IMAGE_GIF.toString(),
@@ -44,8 +49,8 @@ class ImageService(
             val contentType = image.contentType.toString()
             if (!validContentTypes.contains(contentType)) throw ImageInvalidContentTypeException()
             val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
-            val fileName = "images/server/" + UUID.randomUUID() + image.name
-            val url = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/$fileName"
+            val fileName = FILE_NAME_PREFIX + UUID.randomUUID() + image.name
+            val url = "$S3_BASIC_PATH$fileName"
             putFileToS3(file, fileName)
             removeLocalFile(file)
             imageEntities.add(Image(fileName, contentType, url, user.id))
@@ -66,8 +71,8 @@ class ImageService(
         val contentType = image.contentType.toString()
         if (!validContentTypes.contains(contentType)) throw ImageInvalidContentTypeException()
         val file = saveFileToLocal(image) ?: throw ImageLocalSaveFailException()
-        val fileName = "images/server/" + UUID.randomUUID() + image.name
-        val url = "https://waffle-team6.s3.ap-northeast-2.amazonaws.com/$fileName"
+        val fileName = FILE_NAME_PREFIX + UUID.randomUUID() + image.name
+        val url = "$S3_BASIC_PATH$fileName"
         putFileToS3(file, fileName)
         removeLocalFile(file)
         imageEntity.fileName = fileName
@@ -86,10 +91,14 @@ class ImageService(
 
     @Transactional
     fun deleteByUrl(url: String, userId: Long) {
-        val image = imageRepository.findByUrlIs(url)
-        if (image.userId != userId) throw ImageDeleteByInvalidUserException()
-        deleteFileInS3(image.fileName)
-        imageRepository.delete(image)
+        try {
+            val image = imageRepository.findByUrlIs(url)
+            if (image.userId != userId) throw ImageDeleteByInvalidUserException()
+            deleteFileInS3(image.fileName)
+            imageRepository.delete(image)
+        } catch (e: EmptyResultDataAccessException) {
+
+        }
     }
 
     fun putFileToS3(file: File, fileName: String) {

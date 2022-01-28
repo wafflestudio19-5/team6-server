@@ -25,6 +25,7 @@ class UserDto {
         val secondLocationVerified: Boolean,
         val isFirstLocationActive: Boolean,
         val isActive: Boolean,
+        val kakaoStatus: KakaoStatus?,
     ) {
         constructor(user: User): this(
             name = user.name,
@@ -39,7 +40,8 @@ class UserDto {
             secondRangeOfLocation = user.secondRangeOfLocation,
             secondLocationVerified = user.secondLocationVerified,
             isFirstLocationActive = user.isFirstLocationActive,
-            isActive = user.isActive
+            isActive = user.isActive,
+            kakaoStatus = user.kakaoStatus,
         )
     }
 
