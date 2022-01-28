@@ -107,7 +107,7 @@ class Product (
         negotiable = productPatchRequest.negotiable ?: negotiable
         category = productPatchRequest.category?.let { Category.from(it) } ?: category
         forAge = (if (productPatchRequest.category == 4) productPatchRequest.forAge
-            ?.map { ForAge.from(it) } else null) as MutableList<ForAge>
+            ?.map { ForAge.from(it) } else null) as MutableList<ForAge>?
         adjacentLocations = adjacentLocationsToChange ?: adjacentLocations
         rangeOfLocation = productPatchRequest.rangeOfLocation?.let { RangeOfLocation.from(it) } ?: rangeOfLocation
     }

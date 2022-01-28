@@ -19,12 +19,17 @@ class KakaoUserController(
 ) {
 
     @GetMapping
-    @Operation(summary = "카카오 소셜 로그인", description = "카카오 소셜 로그인", responses = [
-        ApiResponse(responseCode = "200", description = "Success Response"),
-        ApiResponse(responseCode = "400", description = "Failure Response")
-    ])
-    fun signIn(@RequestParam(required = true) code: String): ResponseEntity<SocialLoginDto.KakaoSignInResponse> {
-        val signInResult = kakaoUserService.signIn(code)
+    @Operation(
+        summary = "카카오 소셜 로그인", description = "카카오 소셜 로그인", responses = [
+            ApiResponse(responseCode = "200", description = "Success Response"),
+            ApiResponse(responseCode = "400", description = "Failure Response")
+        ]
+    )
+    fun signIn(
+        @RequestParam(required = true) code: String,
+        @RequestParam(required = true, value = "redirect_uri") redirectUri: String
+    ): ResponseEntity<SocialLoginDto.KakaoSignInResponse> {
+        val signInResult = kakaoUserService.signIn(code, redirectUri)
         val token = jwtTokenProvider.generateToken(signInResult.name)
         val responseBody = SocialLoginDto.KakaoSignInResponse(
             accessToken = token,

@@ -22,8 +22,8 @@ class KakaoUserService(
     private val kakaoUserInfoClient: KakaoUserInfoClient,
     private val userRepository: UserRepository,
 ) {
-    fun signIn(code: String): SocialLoginDto.KakaoSignInResult {
-        val accessToken = getAccessToken(code).access_token
+    fun signIn(code: String, redirectUri: String): SocialLoginDto.KakaoSignInResult {
+        val accessToken = getAccessToken(code, redirectUri).access_token
         val userInfo = kakaoUserInfoClient.getUserInfo("Bearer $accessToken")
         val userId = userInfo.body?.id ?: throw UserKakaoLoginException("토큰을 통해 유저 정보를 받아올 수 없습니다")
         val kakaoUserName = getKakaoUserName(userId)
@@ -52,8 +52,8 @@ class KakaoUserService(
         return userRepository.save(user)
     }
 
-    fun getAccessToken(codeInput: String): SocialLoginDto.KakaoTokenResponse {
-        val tokenRequestTO = KakaoTokenRequestTO(code = codeInput)
+    fun getAccessToken(codeInput: String, redirectUri: String): SocialLoginDto.KakaoTokenResponse {
+        val tokenRequestTO = KakaoTokenRequestTO(code = codeInput, redirect_uri = redirectUri)
         val tokenResponse = kakaoTokenClient.getToken(body = tokenRequestTO)
         if (HttpStatus.OK != tokenResponse.statusCode) {
             throw UserKakaoLoginException()
