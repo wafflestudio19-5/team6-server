@@ -19,4 +19,6 @@ interface PurchaseOrderRepository:JpaRepository<PurchaseOrder, Long?> {
     fun findAllByUserAndStatusIsIn(pageable: Pageable, user: User, status: List<PurchaseOrderStatus>): Page<PurchaseOrder>
 
     fun findAllByUserAndStatusIsNull(pageable: Pageable, user: User): Page<PurchaseOrder>
+
+    fun findAllByUserAndStatusIsNullOrUserAndStatusIsIn(pageable: Pageable, user1: User, user2: User, status: List<PurchaseOrderStatus>): Page<PurchaseOrder>
 }
