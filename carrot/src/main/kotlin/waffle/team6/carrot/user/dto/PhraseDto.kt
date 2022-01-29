@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 class PhraseDto {
     data class PhrasePostRequest(
         @field: NotBlank
-        @field: Length(min=1, max=30)
+        @field: Length(min=1, max=300)
         val phrase: String
     )
 
